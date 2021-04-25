@@ -1,0 +1,425 @@
+                                                                            SINTAXIS
+
+1) Determinar qué expresiones son sintácticamente válidas (es decir, pueden ser generadas con las gramáticas
+presentadas) y determinar a qué categoría pertenecen (expresiones de términos o expresiones de tipos).
+
+____________________________________________________Válidas____________________________________                        
+        Términos                                       |                       Tipos       
+            x                                                                  Bool                  
+           x x                                                             Bool → Bool              
+        true false                                                       Bool → Bool → Nat         
+        true succ(true false)                      
+        λx: Bool. succ(x)                                       
+    λx: Bool. if 0 then true else 0 succ(true)         
+________________________________________________________________________________________________                                                       
+
+
+
+____________________________________________________Inválidas___________________________________________________                           
+                                                        M
+                                                       M M
+                                                   λx.isZero(x)
+                                                   λx: σ. succ(x)
+                                           λx: if true then Bool else Nat. x
+                                                        σ
+                                                (Bool → Bool) → Nat PREGUNTA: los paréntesis rompen la validez? 
+                                                    succ true
+________________________________________________________________________________________________________________
+
+
+2) Mostrar un término que utilice al menos una vez todas las reglas de generación de la gramática y exhibir
+su árbol sintáctico.
+
+λx: Bool → Nat. if true then isZero(y) false else pred(succ(0))
+                                |
+                               abs
+                                |
+            if true then isZero(y) false else pred(succ(0))
+                                |
+                  ______________if_______________
+                 /              |                \
+               true     isZero(y) false         pred(succ(0))
+                                |                |
+                         ______app______        pd
+                        /               \        |
+                    isZero(y)           false   succ(0)
+                        |                        |
+                       zr                       sc
+                        |                        |
+                        y                        0
+
+
+
+3) PREGUNTA: Definición de subtérmino
+
+
+
+4) 
+Inserto paréntesis como corchetes para distinguirlos de los que ya estaban
+Variables libres con ^
+a)                  
+                        [[u x] (y z)] (λv : Bool. v y)
+                                     |
+                                    app
+                   __________________|__________________
+                  /                                     \
+             [u x] (y z)                            λv : Bool. v y
+                  |                                      |
+                 app                                    abs     
+        _______|_______                                  |
+       /               \                                v y
+      u x              y z                               |
+       |                |                               app
+      app              app                         ______|______
+ ______|______    ______|______                   /             \
+/             \  /             \                 v               y
+u              x y              z
+^              ^ ^              ^                                ^
+
+b) 
+
+                                                                                    [[(λx: Bool → Nat → Bool. λy : Bool → Nat. λz : Bool. [x z] (y z)) u] v] w
+                                                                                                                    |
+                                                                                                                   app
+                                                                                      ______________________________|______________________________
+                                                                                     /                                                             \
+                                                        [(λx: Bool → Nat → Bool. λy : Bool → Nat. λz : Bool. [x z] (y z)) u] v                      w
+                                                                                       |                                                            ^
+                                                                                      app
+                                                         ______________________________|______________________________
+                                                        /                                                             \
+                                (λx: Bool → Nat → Bool. λy : Bool → Nat. λz : Bool. [x z] (y z)) u                     v
+                                                        |                                                              ^
+                                                       app
+                                 _______________________|_______________________
+                                /                                               \
+ λx: Bool → Nat → Bool. λy : Bool → Nat. λz : Bool. [x z] (y z)                  u
+                                |                                                ^
+                               abs
+                                |
+                 λy : Bool → Nat. λz : Bool. [x z] (y z)
+                                |
+                               abs
+                                |
+                        λz : Bool. [x z] (y z)
+                                |
+                               abs
+                                |
+                           [x z] (y z)
+                                |
+                               app
+                  ______________|______________
+                 /                             \
+               x z                             y z
+                |                               |
+               app                             app
+          ______|______                   ______|______
+         /             \                 /             \
+        x               z               y               z
+
+
+c)
+
+                                                                                    [[w (λx: Bool → Nat → Bool. λy : Bool → Nat. λz : Bool. [x z] (y z))] u] v
+                                                                                                                     |
+                                                                                                                    app
+                                                                                       ______________________________|______________________________
+                                                                                      /                                                             \
+                                                [w (λx: Bool → Nat → Bool. λy : Bool → Nat. λz : Bool. [x z] (y z))] u                               v
+                                                                                     |                                                               ^                
+                                                                                    app
+                                                       ______________________________|______________________________
+                                                      /                                                             \                                     
+                         w (λx: Bool → Nat → Bool. λy : Bool → Nat. λz : Bool. [x z] (y z))                          u
+                                                     |                                                               ^
+                                                    app
+                       ______________________________|______________________________
+                      /                                                             \ 
+                     w                                 (λx: Bool → Nat → Bool. λy : Bool → Nat. λz : Bool. [x z] (y z))
+                     ^                                                               |
+                                                                                    abs
+                                                                                     |
+                                                                     λy : Bool → Nat. λz : Bool. [x z] (y z)
+                                                                                     |
+                                                                                    abs
+                                                                                     |
+                                                                             λz : Bool. [x z] (y z)
+                                                                                     |
+                                                                                    abs
+                                                                                     |
+                                                                                [x z] (y z)
+                                                                                     |
+                                                                                    app
+                                                                       ______________|______________
+                                                                      /                             \
+                                                                    x z                             y z
+                                                                     |                               |
+                                                                    app                             app
+                                                               ______|______                   ______|______
+                                                              /             \                 /             \
+                                                             x               z               y               z 
+
+iv) PREGUNTA: De nuevo consultar por subtérmino
+
+
+                                                                            TIPADO
+
+
+5) Demostrar o explicar por qué no puede demostrarse cada uno de los siguientes juicios de tipado. 
+
+a) 
+                                                _______________(T-Zero)                                                          
+                                                 ∅ > 0 : Nat   
+_______________(T-True) _______________(T-Zero) _______________(T-Succ)
+∅ > true : Bool          ∅ > 0 : Nat            ∅ > succ(0) : Nat
+_______________________________________________________________________ (T-if)
+                    ∅ > if true then 0 else succ(0) : Nat
+
+
+
+b)
+
+                                                  z : Bool ∈ Γ U {z : Bool}
+                                                  __________________________(T-Var)
+                                                  Γ U {z : Bool} > z : Bool                  
+                                                  ___________________________________(T-Abs)  ________________(T-True)
+                                                  Γ > (λz : Bool. z) : Bool → Bool            Γ > true : Bool
+_______________(T-True)  _______________(T-False) ____________________________________________________________(T-App)
+Γ > true : Bool          Γ > false : Bool                        Γ > (λz : Bool. z) true : Bool 
+___________________________________________________________________________________________________________________ (T-if)
+{x : Nat, y : Bool} > if true then false else (λz : Bool. z) true : Bool
+
+
+Γ = {x : Nat, y : Bool} 
+
+
+
+c) 
+                                                                            ___________(T-Zero)
+No hay regla para usar: Bool no matchea con σ → τ                           ∅ > 0 : Nat
+__________________________________________________(???) ___________(T-Zero) _________________(T-Succ)
+∅ > λx: Bool. x : Bool                                  ∅ > 0 : Nat         ∅ > succ(0) : Nat      
+______________________________________________________________________________________________________(T-if)
+∅ > if λx: Bool. x then 0 else succ(0) : Nat
+
+
+
+d) PREGUNTA: Se puede reemplazar ALGO por Bool sin una regla que lo indique? A priori parece que tendría que ser demostrable
+
+x : ALGO → Nat ∈ Γ        y : ALGO ∈ Γ
+__________________(T-Var) ____________(T-Var)
+Γ > x : ALGO → Nat        y : ALGO
+______________________________________________(T-App)
+{x : Bool → Nat, y : Bool} > x y : Nat
+        
+Γ = {x : Bool → Nat, y : Bool}
+
+
+
+6) Determinar qué tipo representa σ en cada uno de los siguientes juicios de tipado.
+
+a) ∅ > succ(0) : σ => Nat
+b) ∅ > isZero(succ(0)) : σ => Bool
+c) ∅ > if (if true then false else false) then 0 else succ(0) : σ => Nat
+
+
+
+7) Determinar qué tipos representan σ y τ en cada uno de los siguientes juicios de tipado. Si hay más de una solución, o si no hay ninguna, indicarlo.
+
+a) {x: σ} > isZero(succ(x)) : τ => τ::Bool y σ::Nat (PREGUNTA: no puede ser cualquier tipo ya que no se indica que debe ser demostrable?) 
+b) ∅ > (λx: σ. x)(λy : Bool. 0) : σ => Nat
+c) {y : τ} > if (λx: σ. x) then y else succ(0) : σ => σ::Nat y τ::Nat (misma pregunta que en a))
+d) {x: σ} > x y : τ => σ::ω → τ donde ω puede ser cualquier cosa (el tipo de y) y τ también
+e) {x: σ, y : τ} > x y : τ => σ::τ → τ y τ puede ser cualquier cosa
+f) {x: σ} > x true : τ => σ::Bool → τ y τ puede ser cualquier cosa
+g) {x: σ} > x true : σ => No se puede dar el tipo porque está definido sobre sí mismo
+
+Entonces σ = Bool → σ. ABS
+
+x : Bool → σ ∈ {x: σ}
+_____________________(T-Var) ____________________(T-True)
+{x: σ} > x : Bool → σ        {x: σ} > true : Bool   
+_________________________________________________________(T-App)
+{x: σ} > x true : σ
+
+h) {x: σ} > x x : τ =>  No se puede dar el tipo porque nuevamente se define sobre sí mismo
+
+Entonces σ = ω → τ         Acá alcanza con tomar ω = σ => σ = σ → τ ABS
+
+x : ω → τ ∈ {x: σ}         x : ω ∈ {x: σ}
+___________________(T-Var) ______________(T-Var)
+{x: σ} > x : ω → τ         {x: σ} > x : ω
+____________________________________________ ___(T-App)
+{x: σ} > x x : τ
+
+
+
+8) Mostrar un término que no sea tipable y que no tenga variables libres ni abstracciones.
+
+El término true false no es tipable.
+
+Demostración:
+
+Sea Γ un conjunto cualquiera de variables asociadas a sus tipos.
+
+
+No hay ninguna regla 
+de tipado que
+permita esto. ABS                    
+________________(???)  _____________(T-False) => τ = Bool
+Γ > true : τ → σ       Γ > false : τ
+_____________________________________(T-App)
+Γ > true false : σ
+
+
+
+9) Mostrar un juicio de tipado que sea demostrable en el sistema actual pero que no lo sea al cambiar (T-ABS) por la siguiente regla. Mostrar la demostración del juicio original.
+
+Nuevo.
+
+Γ > M : τ
+_____________________(T-Abs2)
+Γ > λx : σ. M : σ → τ
+
+
+Original.
+
+Γ U {x : σ} > M : τ
+_____________________(T-Abs)
+Γ > λx : σ. M : σ → τ
+
+
+Propuesta.
+
+∅ > λx : Bool. if x then true else false
+
+Demostración.
+
+En el sistema original.
+
+x : Bool ∈ {x : Bool}
+_____________________(T-Var) ________________________(T-True) _________________________(T-False)
+{x : Bool} > x : Bool        {x : Bool} > true : Bool         {x : Bool} > false : Bool
+________________________________________________________________________________________________(T-if)
+{x : Bool} > if x then true else false : Bool
+______________________________________________________________________________________________________(T-Abs)
+∅ > λx : Bool. if x then true else false : Bool
+
+
+En el nuevo.
+
+x : Bool ∈ ∅ ABS
+____________(T-Var) _______________(T-True) ________________(T-False)
+∅ > x : Bool        ∅ > true : Bool         ∅ > false : Bool
+_____________________________________________________________________(T-if)
+∅ > if x then true else false : Bool
+___________________________________________________________________________(T-Abs2)
+∅ > λx : Bool. if x then true else false : Bool
+
+
+
+10) Sean σ, τ, ρ tipos. Según la definición de sustitución, calcular (Renombrar variables en ambos términos para no cambiar el significado del término.):
+
+PREGUNTA: está mal reemplazar de más para evitar cualquier tipo de confusión (i.e. que el conjunto de variables ligadas del término en el que se reemplaza no tenga intersección con el conjunto de variables libres del que se inserta)?
+
+a) (λy : σ. x (λx: τ. x)){x ← (λy : ρ. x y)} => (λy : σ. (λy : ρ. x y) (λx: τ. x)) PREGUNTA: tener el doble λy es desprolijo pero genera algún problema real? 
+b) (y (λv : σ. x v)){x ← (λy : τ. v y)} => (y (λw : σ. (λy : τ. v y) w)) 
+
+
+
+11) Dado el conjunto de valores V := λx: σ. M | true | false | 0 | succ(V), determinar si cada una de las siguientes expresiones es o no un valor:
+
+a) (λx: Bool. x) true => No es un valor. Puede reducirse usando la regla β.
+b) λx: Bool. 2 => Es un valor por ser una lambda.
+c) λx: Bool. pred(2) => Es un valor por ser una lambda.
+d) λy : Nat. (λx: Bool. pred(2)) true => Es un valor por ser una lambda.
+e) x => No es un valor.
+f) succ(succ(0)) => Es un valor porque succ(0) es un valor.
+
+
+
+12) Para el siguiente ejercicio, considerar el cálculo sin la regla pred(0) → 0
+
+Un programa es un término que tipa en el contexto vacío (es decir, no puede contener variables libres).
+Para cada una de las siguientes expresiones
+
+I) Determinar si puede ser considerada un programa.
+II) Si vale (a), ¿Cuál es el resultado de su evaluación? Determinar si se trata de una forma normal, y en caso
+de serlo, si es un valor o un error.
+
+a) 
+
+Demostración de tipado.
+
+x : σ ∈ {x : Bool} => σ = Bool
+__________________(T-Var)
+{x : Bool} > x : σ
+____________________________(T-Abs)  ____________(T-True) => τ = Bool
+∅ > (λx: Bool. x) : Bool → σ         ∅ > true : τ 
+_________________________________________________(T-App)
+∅ > (λx: Bool. x) true : σ
+
+Resultado de evaluación.
+
+    (λx: Bool. x) true -> β
+    x {x ← true)
+    true => Valor
+    
+b) 
+
+Demostración de tipado.
+
+x : Nat ∈ {x : Nat}
+___________________(T-Var)
+{x : Nat} > x : Nat
+_________________________(T-Succ)
+{x : Nat} > succ(x) : Nat
+_________________________________(T-Pred) => τ = Nat
+{x : Nat} > pred(succ(x)) : τ
+_________________________________________(T-Abs)
+∅ > λx: Nat. pred(succ(x)) : Nat → τ
+
+Resultado de evaluación.
+
+    λx: Nat. pred(succ(x)) => Valor
+
+c)
+
+Demostración de tipado.
+
+y : Nat ∈ {x : Nat} => Falso
+___________________(T-Var)
+{x : Nat} > y : Nat
+_________________________(T-Succ)
+{x : Nat} > succ(y) : Nat
+_________________________________(T-Pred) => τ = Nat
+{x : Nat} > pred(succ(y)) : τ
+_________________________________________(T-Abs)
+∅ > λx: Nat. pred(succ(y)) : Nat → τ
+
+No es programa.
+
+d)
+
+Demostración de tipado.
+
+No hay regla que permita esto
+____________________________(???)
+{x : Bool} > isZero(x) : Nat
+________________________________(T-Pred) => τ = Nat
+{x : Bool} > pred(isZero(x)) : τ
+________________________________________(T-Abs) ____________(T-True) σ = Bool PREGUNTA:es correcto poner true : Bool en el paso previo o hay que deducirlo con la relga?
+∅ > λx: Bool. pred(isZero(x)) : Bool → τ        ∅ > true : σ
+____________________________________________________________(T-App)
+∅ > (λx: Bool. pred(isZero(x))) true : τ
+
+No es programa.
+
+e) 
+
+
+________________________________________________________(T-App)
+∅ > (λf : Nat → Bool. f 0) (λx: Nat. isZero(x))
+
+
+
