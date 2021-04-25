@@ -227,7 +227,16 @@ c) ∅ > if (if true then false else false) then 0 else succ(0) : σ => Nat
 7) Determinar qué tipos representan σ y τ en cada uno de los siguientes juicios de tipado. Si hay más de una solución, o si no hay ninguna, indicarlo.
 
 a) {x: σ} > isZero(succ(x)) : τ => τ::Bool y σ::Nat (PREGUNTA: no puede ser cualquier tipo ya que no se indica que debe ser demostrable?) 
-b) ∅ > (λx: σ. x)(λy : Bool. 0) : σ => Nat
+b) ∅ > (λx: σ. x)(λy : Bool. 0) : σ =>  σ::Bool → Nat
+
+x : σ ∈ {x : σ}
+_______________(T-Var)        __________________(T-Zero) => τ = Nat
+{x: σ} > x : σ                {y : Bool} > 0 : τ
+______________________(T-Abs) _____________________________(T-Abs) => σ = Bool → τ
+∅ > (λx: σ. x) σ → σ          ∅ > (λy : Bool. 0) : σ
+__________________________________________________________________(T-App)
+∅ > (λx: σ. x)(λy : Bool. 0) : σ
+
 c) {y : τ} > if (λx: σ. x) then y else succ(0) : σ => σ::Nat y τ::Nat (misma pregunta que en a))
 d) {x: σ} > x y : τ => σ::ω → τ donde ω puede ser cualquier cosa (el tipo de y) y τ también
 e) {x: σ, y : τ} > x y : τ => σ::τ → τ y τ puede ser cualquier cosa
@@ -268,7 +277,7 @@ de tipado que
 permita esto. ABS                    
 ________________(???)  _____________(T-False) => τ = Bool
 Γ > true : τ → σ       Γ > false : τ
-_____________________________________(T-App)
+__________________________________________________________(T-App)
 Γ > true false : σ
 
 
@@ -417,9 +426,76 @@ No es programa.
 
 e) 
 
+Demostración de tipado.
 
-________________________________________________________(T-App)
-∅ > (λf : Nat → Bool. f 0) (λx: Nat. isZero(x))
+f : ω → τ ∈ {f : Nat → Bool} => τ = Bool                                                 x : Nat ∈ {x : Nat}
+________________________________(T-Var) _________________________(T-Zero) => ω = Nat     ___________________(T-Var)
+{f : Nat → Bool} > f : ω → τ            {f : Nat → Bool} > 0 :  ω                        {x : Nat} > x : Nat
+_________________________________________________________________________(T-App)         _________________________(T-IsZero) => σ = Bool
+{f : Nat → Bool} > f 0 : τ                                                               {x : Nat} > isZero(x) : σ
+_________________________________________________________________________________(T-Abs) ________________________________(T-Abs)
+∅ > λf : Nat → Bool. f 0 : Nat → Bool → τ                                                ∅ > λx: Nat. isZero(x) : Nat → σ
+____________________________________________________________________________________________________________________________________________(T-App)
+∅ > (λf : Nat → Bool. f 0) (λx: Nat. isZero(x)) : τ
 
+Resultado de evaluación.
+
+(λf : Nat → Bool. f 0) (λx: Nat. isZero(x)) -> β
+f 0 {f ← (λx: Nat. isZero(x))}
+(λx: Nat. isZero(x)) 0                      -> β
+isZero(x) {x ← 0}
+isZero(0)                                   -> E-IsZeroZero
+true                                        => Valor
+
+f)
+
+Demostración de tipado.
+                                         __________________________(T-Zero)
+f : ω → τ ∈ {f : Nat → Bool} => τ = Bool {f : Nat → Bool} > 0 : Nat                          x : Nat ∈ {x : Nat}
+________________________________(T-Var)  _______________________________(T-Pred) => ω = Nat  ___________________(T-Var)
+{f : Nat → Bool} > f : ω → τ             {f : Nat → Bool} > pred(0) :  ω                     {x : Nat} > x : Nat
+_________________________________________________________________________(T-App)             _________________________(T-IsZero) => σ = Bool
+{f : Nat → Bool} > f pred(0) : τ                                                             {x : Nat} > isZero(x) : σ
+_________________________________________________________________________________(T-Abs)     ________________________________(T-Abs)
+∅ > λf : Nat → Bool. f pred(0) : Nat → Bool → τ                                              ∅ > λx: Nat. isZero(x) : Nat → σ
+_____________________________________________________________________________________________________________________________________________(T-App)
+∅ > (λf : Nat → Bool. f pred(0)) (λx: Nat. isZero(x)) : τ
+
+Resultado de evaluación.
+
+(λf : Nat → Bool. f pred(0)) (λx: Nat. isZero(x)) -> β
+f 0 {f ← (λx: Nat. isZero(x))}
+(λx: Nat. isZero(x)) pred(0)                      -> β
+isZero(x) {x ← pred(0)}
+isZero(pred(0))                                   -> Forma normal - Error
+
+g) 
+
+Demostración de tipado.
+
+y : Nat ∈ {y : Nat}
+____________________(T-Var)
+{y : Nat} > y : Nat
+____________________________(T-Succ)
+{y : Nat} > succ(y) : Nat
+_____________________________________(T-Abs) => τ = Nat
+∅ > (λy : Nat. succ(y)) : τ → τ
+________________________________________________________(T-Fix)
+∅ > fix (λy : Nat. succ(y)) : τ 
+
+
+Resultado de evaluación.
+
+fix (λy : Nat. succ(y))                     -> E-FixBeta
+succ(y) {y ← fix (λy : Nat. succ(y)}
+succ(fix (λy : Nat. succ(y))                -> E-Succ - E-FixBeta
+succ(succ(y){y ← fix (λy : Nat. succ(y)})   
+succ(succ((λy : Nat. succ(y)))              -> E-Succ - E-FixBeta PREGUNTA: cómo se responde la pregunta en este caso?
+
+
+
+13) 
+
+a) ¿Es cierto que la relación definida → es determinística (o una función parcial)? Más precisamente, ¿pasa que si M → N y M → N0 entonces N = N0?
 
 
