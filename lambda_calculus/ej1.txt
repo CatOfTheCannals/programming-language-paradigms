@@ -1,0 +1,129 @@
+a) x es un termino valido
+
+b) x x	
+	App
+		x √
+		x √
+
+
+c) entiendo que no se puede parsear M
+
+d) entiendo que no se puede parsear M
+
+
+e) true false
+	App
+		true √
+		false √
+
+es un termino
+
+f) true succ(false true)	
+	App
+		true √
+		succ(false true)
+			Succ
+				false true
+					App
+						false √
+						true √
+
+
+g) λx.isZero(x)
+	esta mal escrita la abstraccion porque no indica el tipo de x
+
+h) λx: σ. succ(x)
+	Abs
+		succ(x)
+			Succ
+				x √
+
+i) λx: Bool. succ(x)
+	Abs
+		succ(x)
+			Succ
+				x	
+
+j)CONSULTAR
+λx: if true then Bool else Nat. x 
+	alcanza con decir que ifThenElse no es una regla de parseo de tipos?
+
+
+k) CONSULTAR
+σ
+	interpreto que por ser una metavariable no es parseable
+
+l) Bool √
+
+m) Bool → Bool √
+
+n) Bool → Bool → Nat √
+
+ñ) (Bool → Bool) → Nat √
+
+o) succ true X
+	faltan parentesis
+
+p) λx: Bool. if 0 then true else 0 succ(true)
+	Abs
+		if 0 then true else 0 succ(true)
+			IfThenElse
+				0 √
+				true √
+				0 succ(true)
+					App
+						0 √
+						succ(true)
+							Succ
+								true √
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
