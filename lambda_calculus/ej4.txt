@@ -1,0 +1,50 @@
+a) u x (y z) (λv : Bool. v y)
+	(((u x) (y z)) (λv : Bool. (v y)))
+			App
+				((u x) (y z))
+					App
+						(u x)
+							App
+								u LIBRE
+								x LIBRE
+						(y z)
+							App
+								y LIBRE
+								z LIBRE
+				(λv : Bool. (v y))
+					Abs
+						(v y)
+							App
+								v LIGADA
+								y LIBRE
+
+b) (((((λx: Bool → Nat → Bool. (λy : Bool → Nat. (λz : Bool. ((x z) (y z)))))) u) v) w)
+	App
+		((((λx: Bool → Nat → Bool. (λy : Bool → Nat. (λz : Bool. ((x z) (y z)))))) u) v)
+			App
+				(((λx: Bool → Nat → Bool. (λy : Bool → Nat. (λz : Bool. ((x z) (y z)))))) u)
+					APP
+						(λx: Bool → Nat → Bool. (λy : Bool → Nat. (λz : Bool. ((x z) (y z)))))
+							Abs
+								(λy : Bool → Nat. (λz : Bool. ((x z) (y z))))
+									Abs
+										(λz : Bool. ((x z) (y z)))
+											Abs
+												((x z) (y z))
+													App
+														x z
+															App
+																x LIGADA
+																z LIGADA
+														y z
+															App
+																y LIGADA
+																z LIGADA
+						u LIBRE
+				v LIBRE
+
+		w LIBRE
+
+c) fiaca
+
+iv) en el ejercicio b

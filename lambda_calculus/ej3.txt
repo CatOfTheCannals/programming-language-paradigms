@@ -1,0 +1,21 @@
+a) Marcar las ocurrencias del término x como subtérmino en λx: Nat. succ((λx: Nat. x) x)
+
+	λx: Nat. succ((λx: Nat. x) x)
+		Abs
+			succ((λx: Nat. x) x)
+				Succ
+					(λx: Nat. x) x
+						App
+							λx: Nat. x
+								Abs
+									x OCURRENCIA
+							x OCURRENCIA
+
+b) Ocurre x1 como subtérmino en λx1 : Nat. succ(x2)?
+	yo diria que no
+
+c) Ocurre x (y z) como subtérmino en u x (y z)?
+	dado que la aplicacion es asociativa a izquierda, se tiene
+		(u x) (y z)
+
+	con lo cual, la respuesta es no. 

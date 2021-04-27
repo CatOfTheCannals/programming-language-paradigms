@@ -1,0 +1,7 @@
+Sean σ, τ, ρ tipos. Según la definición de sustitución, renombrando variables en ambos términos para no cambiar el significado del término, calcular:
+
+a) (λy : σ. x (λx: τ. x)){x ← (λy : ρ. x y)}
+	(λy : σ. (λy : ρ. x y) (λw: τ. w))
+
+b) (y (λv : σ. x v)){x ← (λy : τ. v y)}
+	(y (λw : σ. (λy : τ. v y) w))

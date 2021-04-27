@@ -1,0 +1,39 @@
+a) ∅ ▷ if true then 0 else succ(0) : Nat
+	T-if
+		true : Bool
+			T-true √
+		0 : Nat
+			T-zero √
+		succ(0) : Nat
+			T-succ
+				0
+					T-zero √
+
+b) {x : Nat, y : Bool} ▷ if true then false else (λz : Bool. z) true : Bool
+	T-if
+		{x : Nat, y : Bool} ▷ true : Bool
+			T-true √
+		{x : Nat, y : Bool} ▷ false : Bool
+			T-false √
+		{x : Nat, y : Bool} ▷ (λz : Bool. z) true : Bool
+			T-app
+				{x : Nat, y : Bool} ▷ (λz : Bool. z) : Bool -> Bool  DUDA: ¿Como justifico que el input es Bool?
+					T-abs
+						{x : Nat, y : Bool, z : Bool} ▷ z : Bool
+							T-var
+								z : Bool € {x : Nat, y : Bool, z : Bool} √ DUDA: ¿Esta bien justificar asi?
+				{x : Nat, y : Bool} ▷ true : Bool
+					T-true √
+
+c) ∅ ▷ if λx: Bool. x then 0 else succ(0) : Nat
+	T-if
+		∅ ▷ λx: Bool. x : Bool DUDA: para decir que esto esta mal alcanza con decir que no se puede aplicar T-abs?? 
+			T-abs
+
+		0 : Nat
+		succ(0) : Nat
+
+d) {x : Bool → Nat, y : Bool} ▷ x y : Nat
+		App
+			{x : Bool → Nat, y : Bool} ▷ x : Bool -> Nat
+			{x : Bool → Nat, y : Bool} ▷ y : Bool

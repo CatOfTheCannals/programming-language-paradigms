@@ -1,0 +1,131 @@
+Para el siguiente ejercicio, considerar el cálculo sin la regla pred(0) → 0
+Un programa es un término que tipa en el contexto vacío (es decir, no puede contener variables libres).
+Para cada una de las siguientes expresiones
+
+a) Determinar si puede ser considerada un programa.
+b) Si vale (a), Cuál es el resultado de su evaluación? Determinar si se trata de una forma normal, y en caso de serlo, si es un valor o un error.
+
+i) ø > (λx: Bool. x) true
+		t-app
+			ø > (λx: Bool. x) : Bool -> Bool
+				t-abs
+					{x : Bool} > x : Bool
+						t-val
+							(x : Bool) € {x : Bool} √
+			ø > true : Bool
+				t-true √
+con esto vemos que es un programa
+evaluemoslo:
+(λx: Bool. x) true
+	ß
+		x {x <- true}
+		true
+
+ii) (λx: Nat. pred(succ(x))) : Nat -> Nat
+		t-abs
+			{x : Nat} > pred(succ(x)) : Nat
+				t-pred
+					succ(x) : Nat
+						t-succ
+							x : Nat
+								t-var
+									(x : Nat) € {x : Nat} √
+es un programa valido.
+evaluemoslo:
+(λx: Nat. pred(succ(x))) : Nat -> Nat
+
+iii) λx: Nat. pred(succ(y)) Nat -> Nat
+		t-abs
+			{x : Nat} > pred(succ(y)) : Nat
+				t-pred
+					{x : Nat} > succ(y) : Nat
+						t-succ
+							{x : Nat} > y : Nat 
+								t-var falla
+no es un programa
+
+iv) ø > (λx: Bool. pred(isZero(x))) true : µ
+		t-app
+			ø > (λx: Bool. pred(isZero(x))) : Bool -> µ
+				t-abs
+					{x : Bool} > pred(isZero(x)) : µ == Nat
+						t-pred
+							{x : Bool} > isZero(x) : Nat 
+							esto rompe porque isZero deberia ser de tipo Bool
+			ø > true : Bool
+no es un programa
+
+v) (λf : Nat → Bool. f 0) (λx: Nat. isZero(x)) : µ
+		t-app
+			ø > (λf : Nat → Bool. f 0) : Nat -> Bool -> µ
+				t-abs
+					{f : Nat -> Bool} > f 0 : µ
+						t-app
+							{f : Nat -> Bool} > f : ∂ -> µ
+								t-var
+									(f : Nat -> Bool) € {f : Nat -> Bool}
+							{f : Nat -> Bool} > 0 : ∂
+								t-zero
+									∂ == Bool
+
+			ø > (λx: Nat. isZero(x)) : Nat -> Bool
+				t-abs
+					{x : Nat} > isZero(x) : Bool
+						t-isZero
+							{x : Nat} > x : Nat
+								t-var
+									(x : Nat) € {x : Nat} √
+
+Elegimos {µ == Bool} y vemos que el programa es valido.
+Calculemos el resultado:
+(λf : Nat → Bool. f 0) (λx: Nat. isZero(x))
+	ß
+		(λx: Nat. isZero(x)) 0
+			ß
+				isZero(0)
+					e-isZeroZero
+						true √
+El programa siempre devuelve true
+
+
+vi) (λf : Nat → Bool. x) (λx: Nat. isZero(x)) : µ
+	t-app
+		ø > (λf : Nat → Bool. x) : ¥ -> µ
+			t-abs
+				{f : Nat → Bool} > x : µ
+					t-var
+						(x : µ) no pertenece a {f : Nat → Bool}
+
+		ø > (λx: Nat. isZero(x)) : ¥
+
+Concluimos que no es un programa porque tiene variables libres.
+
+vii) (λf : Nat → Bool. f pred(0)) (λx: Nat. isZero(x)) : µ
+		t-app
+			ø > (λf : Nat → Bool. f pred(0)) : Nat -> Bool -> µ
+				t-abs
+					{f : Nat → Bool} > f pred(0) : µ
+						t-app
+							{f : Nat → Bool} > f : ¥ -> µ
+								t-var
+									(f : ¥ -> µ) € {f : Nat → Bool} <==> ¥ == Nat ^ µ == Bool
+							{f : Nat → Bool} > pred(0) : Nat
+								t-pred
+									{f : Nat → Bool} > 0 : Nat
+										t-zero √
+
+			ø > (λx: Nat. isZero(x)) : Nat -> ∂
+				t-abs
+					{x : Nat} > isZero(x) : ∂ <==> ∂ == Bool
+						t-isZero
+							{x : Nat} > x : Nat
+								t-var
+									(x : Nat) € {x : Nat} √
+
+El programa tipa. Veamos su valor:
+(λf : Nat → Bool. f pred(0)) (λx: Nat. isZero(x))
+	ß 
+		(λx: Nat. isZero(x)) pred(0)
+			ß
+				isZero(pred(0))) 
+					ERROR: aca no tenemos regla semantica para aplicar, no se puede reducir pred(0)

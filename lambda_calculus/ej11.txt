@@ -1,0 +1,26 @@
+Dado el conjunto de valores visto en clase:
+V := λx: σ. M | true | false | 0 | succ(V )
+Determinar si cada una de las siguientes expresiones es o no un valor:
+
+a) 
+(λx: Bool. x) true
+	ß
+		x {x <- true} 
+		true es un valor
+
+b) λx: Bool. 2
+	es un valor
+
+c) λx: Bool. pred(2)
+	es un valor
+
+d) λy : Nat. (λx: Bool. pred(2)) true
+	ß
+		λy : Nat. pred(2) 
+		es un valor
+
+e) x
+	no es un valor
+
+f) succ(succ(0))
+	es un valor

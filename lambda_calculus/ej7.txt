@@ -1,0 +1,70 @@
+Determinar qué tipos representan σ y τ en cada uno de los siguientes juicios de tipado. Si hay más de una
+solución, o si no hay ninguna, indicarlo.
+
+a) {x: σ} ▷ isZero(succ(x)) : τ
+		t-isZero
+			succ(x) : Nat
+				t-succ
+					x : Nat
+solucion: {σ : Nat, τ : Bool}
+
+b) ∅ ▷ (λx: σ. x)(λy : Bool. 0) : σ
+		t-app
+			∅ ▷ (λx: σ. x) : σ -> σ
+				t-abs
+					{x : σ} ▷ x : σ
+						t-var
+							x : σ € {x : σ} √
+			∅ ▷ (λy : Bool. 0) : σ
+				t-abs (tomando σ == Bool -> µ)
+					{y : Bool} ▷ 0 : µ
+						t-zero
+							0 : Nat <==> (µ == Nat)
+
+c) {y : τ} ▷ if (λx: σ. x) then y else succ(0) : σ
+		t-if
+			(λx: σ. x) : Bool
+				aca no se puede aplicar t-abs porque el tipo Bool no es de funcion
+			y : σ
+			succ(0) : σ
+
+d) {x : σ} ▷ x y : τ
+		t-app
+			{x : σ} ▷ x : ¥ -> τ
+				t-var
+					x : ¥ -> τ € {x : σ} <==> σ == ¥ -> τ
+			y : ¥
+
+e) {x: σ, y : τ} ▷ x y : τ
+		t-app
+			{x: σ, y : τ} ▷ x : ¥ -> τ
+				t-var
+					(x : ¥ -> τ) € {x : σ} <==> σ == (¥ -> τ)
+			{x: σ, y : τ} ▷ y : ¥
+				t-var
+					(y : ¥) € {x: σ, y : τ} <==> ¥ == τ
+con lo cual la solucion es pedir σ : τ -> τ
+
+f) {x : σ} ▷ x true : τ
+		t-app
+			{x : σ} ▷ x : ¥ -> τ
+				t-var
+					(x : ¥ -> τ) € {x : σ} <==> (¥ -> τ) == σ
+			{x : σ} ▷ true : ¥
+				t-true
+					¥ == Bool
+con lo cual σ == Bool -> τ
+
+g) {x: σ} ▷ x true : σ
+		t-app
+			{x : σ} ▷ x : ¥ -> σ
+				t-var
+					(x : ¥ -> σ) no puede pertenecer a {x : σ}
+	
+			{x : σ} ▷ true : ¥
+
+h) {x : σ} ▷ x x : τ
+		t-app
+			{x : σ} ▷ x : ¥ -> τ
+			{x : σ} ▷ x : ¥ 
+se tienen dos afirmaciones contradictorias
