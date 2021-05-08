@@ -329,9 +329,10 @@ ___________________________________________________________________________(T-Ab
 
 10) Sean σ, τ, ρ tipos. Según la definición de sustitución, calcular (Renombrar variables en ambos términos para no cambiar el significado del término.):
 
-PREGUNTA: está mal reemplazar de más para evitar cualquier tipo de confusión (i.e. que el conjunto de variables ligadas del término en el que se reemplaza no tenga intersección con el conjunto de variables libres del que se inserta)?
+PREGUNTA: está mal reemplazar de más para evitar cualquier tipo de confusión (i.e. que el conjunto de variables ligadas del término en el que se reemplaza no tenga intersección con el conjunto de variables libres del que se inserta)? AFIRMATIVO
 
-a) (λy : σ. x (λx: τ. x)){x ← (λy : ρ. x y)} => (λy : σ. (λy : ρ. x y) (λx: τ. x)) PREGUNTA: tener el doble λy es desprolijo pero genera algún problema real? 
+a) (λy : σ. x (λx: τ. x)){x ← (λy : ρ. x y)} => (λy : σ. (λv : ρ. x v) (λx: τ. x)) PREGUNTA: tener el doble λy es desprolijo pero genera algún problema real? 
+
 b) (y (λv : σ. x v)){x ← (λy : τ. v y)} => (y (λw : σ. (λy : τ. v y) w)) 
 
 
@@ -490,7 +491,7 @@ fix (λy : Nat. succ(y))                     -> E-FixBeta
 succ(y) {y ← fix (λy : Nat. succ(y)}
 succ(fix (λy : Nat. succ(y))                -> E-Succ - E-FixBeta
 succ(succ(y){y ← fix (λy : Nat. succ(y)})   
-succ(succ((λy : Nat. succ(y)))              -> E-Succ - E-FixBeta PREGUNTA: cómo se responde la pregunta en este caso?
+succ(succ((λy : Nat. succ(y)))              -> E-Succ - E-FixBeta PREGUNTA: cómo se responde la pregunta en este caso? No termina y listo
 
 
 
