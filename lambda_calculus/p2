@@ -531,7 +531,7 @@ Si M1 no es valor => Por E-App1, N = M1' M2 y N' = M1'' M2 => Por hipótesis ind
 
 Si M1 es valor pero M2 no => Por E-App2, N = M1 M2' y N' = M1 M2'' => Por hipótesis inductiva, M2' = M2'' => M1 M2' = M1 M2'' => N = N'
 
-Si M1 y M2 son valores => Por E-AppAbs, si M1 = (λx : σ. M) y M2 = V, (λx : σ. M) V → M{x ← V} => N = M{x ← V} y N' = M{x ← V} PREGUNTA: es necesario dar una justificación más precisa? (i.e. dando cada caso posible de M)
+Si M1 y M2 son valores => Por E-AppAbs, si M1 = (λx : σ. M) y M2 = V, (λx : σ. M) V → M{x ← V} => N = M{x ← V} y N' = M{x ← V} PREGUNTA: es necesario dar una justificación más precisa? (i.e. dando cada caso posible de M) DESDE ACÁ
 
 
 if: Sean M1, M2, M3, N y N' tales que if M1 then M2 else M3 → N e if M1 then M2 else M3 → N'.
@@ -812,5 +812,274 @@ Con ^ marco las ligadas
 d) V := λx: σ. M | true | false | 0 | succ(V) | [] | M::V2
 
 e) 
+
+     M → M'
+________________(E-AppendHead)
+M :: N → M' :: N
+
+     N → N'
+________________(E-AppendHead) PREGUNTA: está bien tener las dos (AppendHead y AppendTail)? 
+V :: N → V :: N'                         son necesarias o puedo delegar esta responsabilidad a cada regla de evaluación que use listas? 
+                                         parece ir contra la evaluación lazy
+
+
+                               M → M'
+___________________________________________________________________(E-Case)
+case M of {[ ] ⤷ N | h :: t ⤷ O} → case M' of {[ ] ⤷ N | h :: t ⤷ O}
+
+
+_________________________________________________________(E-CaseList)
+case v :: vs of {[ ] ⤷ N | h :: t ⤷ O} → O {h ← v, t ← vs}
+
+
+______________________________________(E-CaseEmpty)
+case []σ of {[ ] ⤷ N | h :: t ⤷ O} → N
+
+
+                             M → M'
+_________________________________________________________________(E-Foldr)
+foldr M base ⤷ N;rec(h, r) ⤷ O → foldr M' base ⤷ N; rec(h, r) ⤷ O
+
+
+_____________________________________________________________________________________(E-FoldList)
+foldr v :: vs base ⤷ N;rec(h, r) ⤷ O → O {h ← v, r ← foldr vs base ⤷ N; rec(h, r) ⤷ O
+
+
+____________________________________(E-FoldEmpty)
+foldr []σ base ⤷ N;rec(h, r) ⤷ O → N
+
+
+
+18) A partir de la extensión del ejercicio 17, definir una nueva extensión que incorpore expresiones de la forma map(M, N), donde N es una lista y M una función que se aplicará a cada uno de los elementos de N.
+
+Importante: tener en cuenta las anotaciones de tipos al definir las reglas de tipado y semántica.
+
+
+Términos ::= ... | map(M, N)
+
+
+Regla de tipado.
+
+Γ > M : σ → τ  Γ > N : [σ]
+___________________________(T-Map)
+Γ > map(M, N) : [σ] → [τ]
+
+Reglas de reducción.
+        
+        N → N'
+_____________________(E-Map)
+map(M, N) → map(M, N')
+
+__________________________________(E-MapList) PREGUNTA: acá la asociatividad me salva de poner parentésis? 
+map(M, v :: vs) → M v :: map(M, vs) 
+
+_________________(E-MapEmpty) PREGUNTA: hay que aclarar algo más sobre los tipos acá? (por ejemplo, que τ es el tipo de retorno de M) 
+map(M, []σ) → []τ
+
+
+
+19) A partir de la extensión del ejercicio 17, agregaremos términos para representar listas por comprensión, con un selector y una guarda, de la siguiente manera: 
+[M | x ← S, P], donde x es el nombre de una variable que puede aparecer libre en los términos M y P. La semántica es análoga a la de Haskell: para cada valor de la lista representada por el término S, se sustituye x en P y, de resultar verdadero, se agrega M con x sustituido al resultado. Definir las reglas de tipado, el conjunto de valores y las reglas de semántica para esta extensión.
+
+Valores ::= ... | [M | x ← V, P] PREGUNTA: es correcto que sea valor? está de más pedirle que M y P sean valores también? pierdo determinismo a la hora de reducir? 
+
+Términos ::= ... | [M | x ← S, P]        
+
+Regla de tipado.
+
+Γ > M : τ → σ  Γ > S : [τ]  Γ > P : τ → Bool 
+_____________________________________________(T-CompList)
+Γ > [M | x ← S, P] : [σ]
+
+
+Reglas de reducción. 
+             
+             S → S'
+_______________________________(E-CompList) PREGUNTA: es incorrecto ir contra la evaluación lazy?
+[M | x ← S, P] → [M | x ← S', P]
+
+
+______________________________________________________________________________(E-CompListList)
+[M | x ← v :: vs, P] → if P v then M v :: [M | x ← vs, P] else [M | x ← vs, P]
+
+
+______________________(E-CompListEmpty) PREGUNTA: idem 18) E-MapEmpty
+[M | x ← []τ, P] → []σ
+
+
+
+20) Se introduce el cálculo µ, que es igual al cálculo lambda en todo, excepto en que el mecanismo para construir funciones (λx.M) y el mecanismo para aplicarlas (M N) serán sustituidos por un nuevo mecanismo de construcción (µx1, ..., xn.M) y de aplicación (M #i N). Estos cambios también introducen un cambio en el sistema de tipos: en lugar de tener σ → τ tendremos {σ1, ..., σn} → τ . Notar que  {σ1, ..., σn} no es un nuevo tipo, sino sólo una parte del nuevo tipo para funciones.
+
+La sintaxis del cálculo µ y su conjunto de tipos, entonces, serán los siguientes:
+
+M, N ::= ... | µx1 : σ1, ..., xn : σn.M | M #i N 
+
+σ1 . . . σn, τ ::= ... | {σ1, ..., σn} → τ
+
+El término µx1 : σ1, ..., xn : σn.M sirve para construir una nueva función de n parámetros ordenados y el operador #i sirve para aplicar el i-ésimo parámetro. Notar que si la cantidad de parámetros de una función es mayor a 1, al aplicarla se obtiene una nueva función con un parámetro menos, pero si la cantidad de parámetros es exactamente 1, al aplicarla se obtiene su valor de retorno. Notar además que que el orden de los tipos de los argumentos es importante: por ejemplo, {nat, nat, bool} → nat y {bool, nat, nat} → nat no son el mismo tipo.
+
+a) 
+
+Γ U {µx1 : σ1, ..., xn : σn} > M : τ
+________________________________________________(T-Abs')
+Γ > µx1 : σ1, ..., xn : σn.M : {σ1, ..., σn} → τ
+
+
+Γ > M : {σ1, ... ,σi-1, σi, σi+1, ... , σn} → τ  Γ > N : σi
+____________________________________________________________(T-App1)
+Γ > M #i N : {σ1, ... ,σi-1, σi+1, ... , σn} → τ
+
+
+M : {σ} → τ  Γ > N : σ
+_______________________(T-App2)
+Γ > M #i N : τ
+
+
+b) 
+
+Valores ::= true | false | µx1 : σ1, ..., xn : σn.M | 0 | succ(V)
+
+
+Reglas de reducción.
+
+     M → M'
+________________(E-App'1)
+M #i N → M' #i N
+
+     N → N'
+________________(E-App'2)
+V #i N → V #i N'
+
+     
+_____________________________________________________________________________________________________(E-App'Abs) PREGUNTA: hace falta agregar la que tiene un parámetro?
+(µx1 : σ1, ..., xn : σn.M) #i V → µx1 : σ1, ..., µxi-1 : σi-1, µxi+1 : σi+1, ..., xn : σn.(M ← {xi V})
+
+
+c) PREGUNTAR: es correcta la interpretación?
+
+classicLambda ≡ µx1 : σ1.M
+
+classicApplication = (µ function : σ1 → σ2, argument : σ1.function #1 argument) PREGUNTA: es necesario usar lambdas o con poner los argumentos de ambos lados ya queda ligado? @macros
+
+
+
+21) Definir una extensión que permita "unir" un registro {x1 = M1, . . . , xm = Mm} con otro registro {y1 = N1, . . . , yn = Nn}, de manera tal que el registro resultante contenga todas las etiquetas de ambos, con los mismos valores y en el mismo orden.
+
+Restricción: los registros a unir no deben tener etiquetas en común.
+
+Regla de tipado.
+
+Γ > R1 : {li : σi i∈1..k}  Γ > R2 : {li : σi i∈k+1..k+n}
+_______________________________________________________(T-Join)
+Γ > join(R1, R2) : {li : σi i∈1..k+n}
+
+
+Reglas de evaluación.
+
+          R1 → R1'
+_____________________________(E-Join1)
+join(R1, R2) → join(R1', R2)
+
+          R2 → R2'
+_____________________________(E-Join2)
+join(V1, R2) → join(V1, R2')
+
+_____________________________________________________________________________________________________________________________________(E-JoinFull)
+join({x1 = M1, . . . , xm = Mm}, {y1 = N1, . . . , yn = Nn}) → join({x1 = M1, . . . , xm = Mm, y1 = N1}, {y2 = N2, . . . , yn = Nn})
+
+
+_________________________________________________________________(E-JoinEmpty)
+join({x1 = M1, . . . , xm = Mm}, {}) → {x1 = M1, . . . , xm = Mm}
+
+
+
+22) Definir como macros (azúcar sintáctica) los términos Not, And, Or, Xor, que simulen desde la reducción los conectivos clásicos usuales, por ej. 
+
+And M N →→ true <=> M →→ true y N →→ true.
+
+Notar que definir una macro no es lo mismo que hacer una extensión. Por ejemplo, definir el término Iσ ≡ λx : σ.x, que es la función identidad del tipo σ, es distinto de extender la sintaxis del lenguaje con términos de la forma I(M), lo cual además requeriría agregar nuevas reglas de tipado y de evaluación.
+
+And ≡ (λx: Bool.(λx: Bool. if x then y else false)) PREGUNTA: idem @macros
+
+Not ≡ λx: Bool. if x then false else true
+
+Or ≡ (λx: Bool.(λx: Bool. if x then true else y)) PREGUNTA: idem @macros
+
+Xor ≡ (λx: Bool.(λx: Bool. if x then Not y else y)) PREGUNTA: idem @macros
+
+
+
+23) PREGUNTAR TODO EL EJERCICIO 
+
+Se desea extender el cálculo lambda tipado agregando unión de funciones. Para ello, extenderemos el conjunto de términos y el de tipos de la siguiente manera:
+
+M1 ... Mk ::= ··· | [(M1, ... , Mk)] σ ::= ··· | Union(σ1, ... , σk)τ
+
+Cada Mi dentro de “[()]” es una función con distinto dominio del resto pero con la misma imagen.
+
+En el tipo Union(σ1, . . . , σk)τ , cada σi representa el tipo del dominio de Mi (la función en la posición i), y τ el tipo de la imagen de todas las funciones.
+
+Al aplicarse esta unión sobre un valor de tipo σ, el término reduce utilizando la función de esta unión cuyo tipo para el dominio sea σ. Es decir, aplicando la función que corresponda según el dominio.
+
+Por ejemplo, sea
+
+l ≡ [(λ x : Nat. x + 2, λ x : Bool . if x then 4 else 3, λ f : Bool → Nat.(f true) + 3)]
+l tiene tipo Union(Nat, Bool, Bool → Nat)Nat.
+
+Luego, l (λ b : Bool. if b then 3 else 4) →→ ((λb : Bool. if b then 3 else 4) true) + 3) →→ 6
+
+
+a)
+
+Regla de tipo.
+
+Γ > M1 : σ1 → τ ... Γ > Mk : σk → τ
+___________________________________________(T-Union) 
+Γ > [(M1, ... , Mk)] : Union(σ1, ... , σk)τ                    
+
+
+Γ > [(M1, ... , Mk)] : Union(σ1, ... , σk)τ          ??????????????
+__________________________________________________________________________(T-AppUnion) PREGUNTA: puedo usar un cuantificador acá? (por ejemplo, ∃i ∈ [1,k] | Γ > N : σi)
+Γ > [(M1, ... , Mk)] N : τ 
+
+
+
+b) PREGUNTA: qué es el árbol de un juicio de tipado?
+
+c) Valores ::= ... | [(V1, ... , Vk)] PREGUNTA: hay más modificaciones?
+
+d) 
+
+Regla de evaluación. => PREGUNTA: es necesario tener una en la que no se aplique la unión?
+
+              M1 → M1'    
+________________________________________(E-Union) => PREGUNTA: para generalizar esto para todas las funciones puede usarse un 
+[(M1, ... , Mk)] N → [(M1', ... , Mk)] N                       cuantificador? (por ejemplo, Mi → Mi' y ∀j<i, Mj es valor) 
+                                                               De otra forma tendría que repetir esto k veces y no parece prolijo
+
+
+______________________________________(E-AppUnion) => PREGUNTA: cómo chequeo el tipo para poder aplicar la función sobre N?
+[(V1, ... , Vk)] N →  ??????????????
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
