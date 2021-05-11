@@ -329,9 +329,10 @@ ___________________________________________________________________________(T-Ab
 
 10) Sean σ, τ, ρ tipos. Según la definición de sustitución, calcular (Renombrar variables en ambos términos para no cambiar el significado del término.):
 
-PREGUNTA: está mal reemplazar de más para evitar cualquier tipo de confusión (i.e. que el conjunto de variables ligadas del término en el que se reemplaza no tenga intersección con el conjunto de variables libres del que se inserta)?
+PREGUNTA: está mal reemplazar de más para evitar cualquier tipo de confusión (i.e. que el conjunto de variables ligadas del término en el que se reemplaza no tenga intersección con el conjunto de variables libres del que se inserta)? AFIRMATIVO
 
-a) (λy : σ. x (λx: τ. x)){x ← (λy : ρ. x y)} => (λy : σ. (λy : ρ. x y) (λx: τ. x)) PREGUNTA: tener el doble λy es desprolijo pero genera algún problema real? 
+a) (λy : σ. x (λx: τ. x)){x ← (λy : ρ. x y)} => (λy : σ. (λv : ρ. x v) (λx: τ. x)) PREGUNTA: tener el doble λy es desprolijo pero genera algún problema real? 
+
 b) (y (λv : σ. x v)){x ← (λy : τ. v y)} => (y (λw : σ. (λy : τ. v y) w)) 
 
 
@@ -490,12 +491,743 @@ fix (λy : Nat. succ(y))                     -> E-FixBeta
 succ(y) {y ← fix (λy : Nat. succ(y)}
 succ(fix (λy : Nat. succ(y))                -> E-Succ - E-FixBeta
 succ(succ(y){y ← fix (λy : Nat. succ(y)})   
-succ(succ((λy : Nat. succ(y)))              -> E-Succ - E-FixBeta PREGUNTA: cómo se responde la pregunta en este caso?
+succ(succ((λy : Nat. succ(y)))              -> E-Succ - E-FixBeta PREGUNTA: cómo se responde la pregunta en este caso? No termina y listo
 
 
 
 13) 
 
 a) ¿Es cierto que la relación definida → es determinística (o una función parcial)? Más precisamente, ¿pasa que si M → N y M → N0 entonces N = N0?
+
+Determinismo. PREGUNTA: casos base? 
+
+
+pred: Sean M, N y N' tales que pred(M) → N y pred(M) → N'. 
+
+Si N = 0 => Por E-PredZero, M = 0 => pred(0) → N' => Por E-PredZero, N' = 0 (Notar que pred(M) = 0 <=> M = 0 pues no hay otra regla que evolucione con pred(M) → 0)
+
+Si N ≠ 0 y M forma normal => Por E-PredSucc, M = succ(n) y M' = n => pred(succ(n)) → M'' => Por E-PredSucc, M'' = n. (Nuevamente, no hay otra regla para usar)
+
+Si N ≠ 0 y M no forma normal => Supongo que vale la hipótesis para M => pred(M) → N ∧ pred(M) → N' => Por E-Pred, pred(M) → pred(M') ∧ pred(M) → pred(M'') => Por hipótesis inductiva, M' = M'' => pred(M') = pred(M'') => N = N'
+
+
+succ: Sean M, N y N' tales que succ(M) → N y succ(M) → N'.
+
+Suponiendo que vale la hipótesis para M => succ(M) → N ∧ succ(M) → N' => Por E-Succ, succ(M) → succ(M') ∧ succ(M) → succ(M'') => Por hipótesis inductiva, M' = M'' => succ(M') = succ(M'') => N = N' 
+
+
+isZero: Sean M, N y N' tales que isZero(M) → N e isZero(M) → N'.
+
+Si N = true => Por E-IsZeroZero, M = 0 => isZero(0) → N' => Por E-IsZeroZero, N' = true
+
+Si N = false => Por E-IsZeroSucc, M = succ(n) => isZero(succ(n)) → N' => Por E-IsZeroSucc, N' = false
+
+Si N ≠ true ∧ N ≠ false => M no es forma normal => Supongo que vale la hipótesis para M => isZero(M) → N ∧ isZero(M) → N' => Por E-IsZero, isZero(M) → isZero(M') ∧ isZero(M) → isZero(M'') => Por hipótesis inductiva, M' = M'' => isZero(M') = isZero(M'') => N = N' 
+
+
+app: Sean M1, M2, N y N' tales que M1 M2 → N y M1 M2 → N'. Supongo que vale la hipótesis para M1, M2.
+
+Si M1 no es valor => Por E-App1, N = M1' M2 y N' = M1'' M2 => Por hipótesis inductiva, M1' = M1'' => M1' M2 = M1'' M2 => N = N'
+
+Si M1 es valor pero M2 no => Por E-App2, N = M1 M2' y N' = M1 M2'' => Por hipótesis inductiva, M2' = M2'' => M1 M2' = M1 M2'' => N = N'
+
+Si M1 y M2 son valores => Por E-AppAbs, si M1 = (λx : σ. M) y M2 = V, (λx : σ. M) V → M{x ← V} => N = M{x ← V} y N' = M{x ← V} PREGUNTA: es necesario dar una justificación más precisa? (i.e. dando cada caso posible de M) DESDE ACÁ
+
+
+if: Sean M1, M2, M3, N y N' tales que if M1 then M2 else M3 → N e if M1 then M2 else M3 → N'.
+
+Si M1 = true => Por E-IfTrue, N = M2 => if true then M2 else M3 → N' => Por E-IfTrue, N' = M2
+
+Si M2 = false => Por E-IfFalse, N = M2 => if false then M2 else M3 → N' => Por E-IfFalse, N' = M3
+
+Si M ≠ true, M1 ≠ false y vale la hipótesis para M1 => Por E-If, N = if M1' then M2 else M3 y N' = if M1'' then M2 else M3 => Por hipótesis inductiva, M1' = M1'' => if M1' then M2 else M3 = if M1'' then M2 else M3 => N = N'
+
+
+b) ¿Vale lo mismo con muchos pasos? Es decir, ¿es cierto que si M →→ M' y M →→ M'' entonces M' = M''?
+
+Sean M, M' y M'' tales que M →→ M' y M →→ M''. 
+
+Por inducción en la cantida de pasos. 
+
+- Caso base demostrado en a)
+
+- Paso inductivo: 
+    
+    Hipótesis inductiva: supongo que vale para k pasos.
+
+    Veo k+1.
+
+Sea M''' y M'''' tales que M →k→ M''' y M →k→ M''''. Por hipótesis inductiva M''' = M''''. Supongo que M' ≠ M''. Entonces M →k+1→ M' y M →k+1→ M''. Esto significa que M →k→ M''' → M' y M →k→ M''' → M''. Entonces, M''' → M' y M''' → M''. Pero por lo visto en a) M' = M''. ABS
+
+c) ¿Acaso es cierto que si M → M' y M →→ M'' entonces M' = M''?
+
+succ(pred(predd(succ(0)))) → Por E-Succ, E-Pred, E-PredSucc, succ(pred(0))
+
+succ(pred(predd(succ(0)))) →→ Por E-Succ, E-Pred, E-PredSucc, E-PredZero, succ(0)
+
+Y succ(pred(0)) ≠ succ(0). 
+
+
+
+14) 
+
+a) ¿Da lo mismo evaluar succ(pred(M)) que pred(succ(M))? ¿Por qué?
+
+PREGUNTA: si da lo mismo en qué sentido? Resultad? Procedimiento? Reglas usadas? 
+
+succ(pred(M)) → Por E-Succ, succ(M'), donde pred(M) → M'
+
+pred(succ(M)) → Por E-Pred, M
+
+b) ¿Es verdad que para todo M vale que isZero(succ(M)) →→ false? Si no lo es, ¿para qué términos vale?
+
+PREGUNTA: considero casos en los que isZero(succ(M)) no es un término válido?
+
+Si M : Nat, entonces isZero(succ(M)) →→ false.
+
+
+c) ¿Para qué términos M vale que isZero(pred(M)) →→ true? (Hay infinitos).
+
+isZero(pred(M)) →→ true => M = 0             ∨ M = pred(succ(0))                ∨ M = pred(succ(pred(succ(0))))             v ... 
+                           M = pred(0)       v M = pred(pred(succ(0))           v M = pred(pred(succ(pred(succ(0)))))       v ...
+                           M = pred(pred(0)) v M = pred(pred(succ(0)))          v M = pred(pred(pred(succ(pred(succ(0)))))) v ...
+                                .                       .                                       .                           .
+                                .                       .                                       .                             .
+                                .                       .                                       .                               .
+
+Entonces M = pred^n(pred(succ(pred(succ(...pred(succ((0)))...))))), con n ∈ [0 ... ∞)
+
+
+
+15) 
+
+La variante del Cálculo Lambda vista en clase utiliza el modo de reducción call-by-value: para reducir una
+aplicación a forma normal, se reduce primero el argumento y luego se ejecuta la aplicación. ¿Cómo cambiaría
+el cálculo si en lugar de esto se utilizara la estrategia call-by-name (es decir, reduciendo la aplicación antes que
+el argumento)? 
+
+Mencionar qué reglas se modifican, y reescribirlas para adaptarlas a esta estrategia.
+
+Reducir el siguiente término a forma normal utilizando la estrategia:
+
+comp (λx: Nat. succ(x)) (λx: Nat. succ(x)) 5 donde comp = λf : Nat → Nat. λg : Nat → Nat. λx: Nat. f (g x) 
+
+
+Modificaciones.
+
+No parece ser determinística la forma de evaluar con esta modificación. Dados M, N, L tales que M y N son valores. Teniendo M N L podría evaluarse M N y luego el resultado con L, N L y al resultado aplicarle M, o sustituir N L en M. (PREGUNTA)
+
+Bajo esta modificación, desaparece la regla E-AppAbs y se modifica E-App2 para que realice la sustitución. 
+
+___________________________(E-App2')
+(λx : σ. M) M2 → M {x ← M2}
+
+
+Evaluación.
+
+______________________T___________________________ ________N_________ ________M________
+(λf : Nat → Nat. λg : Nat → Nat. λx: Nat. f (g x)) (λx: Nat. succ(x)) (λx: Nat. succ(x)) 5 => PREGUNTA: no queda claro cómo evaluar esto. Se puede tomar f como N, N M o N M 5 
+
+
+
+16) Al agregar la siguiente regla para las abstracciones:
+
+M → M'
+____________________(E-Abs)
+λx: τ. M → λx: τ. M'
+
+a) El conjunto de valores pasa a ser V ::= true | false | λx : σ. FN | 0 | succ(V), con FN una forma normal
+
+b) Hay que modificar E-AppAbs
+
+__________________________(E-AppAbs')
+(λx: τ. FN) V → FN {x ← V}
+
+c) Utilizando la nueva regla y los valores definidos, reducir la siguiente expresión
+        (λx: Nat → Nat. x 23) (λx: Nat. 0)
+
+(λx: Nat → Nat. x 23) (λx: Nat. 0) -> E-AppAbs'
+x 23 {x ← (λx: Nat. 0)}
+(λx: Nat. 0) 23                    -> E-AppAbs'
+0 {x ← 23}
+0
+
+¿Qué se puede concluir entonces? ¿Es una buena idea agregar esta regla? PREGUNTAR
+
+
+                                                                            EXTENSIONES
+
+En esta sección puede asumirse, siempre que sea necesario, que el cálculo ha sido extendido con la suma de números naturales (M + N), con las siguiente reglas de tipado y semántica:
+
+
+Γ > M : Nat  Γ > N : Nat
+_________________________(T-+)
+Γ > M + N : Nat
+
+
+M → M'
+______________(E-+1)
+M + N → M' + N
+
+
+N → N'
+______________(E-+2)
+V + N → V + N'
+
+
+_________(E-+0)
+V + 0 → V
+
+
+_____________________________(E-+Succ)
+V1 + succ(V2) → succ(V1) + V2
+
+
+
+17)
+Este ejercicio extiende el Cálculo Lambda tipado con listas. Comenzamos ampliando el conjunto de tipos:
+
+                                        σ ::= ... | [σ]
+
+donde [σ] representa el tipo de las listas cuyas componentes son de tipo σ. El conjunto de términos ahora incluye:
+                
+                    M, N, O ::= ... | [ ]σ | M :: N | case M of {[ ] ⤷ N | h :: t ⤷ O} | foldr M base ⤷ N;rec(h, r) ⤷ O
+donde
+
+• [ ]σ es la lista vacía cuyos elementos son de tipo σ;
+
+• M :: N agrega M a la lista N;
+
+• case M of {[ ] ⤷ N | h :: t ⤷ O} es el observador de listas. Por su parte, los nombres de variables que se indiquen luego del | (h y t en este caso) son variables que pueden aparecer libres en O y deberán ligarse con la cabeza y cola de la lista respectivamente;
+
+• foldr M base ⤷ N; rec(h, r) ⤷ O es el operador de recursión estructural (no currificado). Los nombres de variables indicados entre parentesis (h y r en este caso) son variables que pueden aparecer libres en O y deberán ser ligadas con la cabeza y el resultado de la recursión respectivamente.
+
+Por ejemplo,
+    case 0 :: succ(0) :: [ ]Nat of {[ ] ⤷ false | x :: xs ⤷ isZero(x)} →→ true
+    foldr 1 :: 2 :: 3 :: (λx: [Nat]. x) [ ]Nat base ⤷ 0; rec(head, rec) ⤷ head + rec →→ 6
+
+                           
+a)
+
+
+                              case 0 :: succ(0) :: [ ]Nat of {[ ] ⤷ false | x :: xs ⤷ isZero(x)}
+                                                            |
+                                                           case
+        ____________________________________________________|______________________________________________
+       /                                   |                                |                              \
+0 :: succ(0) :: [ ]Nat                   x :: xs                          false                         isZero(x)
+       |                                   |                                                                |
+       ::                                  ::                                                             isZero
+  _____|_____                         _____|_____                                                           | 
+ /           \                       /           \                                                          x 
+0     succ(0) :: [ ]Nat             x             xs                                                              
+              |
+              ::
+         _____|_____
+        /           \
+     succ(0)       [ ]Nat
+        |
+      succ
+        |
+        0
+
+
+                            foldr 1 :: 2 :: 3 :: (λx: [Nat]. x) [ ]Nat base ⤷ 0; rec(head, rec) ⤷ head + rec
+                                                                |
+                                                               foldr
+            ____________________________________________________|____________________________________________________
+           /                                |                   |                   |                                \
+1 :: 2 :: 3 :: (λx: [Nat]. x) [ ]Nat        0                  head                rec                           head + rec
+          |                                                                                                           |
+          ::                                                                                                          +
+  ________|_________                                                                                          ________|_________
+ /                  \                                                                                        /                  \
+1     2 :: 3 :: (λx: [Nat]. x) [ ]Nat                                                                      head                 rec
+                    |
+                    ::
+            ________|_________ 
+           /                  \
+          2       3 :: (λx: [Nat]. x) [ ]Nat 
+                              |
+                              ::
+                      ________|_________
+                     /                  \
+                    3         (λx: [Nat]. x) [ ]Nat 
+                                         |
+                                        app
+                                 ________|_________
+                                /                  \
+                            (λx: [Nat]. x)       [ ]Nat 
+                               |
+                              abs
+                               |
+                               x
+
+
+
+
+
+b) 
+
+
+_____________(T-Empty)
+Γ > []σ : [σ]
+
+
+Γ > M : σ   Γ > N : [σ]
+________________________(T-Append)
+Γ > M :: N : [σ]
+
+
+Γ > M : [τ]   Γ U {h : τ, t : [τ]} > O : σ   Γ > N : σ  
+_______________________________________________________(T-Case)
+Γ > case M of {[ ] ⤷ N | h :: t ⤷ O} : σ
+
+
+Γ > M : [τ]   Γ U {h : τ, t : [τ]} > O : σ   Γ > N : σ
+_______________________________________________________(T-Fold)
+Γ > foldr M base ⤷ N;rec(h, r) ⤷ O : σ
+
+
+
+c) 
+
+                    x : Bool ∈ Γ        y : [Bool] ∈ Γ
+                    ____________(T-Var) ______________(T-Var)
+x : Bool ∈ Γ        Γ > x : Bool        Γ > y : [Bool]         y : Bool ∈ Γ'       x : [Bool] ∈ Γ'
+____________(T-Var) ______________________________(T-Append)   ^___________(T-Var) ^_____________(T-Var) __________________(T-Empty)
+Γ > x : Bool        Γ > x :: y : [Bool]                        Γ' > y : Bool        Γ' > x : [Bool]        Γ' > []Bool : [Bool]      y:[Bool]∈ Γ
+__________________________________________________(T-Append) _______^___________________^________________________________(T-If)      ________(T-Var)
+Γ > x :: x :: y : [Bool]                                     Γ' > if y then x else []Bool : [Bool]                                   Γ > y : [Bool]
+__________________________________________________________________^_________^_______________________________________________________________(T-Fold) 
+{x : Bool, y : [Bool]} > foldr x :: x :: y base ⤷ y; rec(y, x) ⤷ if y then x else []Bool : [Bool]
+                                                                    ^      ^
+Con ^ marco las ligadas
+
+{x : Bool, y : [Bool]} = Γ
+
+Γ U {y : Bool, x : [Bool]} = Γ' PREGUNTA: como diferencio entre las ligadas y las libres en el conjunto? vale cambiarles el nombre como en la sustitución?
+
+
+d) V := λx: σ. M | true | false | 0 | succ(V) | [] | M::V2
+
+e) 
+
+     M → M'
+________________(E-AppendHead)
+M :: N → M' :: N
+
+     N → N'
+________________(E-AppendTail) PREGUNTA: está bien tener las dos (AppendHead y AppendTail)? 
+V :: N → V :: N'                         son necesarias o puedo delegar esta responsabilidad a cada regla de evaluación que use listas? 
+                                         parece ir contra la evaluación lazy
+
+
+                               M → M'
+___________________________________________________________________(E-Case)
+case M of {[ ] ⤷ N | h :: t ⤷ O} → case M' of {[ ] ⤷ N | h :: t ⤷ O}
+
+
+_________________________________________________________(E-CaseList)
+case v :: vs of {[ ] ⤷ N | h :: t ⤷ O} → O {h ← v, t ← vs}
+
+
+______________________________________(E-CaseEmpty)
+case []σ of {[ ] ⤷ N | h :: t ⤷ O} → N
+
+
+                             M → M'
+_________________________________________________________________(E-Foldr)
+foldr M base ⤷ N;rec(h, r) ⤷ O → foldr M' base ⤷ N; rec(h, r) ⤷ O
+
+
+_____________________________________________________________________________________(E-FoldList)
+foldr v :: vs base ⤷ N;rec(h, r) ⤷ O → O {h ← v, r ← foldr vs base ⤷ N; rec(h, r) ⤷ O
+
+
+____________________________________(E-FoldEmpty)
+foldr []σ base ⤷ N;rec(h, r) ⤷ O → N
+
+
+
+18) A partir de la extensión del ejercicio 17, definir una nueva extensión que incorpore expresiones de la forma map(M, N), donde N es una lista y M una función que se aplicará a cada uno de los elementos de N.
+
+Importante: tener en cuenta las anotaciones de tipos al definir las reglas de tipado y semántica.
+
+
+Términos ::= ... | map(M, N)
+
+
+Regla de tipado.
+
+Γ > M : σ → τ  Γ > N : [σ]
+___________________________(T-Map)
+Γ > map(M, N) : [σ] → [τ]
+
+Reglas de reducción.
+        
+        N → N'
+_____________________(E-Map)
+map(M, N) → map(M, N')
+
+__________________________________(E-MapList) PREGUNTA: acá la asociatividad me salva de poner parentésis? 
+map(M, v :: vs) → M v :: map(M, vs) 
+
+_________________(E-MapEmpty) PREGUNTA: hay que aclarar algo más sobre los tipos acá? (por ejemplo, que τ es el tipo de retorno de M) 
+map(M, []σ) → []τ
+
+
+
+19) A partir de la extensión del ejercicio 17, agregaremos términos para representar listas por comprensión, con un selector y una guarda, de la siguiente manera: 
+[M | x ← S, P], donde x es el nombre de una variable que puede aparecer libre en los términos M y P. La semántica es análoga a la de Haskell: para cada valor de la lista representada por el término S, se sustituye x en P y, de resultar verdadero, se agrega M con x sustituido al resultado. Definir las reglas de tipado, el conjunto de valores y las reglas de semántica para esta extensión.
+
+Valores ::= ... | [M | x ← V, P] PREGUNTA: es correcto que sea valor? está de más pedirle que M y P sean valores también? pierdo determinismo a la hora de reducir? 
+
+Términos ::= ... | [M | x ← S, P]        
+
+Regla de tipado.
+
+Γ > M : τ → σ  Γ > S : [τ]  Γ > P : τ → Bool 
+_____________________________________________(T-CompList)
+Γ > [M | x ← S, P] : [σ]
+
+
+Reglas de reducción. 
+             
+             S → S'
+_______________________________(E-CompList) PREGUNTA: es incorrecto ir contra la evaluación lazy?
+[M | x ← S, P] → [M | x ← S', P]
+
+
+______________________________________________________________________________(E-CompListList)
+[M | x ← v :: vs, P] → if P v then M v :: [M | x ← vs, P] else [M | x ← vs, P]
+
+
+______________________(E-CompListEmpty) PREGUNTA: idem 18) E-MapEmpty
+[M | x ← []τ, P] → []σ
+
+
+
+20) Se introduce el cálculo µ, que es igual al cálculo lambda en todo, excepto en que el mecanismo para construir funciones (λx.M) y el mecanismo para aplicarlas (M N) serán sustituidos por un nuevo mecanismo de construcción (µx1, ..., xn.M) y de aplicación (M #i N). Estos cambios también introducen un cambio en el sistema de tipos: en lugar de tener σ → τ tendremos {σ1, ..., σn} → τ . Notar que  {σ1, ..., σn} no es un nuevo tipo, sino sólo una parte del nuevo tipo para funciones.
+
+La sintaxis del cálculo µ y su conjunto de tipos, entonces, serán los siguientes:
+
+M, N ::= ... | µx1 : σ1, ..., xn : σn.M | M #i N 
+
+σ1 . . . σn, τ ::= ... | {σ1, ..., σn} → τ
+
+El término µx1 : σ1, ..., xn : σn.M sirve para construir una nueva función de n parámetros ordenados y el operador #i sirve para aplicar el i-ésimo parámetro. Notar que si la cantidad de parámetros de una función es mayor a 1, al aplicarla se obtiene una nueva función con un parámetro menos, pero si la cantidad de parámetros es exactamente 1, al aplicarla se obtiene su valor de retorno. Notar además que que el orden de los tipos de los argumentos es importante: por ejemplo, {nat, nat, bool} → nat y {bool, nat, nat} → nat no son el mismo tipo.
+
+a) 
+
+Γ U {µx1 : σ1, ..., xn : σn} > M : τ
+________________________________________________(T-Abs')
+Γ > µx1 : σ1, ..., xn : σn.M : {σ1, ..., σn} → τ
+
+
+Γ > M : {σ1, ... ,σi-1, σi, σi+1, ... , σn} → τ  Γ > N : σi
+____________________________________________________________(T-App1)
+Γ > M #i N : {σ1, ... ,σi-1, σi+1, ... , σn} → τ
+
+
+M : {σ} → τ  Γ > N : σ
+_______________________(T-App2)
+Γ > M #i N : τ
+
+
+b) 
+
+Valores ::= true | false | µx1 : σ1, ..., xn : σn.M | 0 | succ(V)
+
+
+Reglas de reducción.
+
+     M → M'
+________________(E-App'1)
+M #i N → M' #i N
+
+     N → N'
+________________(E-App'2)
+V #i N → V #i N'
+
+     
+_____________________________________________________________________________________________________(E-App'Abs) PREGUNTA: hace falta agregar la que tiene un parámetro?
+(µx1 : σ1, ..., xn : σn.M) #i V → µx1 : σ1, ..., µxi-1 : σi-1, µxi+1 : σi+1, ..., xn : σn.(M ← {xi V})
+
+
+c) PREGUNTAR: es correcta la interpretación?
+
+classicLambda ≡ µx1 : σ1.M
+
+classicApplication = (µ function : σ1 → σ2, argument : σ1.function #1 argument) PREGUNTA: es necesario usar lambdas o con poner los argumentos de ambos lados ya queda ligado? @macros
+
+
+
+21) Definir una extensión que permita "unir" un registro {x1 = M1, . . . , xm = Mm} con otro registro {y1 = N1, . . . , yn = Nn}, de manera tal que el registro resultante contenga todas las etiquetas de ambos, con los mismos valores y en el mismo orden.
+
+Restricción: los registros a unir no deben tener etiquetas en común.
+
+Regla de tipado.
+
+Γ > R1 : {li : σi i∈1..k}  Γ > R2 : {li : σi i∈k+1..k+n}
+_______________________________________________________(T-Join)
+Γ > join(R1, R2) : {li : σi i∈1..k+n}
+
+
+Reglas de evaluación.
+
+          R1 → R1'
+_____________________________(E-Join1)
+join(R1, R2) → join(R1', R2)
+
+          R2 → R2'
+_____________________________(E-Join2)
+join(V1, R2) → join(V1, R2')
+
+_____________________________________________________________________________________________________________________________________(E-JoinFull)
+join({x1 = M1, . . . , xm = Mm}, {y1 = N1, . . . , yn = Nn}) → join({x1 = M1, . . . , xm = Mm, y1 = N1}, {y2 = N2, . . . , yn = Nn})
+
+
+_________________________________________________________________(E-JoinEmpty)
+join({x1 = M1, . . . , xm = Mm}, {}) → {x1 = M1, . . . , xm = Mm}
+
+
+
+22) Definir como macros (azúcar sintáctica) los términos Not, And, Or, Xor, que simulen desde la reducción los conectivos clásicos usuales, por ej. 
+
+And M N →→ true <=> M →→ true y N →→ true.
+
+Notar que definir una macro no es lo mismo que hacer una extensión. Por ejemplo, definir el término Iσ ≡ λx : σ.x, que es la función identidad del tipo σ, es distinto de extender la sintaxis del lenguaje con términos de la forma I(M), lo cual además requeriría agregar nuevas reglas de tipado y de evaluación.
+
+And ≡ (λx: Bool.(λx: Bool. if x then y else false)) PREGUNTA: idem @macros
+
+Not ≡ λx: Bool. if x then false else true
+
+Or ≡ (λx: Bool.(λx: Bool. if x then true else y)) PREGUNTA: idem @macros
+
+Xor ≡ (λx: Bool.(λx: Bool. if x then Not y else y)) PREGUNTA: idem @macros
+
+
+
+23) PREGUNTAR TODO EL EJERCICIO 
+
+Se desea extender el cálculo lambda tipado agregando unión de funciones. Para ello, extenderemos el conjunto de términos y el de tipos de la siguiente manera:
+
+M1 ... Mk ::= ··· | [(M1, ... , Mk)] σ ::= ··· | Union(σ1, ... , σk)τ
+
+Cada Mi dentro de “[()]” es una función con distinto dominio del resto pero con la misma imagen.
+
+En el tipo Union(σ1, . . . , σk)τ , cada σi representa el tipo del dominio de Mi (la función en la posición i), y τ el tipo de la imagen de todas las funciones.
+
+Al aplicarse esta unión sobre un valor de tipo σ, el término reduce utilizando la función de esta unión cuyo tipo para el dominio sea σ. Es decir, aplicando la función que corresponda según el dominio.
+
+Por ejemplo, sea
+
+l ≡ [(λ x : Nat. x + 2, λ x : Bool . if x then 4 else 3, λ f : Bool → Nat.(f true) + 3)]
+l tiene tipo Union(Nat, Bool, Bool → Nat)Nat.
+
+Luego, l (λ b : Bool. if b then 3 else 4) →→ ((λb : Bool. if b then 3 else 4) true) + 3) →→ 6
+
+
+a)
+
+Regla de tipo.
+
+Γ > M1 : σ1 → τ ... Γ > Mk : σk → τ
+___________________________________________(T-Union) 
+Γ > [(M1, ... , Mk)] : Union(σ1, ... , σk)τ                    
+
+
+Γ > [(M1, ... , Mk)] : Union(σ1, ... , σk)τ          ??????????????
+__________________________________________________________________________(T-AppUnion) PREGUNTA: puedo usar un cuantificador acá? (por ejemplo, ∃i ∈ [1,k] | Γ > N : σi)
+Γ > [(M1, ... , Mk)] N : τ 
+
+
+
+b) PREGUNTA: qué es el árbol de un juicio de tipado?
+
+c) Valores ::= ... | [(V1, ... , Vk)] PREGUNTA: hay más modificaciones?
+
+d) 
+
+Regla de evaluación. => PREGUNTA: es necesario tener una en la que no se aplique la unión?
+
+              M1 → M1'    
+________________________________________(E-Union) => PREGUNTA: para generalizar esto para todas las funciones puede usarse un 
+[(M1, ... , Mk)] N → [(M1', ... , Mk)] N                       cuantificador? (por ejemplo, Mi → Mi' y ∀j<i, Mj es valor) 
+                                                               De otra forma tendría que repetir esto k veces y no parece prolijo
+
+
+______________________________________(E-AppUnion) => PREGUNTA: cómo chequeo el tipo para poder aplicar la función sobre N?
+[(V1, ... , Vk)] N →  ??????????????
+
+
+
+24) Definir las siguientes funciones en Cálculo Lambda con Listas (visto en el ejercicio 17). Pueden definirse como macros o como extensiones al cálculo.
+
+Nota: en este ejercicio usamos la notación M : σ para decir que la expresión M a definir debe tener tipo σ en cualquier contexto. PREGUNTA: no es siempre así? de nuevo las macros
+
+a) 
+PREGUNTA: para qué está la recomendación de fix?
+
+Γ > L : [σ]
+________________(T-Head)
+Γ > headσ L : σ
+
+      M → M'
+__________________(E-Head)
+headσ M → headσ M'
+
+
+_______________(E-HeadList)
+headσ x::xs → x
+
+
+Γ > L : [σ]
+_________________(T-Head)
+Γ > tailσ L : [σ]
+
+
+      M → M'
+__________________(E-Tail) PREGUNTA: son necesarias estas reglas o alcanza con que se haga la reducción a un valor al momento de la aplicación?
+tailσ M → tailσ M'
+
+
+________________(E-HeadList)
+tailσ x::xs → xs
+
+
+b)
+
+Γ > f : σ → σ  Γ > x : σ
+_________________________(T-Iterate)
+Γ > iterateσ f x : [σ]
+
+
+_____________________________________(E-Iterate) PREGUNTA: acá no pierdo determinismo? => puedo reducir por E-Iterate o por E-AppendHead
+iterateσ f x → f x :: iterateσ f (f x)
+
+
+c) 
+
+Γ > L1 : [ρ]  Γ > L1 : [σ]
+__________________________(T-Zip)
+Γ > zipρ,σ L1 L2 : [ρ x σ]
+
+
+          M1 → M1'
+____________________________(E-Zipp1)
+zipρ,σ M1 M2 → zipρ,σ M1' M2
+
+          M2 → M2'
+____________________________(E-Zipp2)
+zipρ,σ L1 M2 → zipρ,σ L1 M2'
+
+
+____________________________________________________(E-ZippLists)
+zipρ,σ x :: xs  y :: ys → (x, y) :: zipρ,σ xs ys
+
+
+____________________________________________________(E-ZippEmpty1)
+zipρ,σ []ρ y :: ys → []ρ x σ
+
+____________________________________________________(E-ZippEmpty2)
+zipρ,σ x :: xs  []σ → []ρ x σ
+
+
+
+d)
+
+Γ > n : Nat
+_______________________(T-Take) PREGUNTA: es correcto esto o hay que pasarle la lista también? 
+Γ > takeσ n : [σ] → [σ]
+
+        M → M'
+______________________(E-Take) 
+takeσ n M → takeσ n M'
+
+
+_____________________________________(E-TakeList) 
+takeσ n x :: xs → x :: takeσ (n-1) xs
+
+
+
+_____________________(E-TakeZero) 
+takeσ 0 x :: xs → []σ
+
+
+_________________(E-TakeEmpty) 
+takeσ n []σ → []σ
+
+
+
+25) 
+
+a)
+
+Γ > M : σ
+_______________________(T-Det)
+Γ > detener(M) : det(σ)
+
+
+Γ > M : det(σ)
+____________________(T-Con)
+Γ > continuar(M) : σ
+
+
+Γ > M : det(σ) → τ  Γ > N : σ
+______________________________(T-AppDet) PREGUNTA: esto es correcto? puedo hacer reglas de tipado para casos específicos sin problemas?
+Γ > M N : τ
+
+
+
+b)
+
+                    x : det(Bool) ∈ Γ
+                    _________________(T-Var)
+y : Bool ∈ Γ        Γ > x : det(Bool)           
+_____________(T-Var)_______________________(T-Con)________________(T-False)
+Γ  > y : Bool       Γ > continuar(x) : Bool       Γ > false : Bool
+____________________________________________________________________________(T-If)        ____________________(T-Zero)
+{y : Bool, x : det(Bool)} > if y then continuar(x) else false : Bool                      {y : Bool} > 0 : Nat                       
+__________________________________________________________________________________(T-Abs) _____________________________(T-IsZero)
+{y : Bool} > (λx: det(Bool).if y then continuar(x) else false) : det(Bool) → Bool         {y : Bool} > isZero(0) : Bool 
+_____________________________________________________________________________________________________________________________(T-AppDet)
+{y : Bool} > (λx: det(Bool).if y then continuar(x) else false) isZero(0) : Bool
+
+Γ = {y : Bool, x : det(Bool)}
+
+
+
+c) 
+
+valores ::= PREGUNTA: se modifican los valores? quiero tener un término detenido como salida? no tendría que ser un error?
+
+Reglas de reducción.
+
+           M → M' 
+___________________________(E-Con)
+continuar(M) → continuar(M') 
+
+_________________________(E-ConDet)
+continuar(detener(M)) → M 
+
+
+_______________________________________________(E-AppDet) PREGUNTA: cómo indico que esto debe hacerse solamente cuando M no sea de tipo det(σ)? agrego otra regla que 
+(λx : det(σ). M) M → (λx : det(σ). M) detener(M)                    lo defina de forma explícita? divido en todos los casos posibles? metalenguaje?
+
+
+
+26)
+
+
+
+
+
+
+
+
+
+
 
 
