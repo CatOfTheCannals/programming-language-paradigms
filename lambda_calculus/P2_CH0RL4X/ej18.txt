@@ -1,0 +1,18 @@
+regla de tipado
+
+t-map
+	ø > M : σ -> µ ^ ø > N : [σ] <==> map(M, N) : [µ]
+
+reglas de semantica
+
+	e-map
+		M --> M'' <==> map(M, N) --> map(M'', N)
+
+	e-mapFunc 
+		N --> N'' <==> map(V, N) --> map(V, N'')
+
+	e-mapEmpty
+		map(V, []σ) --> []µ
+
+	e-mapToList
+		map(V, H :: T) --> (V H) :: map(V, T)

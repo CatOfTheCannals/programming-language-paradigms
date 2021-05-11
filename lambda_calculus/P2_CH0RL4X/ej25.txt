@@ -1,0 +1,47 @@
+a)
+reglas de tipado
+	t-detener
+		ø > M : σ <==> detener(M) : det(σ)
+
+	t-continuar
+		ø > M : det(σ) <==> continuar(M) : σ
+
+	t-appDet
+		ø > M : det(σ) --> µ ^ ø > N : σ <==> M N : µ
+
+b)
+	{y : Bool} > (λx: det(Bool).if y then continuar(x) else false) isZero(0) : Bool
+		t-appDet
+			(λx: det(Bool).if y then continuar(x) else false) : det(σ) --> Bool
+				t-abs
+					{y : Bool, x : det(Bool)} > if y then continuar(x) else false : Bool
+						{y : Bool, x : det(Bool)} > y : Bool
+							t-var
+								(y : Bool) € {y : Bool, x : det(Bool)} √
+						{y : Bool, x : det(Bool)} > continuar(x) : Bool
+							t-continuar
+								{y : Bool, x : det(Bool)} > x : det(Bool)
+									t-var
+										(x : det(Bool)) € {y : Bool, x : det(Bool)} √
+						{y : Bool, x : det(Bool)} > false : Bool
+							t-false √
+
+			{y : Bool} > isZero(0) : σ <==> σ == Bool
+				t-isZero
+					{y : Bool} > 0 : Nat
+						t-zero √
+
+c)
+	DUDA: como se modifica formalmente el conjunto de valores?
+	yo simplemente agregaria detener(M)
+
+reglas semanticas:
+	
+	e-continuarDetener
+		continuar(detener(M)) --> M
+
+	e-appAbs (override)
+		V : σ <==> (λx : σ. M) V → M{x ← V}
+
+	e-appAbsDetener (override)
+		V : σ <==> (λx : det(σ). M) V → (λx : det(σ). M) detener(V)

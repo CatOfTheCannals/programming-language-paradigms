@@ -1,0 +1,18 @@
+regla de tipo
+
+	t-comprehension
+		ø > M : σ ^ 
+		ø > S : [¥] ^ 
+		{x : ¥} > P : Bool
+			<==> [M | x <- S, P] : [σ]
+
+
+regla de semantica
+	e-comprehension
+		S -> S'' <==> [M | x <- S, P] --> [M | x <- S'', P]
+
+	e-comprehensionEmpty
+		[M | x <- []¥, P] --> []σ
+
+	e-comprehensionList
+		[M | x <- H :: T, P] -> if P {x <- H} then M {x <- H} :: [M | x <- T, P] else [M | x <- T, P]
