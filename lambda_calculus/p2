@@ -818,7 +818,7 @@ ________________(E-AppendHead)
 M :: N → M' :: N
 
      N → N'
-________________(E-AppendHead) PREGUNTA: está bien tener las dos (AppendHead y AppendTail)? 
+________________(E-AppendTail) PREGUNTA: está bien tener las dos (AppendHead y AppendTail)? 
 V :: N → V :: N'                         son necesarias o puedo delegar esta responsabilidad a cada regla de evaluación que use listas? 
                                          parece ir contra la evaluación lazy
 
@@ -1063,14 +1063,162 @@ ______________________________________(E-AppUnion) => PREGUNTA: cómo chequeo el
 
 
 
+24) Definir las siguientes funciones en Cálculo Lambda con Listas (visto en el ejercicio 17). Pueden definirse como macros o como extensiones al cálculo.
+
+Nota: en este ejercicio usamos la notación M : σ para decir que la expresión M a definir debe tener tipo σ en cualquier contexto. PREGUNTA: no es siempre así? de nuevo las macros
+
+a) 
+PREGUNTA: para qué está la recomendación de fix?
+
+Γ > L : [σ]
+________________(T-Head)
+Γ > headσ L : σ
+
+      M → M'
+__________________(E-Head)
+headσ M → headσ M'
+
+
+_______________(E-HeadList)
+headσ x::xs → x
+
+
+Γ > L : [σ]
+_________________(T-Head)
+Γ > tailσ L : [σ]
+
+
+      M → M'
+__________________(E-Tail) PREGUNTA: son necesarias estas reglas o alcanza con que se haga la reducción a un valor al momento de la aplicación?
+tailσ M → tailσ M'
+
+
+________________(E-HeadList)
+tailσ x::xs → xs
+
+
+b)
+
+Γ > f : σ → σ  Γ > x : σ
+_________________________(T-Iterate)
+Γ > iterateσ f x : [σ]
+
+
+_____________________________________(E-Iterate) PREGUNTA: acá no pierdo determinismo? => puedo reducir por E-Iterate o por E-AppendHead
+iterateσ f x → f x :: iterateσ f (f x)
+
+
+c) 
+
+Γ > L1 : [ρ]  Γ > L1 : [σ]
+__________________________(T-Zip)
+Γ > zipρ,σ L1 L2 : [ρ x σ]
+
+
+          M1 → M1'
+____________________________(E-Zipp1)
+zipρ,σ M1 M2 → zipρ,σ M1' M2
+
+          M2 → M2'
+____________________________(E-Zipp2)
+zipρ,σ L1 M2 → zipρ,σ L1 M2'
+
+
+____________________________________________________(E-ZippLists)
+zipρ,σ x :: xs  y :: ys → (x, y) :: zipρ,σ xs ys
+
+
+____________________________________________________(E-ZippEmpty1)
+zipρ,σ []ρ y :: ys → []ρ x σ
+
+____________________________________________________(E-ZippEmpty2)
+zipρ,σ x :: xs  []σ → []ρ x σ
 
 
 
+d)
+
+Γ > n : Nat
+_______________________(T-Take) PREGUNTA: es correcto esto o hay que pasarle la lista también? 
+Γ > takeσ n : [σ] → [σ]
+
+        M → M'
+______________________(E-Take) 
+takeσ n M → takeσ n M'
+
+
+_____________________________________(E-TakeList) 
+takeσ n x :: xs → x :: takeσ (n-1) xs
 
 
 
+_____________________(E-TakeZero) 
+takeσ 0 x :: xs → []σ
 
 
+_________________(E-TakeEmpty) 
+takeσ n []σ → []σ
+
+
+
+25) 
+
+a)
+
+Γ > M : σ
+_______________________(T-Det)
+Γ > detener(M) : det(σ)
+
+
+Γ > M : det(σ)
+____________________(T-Con)
+Γ > continuar(M) : σ
+
+
+Γ > M : det(σ) → τ  Γ > N : σ
+______________________________(T-AppDet) PREGUNTA: esto es correcto? puedo hacer reglas de tipado para casos específicos sin problemas?
+Γ > M N : τ
+
+
+
+b)
+
+                    x : det(Bool) ∈ Γ
+                    _________________(T-Var)
+y : Bool ∈ Γ        Γ > x : det(Bool)           
+_____________(T-Var)_______________________(T-Con)________________(T-False)
+Γ  > y : Bool       Γ > continuar(x) : Bool       Γ > false : Bool
+____________________________________________________________________________(T-If)        ____________________(T-Zero)
+{y : Bool, x : det(Bool)} > if y then continuar(x) else false : Bool                      {y : Bool} > 0 : Nat                       
+__________________________________________________________________________________(T-Abs) _____________________________(T-IsZero)
+{y : Bool} > (λx: det(Bool).if y then continuar(x) else false) : det(Bool) → Bool         {y : Bool} > isZero(0) : Bool 
+_____________________________________________________________________________________________________________________________(T-AppDet)
+{y : Bool} > (λx: det(Bool).if y then continuar(x) else false) isZero(0) : Bool
+
+Γ = {y : Bool, x : det(Bool)}
+
+
+
+c) 
+
+valores ::= PREGUNTA: se modifican los valores? quiero tener un término detenido como salida? no tendría que ser un error?
+
+Reglas de reducción.
+
+           M → M' 
+___________________________(E-Con)
+continuar(M) → continuar(M') 
+
+_________________________(E-ConDet)
+continuar(detener(M)) → M 
+
+
+_______________________________________________(E-AppDet) PREGUNTA: cómo indico que esto debe hacerse solamente cuando M no sea de tipo det(σ)? agrego otra regla que 
+(λx : det(σ). M) M → (λx : det(σ). M) detener(M)                    lo defina de forma explícita? divido en todos los casos posibles? metalenguaje?
+
+
+
+26)
 
 
 
