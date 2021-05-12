@@ -598,7 +598,6 @@ isZero(pred(M)) →→ true => M = 0             ∨ M = pred(succ(0))          
 Entonces M = pred^n(pred(succ(pred(succ(...pred(succ((0)))...))))), con n ∈ [0 ... ∞)
 
 
-
 15) 
 
 La variante del Cálculo Lambda vista en clase utiliza el modo de reducción call-by-value: para reducir una
@@ -809,7 +808,7 @@ Con ^ marco las ligadas
 Γ U {y : Bool, x : [Bool]} = Γ' PREGUNTA: como diferencio entre las ligadas y las libres en el conjunto? vale cambiarles el nombre como en la sustitución?
 
 
-d) V := λx: σ. M | true | false | 0 | succ(V) | [] | M::V2
+d) V := λx: σ. M | true | false | 0 | succ(V) | [] | V1::V2
 
 e) 
 
@@ -873,6 +872,7 @@ map(M, N) → map(M, N')
 __________________________________(E-MapList) PREGUNTA: acá la asociatividad me salva de poner parentésis? 
 map(M, v :: vs) → M v :: map(M, vs) 
 
+ø > M : σ → τf
 _________________(E-MapEmpty) PREGUNTA: hay que aclarar algo más sobre los tipos acá? (por ejemplo, que τ es el tipo de retorno de M) 
 map(M, []σ) → []τ
 
@@ -960,7 +960,6 @@ c) PREGUNTAR: es correcta la interpretación?
 classicLambda ≡ µx1 : σ1.M
 
 classicApplication = (µ function : σ1 → σ2, argument : σ1.function #1 argument) PREGUNTA: es necesario usar lambdas o con poner los argumentos de ambos lados ya queda ligado? @macros
-
 
 
 21) Definir una extensión que permita "unir" un registro {x1 = M1, . . . , xm = Mm} con otro registro {y1 = N1, . . . , yn = Nn}, de manera tal que el registro resultante contenga todas las etiquetas de ambos, con los mismos valores y en el mismo orden.
@@ -1104,8 +1103,8 @@ _________________________(T-Iterate)
 Γ > iterateσ f x : [σ]
 
 
-_____________________________________(E-Iterate) PREGUNTA: acá no pierdo determinismo? => puedo reducir por E-Iterate o por E-AppendHead
-iterateσ f x → f x :: iterateσ f (f x)
+_____________________________________(E-Iterate) PREGUNTA: acá no pierdo determinismo? => puedo reducir por E-Iterate o por E-AppendHead NO => Si estás reduciendo una
+iterateσ f x → f x :: iterateσ f (f x)                     lista, llevás la cabeza hasta un valor (E-AppendHead) y luego la cola (E-AppendTail => E-Iterate)
 
 
 c) 
@@ -1143,7 +1142,7 @@ _______________________(T-Take) PREGUNTA: es correcto esto o hay que pasarle la 
 Γ > takeσ n : [σ] → [σ]
 
         M → M'
-______________________(E-Take) 
+______________________(E-AppTake) 
 takeσ n M → takeσ n M'
 
 
@@ -1152,11 +1151,11 @@ takeσ n x :: xs → x :: takeσ (n-1) xs
 
 
 
-_____________________(E-TakeZero) 
+_____________________(E-TakeZero) => Recordar agregar el tipo
 takeσ 0 x :: xs → []σ
 
 
-_________________(E-TakeEmpty) 
+_________________(E-TakeEmpty) => Recordar agregar el tipo
 takeσ n []σ → []σ
 
 
@@ -1220,7 +1219,7 @@ _______________________________________________(E-AppDet) PREGUNTA: cómo indico
 
 26)
 
-
+c) PREGUNTAR: error de latex
 
 
 
