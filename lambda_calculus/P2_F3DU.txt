@@ -22,7 +22,7 @@ ____________________________________________________Inválidas__________________
                                                    λx: σ. succ(x)
                                            λx: if true then Bool else Nat. x
                                                         σ
-                                                (Bool → Bool) → Nat PREGUNTA: los paréntesis rompen la validez? 
+                                                (Bool → Bool) → Nat PREGUNTA: los paréntesis rompen la validez? => no rompen, es válida
                                                     succ true
 ________________________________________________________________________________________________________________
 
