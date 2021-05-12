@@ -1,0 +1,42 @@
+a)	
+regla de tipado
+
+	t-union
+		ø > M1 : σ1 -> τ . . . ø > Mk : σk -> τ (con σi != σj para todo 1 <= i, j <= k, con i != j)
+			<==> [(M1, . . . , Mk)] : Union(σ1, . . . , σk)τ
+
+	t-unionApp
+		ø > M : Union(σ1, . . . , σk)τ ^ ø > N : σi (con 1 <= i <= k)
+
+b) 
+	{y : Nat} > [(λx : Bool. y, λx : Nat. x)] y : Nat
+		t-unionApp
+			{y : Nat} > [(λx : Bool. y, λx : Nat. x)] : Union(σ1, σ2)Nat
+				t-union
+					{y : Nat} > λx : Bool. y : σ1 -> Nat
+						t-abs
+							{y : Nat, x: Bool} > y : Nat
+								t-var
+									(y : Nat) € {y : Nat} √
+					{y : Nat} > λx : Nat. x : σ2 -> Nat
+						t-abs
+							{y : Nat, x : Nat} >  x : Nat
+								t-var
+									(x : Nat) € {x : Nat} √
+
+
+			y : µ
+				t-var
+					(y : µ) € {y : Nat} <==> µ == Nat
+		
+c) Tenemos un nuevo valor posible, que es una union de funciones:
+	V ::= [(M1, . . . , Mk)]
+
+d)
+	e-appUnionI
+		Mi -> Mi'', con 0 < i <= k ^ para todo j / 0 < j < i ==> Mj es un valor  
+			<==> [(M1, ... Mi, ... Mk)] --> [(M1, ... Mi'', ... Mk)]
+
+	e-appUnionAbs	
+		Vi : σ -> τ, con 0 < i <= k ^ W : σ
+			<==> [(V1, ... Vk)] W --> Vi W

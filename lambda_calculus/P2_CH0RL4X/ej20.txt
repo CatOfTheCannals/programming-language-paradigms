@@ -1,0 +1,23 @@
+a)
+
+	t-abs
+		{x1 : σ1, ... xn : σn} > M : ¥ <==> (µ x1 : σ1, ... xn : σn. M) : {x1, ... xn} -> ¥
+
+	t-app 
+		ø > M : {x1 : σ1, ... xn : σn} -> ¥ ^ N : σi 
+			<==> M '#i' N : {x1 : σ1, ... xn : σn} - {xi : σi} -> ¥
+
+
+b) DUDA: como se extiende los valores formalmente? yo simplemente agregaria las expresiones 
+
+	e-app1
+		M --> M'' <==> M '#i' N --> M'' '#i' N
+
+	e-app2
+		N --> N'' <==> V '#i' N --> V '#i' N''
+
+	e-appAbs
+		(µ x1 : σ1, ... xn : σn. M) '#i' V --> (µ x1 : σ1, ... xn : σn - xi : σi. M {xi <- V})
+
+c) 
+	(λx : σ1. M) =def (µ x1 : σ1) '#1'  DUDA: esta bien esto?? si es valido, queda resuelta la aplicacion

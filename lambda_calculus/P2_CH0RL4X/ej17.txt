@@ -1,0 +1,91 @@
+a) arboles sintacticos
+
+case M of {[ ] ~> N | x :: xs ~~> O}
+	M ::= (0 :: succ(0) :: [ ]_Nat)
+	N ::= false
+	O ::= isZero(x)
+
+foldr M base ~~> N; rec(head, rec) ~~> O
+	M ::= 1 :: 2 :: 3 :: (λx: [Nat]. x) [ ]Nat
+	N ::= 0
+	O ::= head + rec
+
+DUDA: cual seria una forma fachera de seguir escribiendo estos arboles?
+
+b) 
+
+Axiomas:
+
+	t-emptyList:
+		Γ > []σ : [σ]
+
+Reglas:
+
+	t-append
+		(Γ > M : σ) ^ (Γ > N : [σ]) <==> Γ > M :: N  : [σ]
+
+	t-case
+		(Γ > M : [σ]) ^ (Γ > N : µ) ^ (Γ > O : µ) <==> case M of {[]σ ~~> N | h :: t ~~> O} : µ
+
+	t-foldr
+		(Γ > M : [σ]) ^ (Γ > N : µ) ^ (Γ U {h : σ, r : µ } > O : µ) <==> foldr M base ~~> N;rec(h, r) ~~> O : µ
+
+
+c) {x : Bool, y : [Bool]} > foldr x :: x :: y base ~~> y; rec(y, x) ~~> if y then x else [ ]Bool : [Bool]
+		t-foldr
+			{x : Bool, y : [Bool]} > x :: x :: y : [σ]
+				t-append
+					{x : Bool, y : [Bool]} > x : Bool
+						t-var
+							(x : Bool) € {x : Bool, y : [Bool]} √
+					{x : Bool, y : [Bool]} > x :: y : [σ]
+						t-append
+							{x : Bool, y : [Bool]} > y : [Bool]
+								t-var 
+									(y : [Bool]) € {x : Bool, y : [Bool]} √
+
+			{x : Bool, y : [Bool]} > y : [Bool]
+				t-var 
+					(y : [Bool]) € {x : Bool, y : [Bool]} √
+
+			ACLARACION: 'z' y 'w' son renombres
+			{x : Bool, y : [Bool], z : Bool, w : [Bool]} > if z then w else [ ]Bool : [Bool]  
+				t-if
+					{x : Bool, y : [Bool], z : Bool, w : [Bool]} > z : Bool
+						t-var
+							(z : Bool) € Γ √
+					{x : Bool, y : [Bool], z : Bool, w : [Bool]} > w : [Bool]
+						t-var
+							(w : [Bool]) € Γ
+					{x : Bool, y : [Bool], z : Bool, w : [Bool]} > []Bool : [Bool]
+						t-emptyList √ 
+
+d) V ::= []σ | V :: W
+
+e)
+	e-append
+		M --> M'' <==> M :: N --> M'' :: N
+
+	e-appendVal
+		N --> N'' <==> V :: N --> V :: N''
+
+	e-case
+		M --> M'' <==> case M of {[]σ ~~> N | h :: t ~~> O} --> case M'' of {[]σ ~~> N | h :: t ~~> O}
+
+	e-caseEmpty
+		N --> N'' <==> case []σ of {[]σ ~~> N | h :: t ~~> O} --> case []σ of {[]σ ~~> N'' | h :: t ~~> O}
+
+	e-caseNonEmpty
+		case V :: W of {[]σ ~~> N | h :: t ~~> O} --> O {h <- V, t <- W}
+
+	e-foldr
+		M --> M'' <==> foldr M base ~~> N;rec(h, r) ~~> O --> foldr M'' base ~~> N;rec(h, r) ~~> O
+
+	e-foldrVal
+		N --> N'' <==> foldr V base ~~> N;rec(h, r) ~~> O --> foldr V base ~~> N'';rec(h, r) ~~> O
+
+	e-foldrBase
+		foldr []σ base ~~> V;rec(h, r) ~~> O --> V
+
+	e-foldrRec
+		foldr V::W base ~~> U;rec(h, r) ~~> O --> O {h <- V, r <- foldr W base ~~> U;rec(h, r) ~~> O} DUDA: esta bien usar 'h' y 'r' dos veces?

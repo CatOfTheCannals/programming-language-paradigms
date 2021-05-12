@@ -129,3 +129,22 @@ El programa tipa. Veamos su valor:
 			ß
 				isZero(pred(0))) 
 					ERROR: aca no tenemos regla semantica para aplicar, no se puede reducir pred(0)
+
+viii) ø > fix (λy : Nat. succ(y)) : µ
+		t-fix
+			ø > (λy : Nat. succ(y)) : µ -> µ
+				t-abs
+					{y : Nat} > succ(y) : µ <==> (µ == Nat)
+						t-succ
+							{y : Nat} > y : Nat
+								t-var
+									(y : Nat) € {y : Nat} √
+El programa tipa tiene resultado Nat.
+Veamos ahora cual es el resultado:
+
+fix (λy : Nat. succ(y))
+	e-fixBeta
+		succ(y){y <- fix (λy : Nat. succ(y))}
+		es equivalente a:
+		succ(fix (λy : Nat. succ(y)))
+		este programa no termina!!!
