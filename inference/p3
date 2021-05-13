@@ -93,7 +93,15 @@ t           con Nat                 => {Nat/t}
 
 5) Decidir, utilizando el método del árbol, cuáles de las siguientes expresiones son tipables. Mostrar qué reglas y sustituciones se aplican en cada paso y justificar por qué no son tipables aquéllas que fallan.
 
-                                                                    λz. if z then 0 else succ(0)
+i. λz. if z then 0 else succ(0)
+
+                                                                    λz. if z then 0 else succ(0) =>  ø > λz : Bool. if z then 0 else succ(0) : Bool → Nat
+                                                                                 |
+                                                                        if z then 0 else succ(0) => {z : Bool} > if z then 0 else succ(0) : Nat 
+                                                                                 |
+                                                                                 |               
+                                                                                 | S = MGU {Nat ≐ Nat, t1 ≐ Bool} = {Bool/t1}
+                                                                                 |
                          ________________________________________________________|________________________________________________________
                         |                                                        |                                                        |
                         z => {z : t1} > z : t1                                  0 => ø > 0 : Nat                                       succ(0) => ø > succ(0) : Nat
@@ -102,18 +110,58 @@ t           con Nat                 => {Nat/t}
 
 
 
+ii. λy. succ((λx.x) y)
+
+                                                                    λy. succ((λx.x) y) => ø > λy : Nat. succ((λx.x) y) : Nat → Nat
+                                                                            |
+                                                                        succ((λx.x) y) => {y : Nat} > succ((λx.x) y) : Nat 
+                                                                            |
+                                                                            | S = MGU {t1 ≐ Nat} = {Nat/t1}
+                                                                            |
+                                                                         (λx.x) y => {y : t1} > (λx.x) y : t1  
+                                                                            |
+                                                                            | S = MGU {t1 → t1 ≐ t3 → t4} = {t1 ≐ t3, t1 ≐ t4} = {t1/t3, t1/t4}
+                                    ________________________________________|________________________________________
+                                   |                                                                                 |
+                                  λx.x => ø > λx : t1.x : t1 → t1                                                    y => {y : t3} > y : t3
+                                   |
+                                   x => {x : t1} > x : t1  
 
 
 
+iii. λx. if isZero(x) then x else (if x then x else x)
+
+
+                        λx. if isZero(x) then x else (if x then x else x)
+                                              |
+                            if isZero(x) then x else (if x then x else x)
+                                              |
+                                              | S = MGU {Nat ≐ Bool, t5 ≐ Bool} => ERROR
+       _______________________________________|_______________________________________
+      |                                       |                                       |
+   isZero(x) => {x : Nat} > isZero(x) : Bool  x => {x : t5} > x : t5        (if x then x else x) => {x : Bool} > (if x then x else x) : Bool 
+      |                                                                               |
+      x {x : t4} > x : t4                                                             |  S = MGU {t1 ≐ Bool, t1 ≐ t2, t2 ≐ t3, t1 ≐ t3} = {Bool/t1, Bool/t2, Bool/t3}
+                                                               _______________________|_______________________       
+                                                              |                       |                       |
+                                                              x => {x : t1} > x : t1  x => {x : t2} > x : t2  x => {x : t3} > x : t3
 
 
 
+iv. λx.λy. if x then y else succ(0)
 
-
-
-
-
-
+                λx.λy. if x then y else succ(0) => ø > λx : Bool.λy : Nat. if x then y else succ(0) : Bool → Nat → Nat  
+                            |
+                   λy. if x then y else succ(0) => {x : Bool} > λy : Nat. if x then y else succ(0) : Nat → Nat 
+                            |
+                       if x then y else succ(0) => {x : Bool, y : Nat} > if  then y else succ(0) : Nat
+                            |
+                            | S = MGU {t2 ≐ Bool, t1 ≐ Nat} = {Bool/t2, Nat/t1} 
+ ___________________________|___________________________
+|                           |                           |
+x => {x : t2} > x : t2      y => {y : y1} > y : t1   succ(0) => ø > succ(0) : Nat
+                                                        |
+                                                        0 => ø > 0 : Nat
 
 
 
