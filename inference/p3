@@ -164,6 +164,31 @@ x => {x : t2} > x : t2      y => {y : y1} > y : t1   succ(0) => ø > succ(0) : N
                                                         0 => ø > 0 : Nat
 
 
+Quedan para el lector (?
+
+v. if True then (λx. 0) 0 else (λx. 0) False
+vi. (λf. if True then f 0 else f False) (λx. 0)
+vii. λx.λy.λz. if z then y else succ(x) 
+
+
+
+viii. fix (λx. pred(x))
+
+Para el punto viii, asumir extentido el algoritmo de inferencia con W(fix) = ∅ > fix_a : (a → a) → a donde a es una variable fresca.
+
+                        fix (λx. pred(x)) => ø > fix (λx. pred(x)) : Nat 
+                                |
+                                | S = MGU {Nat → Nat ≐ t2 → t2} = {Nat ≐ t2, Nat ≐ t2} = {Nat ≐ t2} = {Nat/t2}
+                                |
+                             λx. pred(x) => ø > λx : Nat. pred(x) : Nat → Nat
+                                |
+                              pred(x) => {x : Nat} > pred(x) : Nat 
+                                |
+                                | S = MGU {t1 ≐ Nat} = {Nat/t1}
+                                |
+                                x => {x : t1} > x : t1
+
+
 
 
 
