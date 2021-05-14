@@ -208,3 +208,39 @@ s = {((Nat -> t2) -> t2)/t3, t6/t5}
 			W(succ(0)) = ø > succ(0) : Nat
 			W(0) = ø > 0 : Nat
 			S = MGU({Nat = Nat})
+
+iii.
+
+(λf.<f 2, f True>) (λx.x)
+
+	(λf.<f 2, f True>)
+
+		<f 2, f True>
+		W(<f 2, f True>) = 
+		S = MGU({t5 = t4 x t2} U {Nat -> t4 = Bool -> t2}) FALLA por colision
+
+			f 2
+			W(f 2) = {f : Nat -> t4} > f 2 : t4
+			S = MGU({t3 = Nat -> t4})
+				f
+				W(f) = {f : t3} > f : t3
+
+				2 == succ(succ(0))
+				W(succ(succ(0))) = ø > succ(succ(0)) : Nat
+				W(succ(0)) = ø > succ(0) : Nat
+				W(0) = ø > 0 : Nat
+
+
+			f True
+			W(f True) = {f : Bool -> t2} > f True : t2
+			S = MGU({t1 = Bool -> t2})
+
+				f
+				W(f) = {f : t1} > f : t1
+
+				True
+				W(True) = ø > True : Bool
+
+	(λx.x)
+
+		x
