@@ -244,3 +244,40 @@ iii.
 	(λx.x)
 
 		x
+
+11)
+a)
+DUDA: hay que extender las reglas de martelli-montanari?
+W(Nilσ) = ø > Nilσ : ABσ
+
+W(Bin(T, U, V)) = SΓ1 U SΓ2 U SΓ3 > S(Bin(M, N, O)) : S(ABσ)
+S = MGU({ρ = ABσ, τ = ABσ} U {σ1= σ2 | x : σ1 ∈ Γi, x : σ2 ∈ Γj , i, j ∈ {1, 2, 3}})
+	W(T) = Γ1 > M : ρ
+	W(U) = Γ2 > N : σ
+	W(V) = Γ3 > O : τ
+
+b)
+
+regla de tipado
+
+t-case
+	(Γ > M : σ) ^ (Γ > N : τ) ^ (Γ > O : τ) <==>  case M of {Nilσ ~~> N | Bin(i, r, d) ~~> O} : τ
+
+W(case T of {Nilσ ~~> U | Bin(i, r, d) ~~> V}) = 
+	SΓ1 U SΓ2 U SΓ3 > S(case M of {Nilσ ~~> N | Bin(i, r, d) ~~> O}) : τ
+S = MGU({ρ = ABt, σ = τ} U {σ1= σ2 | x : σ1 ∈ Γi, x : σ2 ∈ Γj , i, j ∈ {1, 2, 3}})
+	W(T) = Γ1 > M : ρ
+	W(U) = Γ2 > N : σ
+	W(V) = Γ3 > O : τ
+
+DUDA: en Γ3 tengo que especificar los tipos de i r d ??
+
+
+12)
+
+W(switch T {case n1 : U1 . . . case nk : Uk default : V}) =
+	SΓ0 U ... U SΓk+1 > S(switch M {case n1 : N1 . . . case nk : Nk default : N}) : S σ
+S = MGU({ρ = Nat, σ1 = σ, ... , σk = σ})
+	W(T) = Γ0 > M : ρ
+	W(Ui) = Γi > Ni : σi / ∀i,j (1 ≤ i, j ≤ k ∧ i != j ⇒ ni != nj)
+	W(V) = Γk+1 > N : σ
