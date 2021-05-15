@@ -320,13 +320,28 @@ Y las siguientes reglas de tipado:
 
 i. Adaptar el algoritmo de inferencia para que funcione sobre esta versión extendida
 
-W(⟨U, V⟩) = S(Γ1) U S(Γ2) > S(⟨M, N⟩) : S(σ) × S(τ)
+W(⟨U, V⟩) = S(Γ1) ∪ S(Γ2) > S(⟨M, N⟩) : S(σ) × S(τ)
 
 W(U) = Γ1 > M : σ
 
 W(V) = Γ2 > N : τ
 
 S = MGU{{σ1 ≐ σ2 | x : σ1 ∈ Γ1, x : σ2 ∈ Γ2}}
+
+
+W(π1(U)) = S(Γ) > S(π1(M)) : S(t1) 
+
+W(U) = Γ > M : σ
+
+S = MGU {σ ≐ t1 × t2}
+
+
+W(π2(V)) = S(Γ) > S(π2(N)) : S(t2) 
+
+W(V) = Γ > N : σ
+
+S = MGU {σ ≐ t1 × t2}
+
 
 
 ii. Tipar la expresión (λf.hf,2i) (λx.x 1) utilizando la versión extendida del algoritmo
@@ -434,5 +449,61 @@ S = MGU {µ ≐ AB_τ, σ ≐ AB_τ, µ ≐ σ, ð ≐ τ} ∪ {σ1 ≐ σ2 | x 
 b) Escribir la regla de tipado para el case de árboles binarios, y la regla análoga en el algoritmo de inferencia.
 
 
+Γ > M : AB_τ   Γ U {l : AB_τ, r : AB_τ, v : τ} > O : σ   Γ > N : σ  
+___________________________________________________________________(T-CaseBin)
+Γ > case M of {Nil ~~> N | Bin(l, v, r) ~~> O} : σ
 
+
+PREGUNTA: qué es la regla análoga a una relga de tipado?
+
+W(case U of {Nil ~~> V | Bin(l, v, r) ~~> W}) = S(Γ1) ∪ S(Γ2) ∪ S(Γ3') > S(case M of {Nil ~~> N | Bin(l, v, r) ~~> O}) : S(µ)
+
+W(U) = Γ1 > M : σ
+W(V) = Γ2 > N : ð
+W(W) = Γ3 > O : µ
+
+τ_l | α si l : α ∈ Γ3
+    | s variable fresca si no
+
+τ_v | β si v : β ∈ Γ3
+    | s variable fresca si no
+
+τ_r | ŋ si r : ŋ ∈ Γ3
+    | s variable fresca si no
+
+S = MGU {σ ≐ AB_(τ_v), µ ≐ ð, σ ≐ τ_r, σ ≐ τ_l} ∪ {σ1 ≐ σ2 | x : σ1 ∈ Γi, x : σ2 ∈ Γj, i, j ∈ {1, 2, 3'}}
+ 
+Γ3' = Γ3 ⊖ {l, v, r}
+
+
+
+12) Extender el algoritmo de inferencia W para que soporte el tipado del switch de números naturales, similar al de C o C++. La extensión de la sintaxis es la siguiente:
+
+                                        M = . . . | switch M {case n1 : M1 . . . case nk : Mk default : Mk+1}
+
+donde cada ni es un numeral (un valor de tipo Nat, como 0, succ(0), succ(succ(0)), etc.). Esto forma parte de la sintaxis y no hace falta verificarlo en el algoritmo.
+La regla de tipado es la siguiente:
+
+                                        Γ > M : Nat   ∀i, j(1 ≤ i, j ≤ k ∧ i ≠ j ⇒ ni ≠ nj)   Γ > N1 : σ ... Γ > Nk : σ   Γ > N : σ
+                                        _______________________________________________________________________________________________
+                                        Γ > switch M {case n1 : N1 ... case nk : Nk default : N} : σ
+
+
+W(switch U {case n1 : V1 ... case nk : Vk default : V}) = S(Γu) ∪ S(Γ1) ∪ ... ∪ S(Γk) ∪ S(Γv) > S(switch M {case n1 : N1 ... case nk : Nk default : N}) : S(τ)
+
+Debe cumplirse ∀i, j(1 ≤ i, j ≤ k ∧ i ≠ j ⇒ ni ≠ nj)
+
+W(U) = Γu > M : σ
+
+W(V1) = Γ1 > N1 : τ1
+...
+W(Vk) = Γk > Nk : τk
+
+W(V) = Γv > N : τ
+
+S = MGU {σ ≐ Nat, τ1 ≐ τ, τ2 ≐ τ, ... , τk ≐ τ} ∪ {σ1 ≐ σ2 | x : σ1 ∈ Γi, x : σ2 ∈ Γj, i, j ∈ {1, ... ,k} ∪ {u, v}}
+
+
+
+13)
 
