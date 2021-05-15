@@ -284,10 +284,154 @@ PREGUNTA: qué pasa si me quedan variables de tipo al terminar la aplicación de
 
 
 
-{x : σ → (t5 → ρ) → τ, x2 : ρ} > λy : σ.(x y) (λz.x2) : σ → τ
+{x : t2 → (t5 → t4) → t7, x2 : t4} > λy : t2.(x y) (λz.x2) : t2 → t7
 
 
 
+9)
+
+Tener en cuenta un nuevo tipo par definido como: σ ::= . . . | σ × σ
+
+Con expresiones nuevas definidas como: M ::= . . . | ⟨M, M⟩ | π1(M) | π2(M)
+
+Y las siguientes reglas de tipado:
+
+    Γ > M : σ  Γ > N : τ            Γ > M : σ × τ           Γ > M : σ × τ
+    ____________________            ______________          ______________
+    Γ > ⟨M, N⟩ : σ × τ              Γ > π1(M): σ            Γ > π2(M): τ
+
+
+i. Adaptar el algoritmo de inferencia para que funcione sobre esta versión extendida
+
+W(⟨U, V⟩) = 
+
+W(U) = Γ > M : σ
+
+Tener en cuenta un nuevo tipo par definido como: σ ::= . . . | σ × σ
+
+Con expresiones nuevas definidas como: M ::= . . . | ⟨M, M⟩ | π1(M) | π2(M)
+
+Y las siguientes reglas de tipado:
+
+    Γ > M : σ  Γ > N : τ            Γ > M : σ × τ           Γ > M : σ × τ
+    ____________________            ______________          ______________
+    Γ > ⟨M, N⟩ : σ × τ              Γ > π1(M): σ            Γ > π2(M): τ
+
+
+i. Adaptar el algoritmo de inferencia para que funcione sobre esta versión extendida
+
+W(⟨U, V⟩) = S(Γ1) U S(Γ2) > S(⟨M, N⟩) : S(σ) × S(τ)
+
+W(U) = Γ1 > M : σ
+
+W(V) = Γ2 > N : τ
+
+S = MGU{{σ1 ≐ σ2 | x : σ1 ∈ Γ1, x : σ2 ∈ Γ2}}
+
+
+ii. Tipar la expresión (λf.hf,2i) (λx.x 1) utilizando la versión extendida del algoritmo
+
+
+                                    (λf.⟨f, 2⟩) (λx.x 1) => ø > (λf : (Nat → t4) → t4.⟨f, 2⟩) (λx : Nat → t4.x 1) : ((Nat → t4) → t4) × Nat
+                                           |
+                                           | S = MGU {t1 → t1 × Nat ≐ ((Nat → t4) → t4) → t5}               =  
+                                           |          {t1 ≐ (Nat → t4) → t4, t1 × Nat ≐ t5}                 = 
+                                           |          {((Nat → t4) → t4) × Nat ≐ t5} | {(Nat → t4) → t4/t1} = 
+                                           |          {} | {(Nat → t4) → t4/t1, ((Nat → t4) → t4) × Nat/ t5}
+                ___________________________|___________________________
+               |                                                       |
+            λf.⟨f, 2⟩ ø > λf : t1.⟨f, 2⟩ : t1 → t1 × Nat             λx.x 1 => ø > λx : Nat → t4.x 1 : (Nat → t4) → t4
+               |                                                       |
+            ⟨f, 2⟩ =>  {f : t1} > ⟨f, 2⟩ : t1 × Nat                   x 1 => {x : Nat → t4} > x 1 : t4 
+               |                                                       |
+               |                                                       | S = MGU {t2 ≐ Nat → t4} = {Nat → t2/t4}
+ ______________|______________                           ______________|______________
+|                             |                         |                             |
+f => {f : t1} > f : t1        2 => ø > 2 : Nat          x => {x : t2} > x : t2        1 => ø > 1 : Nat
+                                                                                
+
+
+iii.Intentar tipar la siguiente expresión utilizando la versión extendida del algoritmo.
+                        
+                                (λf.hf 2, f Truei) (λx.x)
+
+Mostrar en qué punto del mismo falla y por qué motivo.
+
+
+                                                                                (λf.⟨f 2, f True⟩) (λx.x)
+                                                                                          |
+                                                                                          |
+                                         _________________________________________________|_________________________________________________
+                                        |                                                                                                   |
+                                        |                                                                                                   |   
+                                        |                                                                                                   |
+                                 λf.⟨f 2, f True⟩                                                                                         λx.x
+                                        |                                                                                                   |
+                                        |                                                                                                   |
+                                        |                                                                                                   |
+                                    ⟨f 2, f True⟩                                                                                           x
+                                        |
+                                        | S = MGU {Nat → t3 ≐ Bool → t4} = {Nat ≐ Bool, t3 ≐ t4} ERROR (Colisión)
+               _________________________|_________________________
+              |                                                   |
+              |                                                   |                                                                        
+              |                                                   |  
+             f 2 => {f : Nat → t3} > f 2 : t3                   f True => {f : Bool → t4} > f True : t4 
+              |                                                   |
+              | S = MGU {t1 ≐ Nat → t3} = {Nat → t3/t1}           | S = MGU {t2 ≐ Bool → t4} = {Bool → t4/t2}
+  ____________|____________                           ____________|____________
+ |                         |                         |                         |    
+ |                         |                         |                         |
+ |                         |                         |                         | 
+ f => {f : t1} > f : t1    2 => ø > 2 : Nat          f => {f : t2} > f : t2  True => ø > True : Bool
+
+
+
+10) EITHER Y MAYBE OTRA VEZ https://streamscheme.com/wp-content/uploads/2020/04/NotLikeThis.png
+
+a) Extender el sistema de tipado y el algoritmo de inferencia con las reglas necesarias para introducir los tipos Either σ σ y Maybe σ, cuyos términos son análogos a los de Haskell.
+
+b) Utilizando estas reglas y el método del árbol, tipar la expresión:
+        
+            λx.if x then Just (Left 0) else Nothing
+
+
+
+11) Extender el algoritmo de inferencia para soportar la inferencia de tipos de árboles binarios. En esta extensión del algoritmo sólo se considerarán los constructores del árbol.
+
+La sintaxis de esta extensión es la siguiente:
+                                                    σ ::= ... | ABσ M ::= ... | Nilσ | Bin(M, N, O)
+
+Y sus reglas de tipado, las siguientes:
+
+                                                                                    Γ > M : AB_σ  Γ > O : AB_σ  Γ > N : σ
+                                    _________________                               ______________________________________
+                                    Γ >  Nil_σ : AB_σ                               Γ > Bin(M, N, O) : AB_σ
+
+Nota: la función Erase, que elimina la información de tipos que el inferidor se encargará de inferir, se extiende de manera acorde para la sintaxis nueva:
+
+                                                    Erase(Nil_σ) = Nil
+                                                    Erase(Bin(M, N, O)) = Bin(Erase(M),Erase(N),Erase(O))
+
+Recordar que una entrada válida para el algoritmo es un pseudo término con la información de tipos eliminada. Por ejemplo:
+
+                                                    (λx.Bin(Nil, 5, Bin(Nil, x, Nil))) 5
+
+
+
+W(Nil) = ø > Nil_t1 : AB_t1
+
+
+W(Bin(U, V, T)) = S(Γ1) ∪ S(Γ2) ∪ S(Γ3) > S(Bin(M, N, O)) : S(µ) 
+
+W(U) = Γ1 > M : σ
+W(V) = Γ2 > N : ð
+W(T) = Γ3 > O : µ
+
+S = MGU {µ ≐ AB_τ, σ ≐ AB_τ, µ ≐ σ, ð ≐ τ} ∪ {σ1 ≐ σ2 | x : σ1 ∈ Γi, x : σ2 ∈ Γj, i, j ∈ {1, 2, 3}}
+ 
+
+b) Escribir la regla de tipado para el case de árboles binarios, y la regla análoga en el algoritmo de inferencia.
 
 
 
