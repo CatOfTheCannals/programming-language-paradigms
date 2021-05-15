@@ -72,7 +72,7 @@ t                       Nat → Bool              (Nat → u) → Bool          
 
 
 t → u       con Nat → Bool          => {Nat/t, Bool/u}
-            con u → Bool            => PREGUNTA: no se puede porque no hay un orden particular de la aplicación? Por ejemplo, {u/t, Bool/u}
+            con u → Bool            => PREGUNTA: no se puede porque no hay un orden particular de la aplicación? Por ejemplo, {u/t, Bool/u} => Se puede: RECORDAR CORRER EL ALGORITMO SOBRE LA UNIFICACIÓN
             con (Nat → u) → Bool    => Idem anterior pero con {Nat → u/t, Bool/u}
             con Nat → u → Bool      => Idem anterior 
             con a → b → c           => PREGUNTA: Cuál es el mgu: {a/t, b → c/u} o {a → b/t, c/u}?
@@ -165,11 +165,11 @@ x => {x : t2} > x : t2      y => {y : y1} > y : t1   succ(0) => ø > succ(0) : N
 
 
 Quedan para el lector (?
-
-v. if True then (λx. 0) 0 else (λx. 0) False
-vi. (λf. if True then f 0 else f False) (λx. 0)
-vii. λx.λy.λz. if z then y else succ(x) 
-
+_________________________________________________
+v. if True then (λx. 0) 0 else (λx. 0) False     |
+vi. (λf. if True then f 0 else f False) (λx. 0)  |
+vii. λx.λy.λz. if z then y else succ(x)          |
+_________________________________________________|
 
 
 viii. fix (λx. pred(x))
@@ -190,6 +190,101 @@ Para el punto viii, asumir extentido el algoritmo de inferencia con W(fix) = ∅
 
 
 
+6) 
+
+i. λx. λy. λz. (z x) y z
+
+    PREGUNTA: podrían no estar los paréntesis y conservar la semántica?
+
+                                                                      λx. λy. λz. (z x) y z
+                                                                                |
+                                                                        λy. λz. (z x) y z
+                                                                                |
+                                                                           λz. (z x) y z
+                                                                                |
+                                                                            (z x) y z
+                                                                                |                                                   @paréntesis
+                                                                                | S = MGU {t6 ≐ t2 → t4 → t5, t5 ≐ t6 → t7} = {t5 ≐ (t2 → t4 → t5) → t7} | {t2 → t4 → t5/ t6} => ERROR 
+                                            ____________________________________|____________________________________
+                                           |                                                                         |
+                                        (z x) y => {z : t2 → t4 → t5, x : t2} > (z x) y : t5                         z => {z : t6} > z : t6
+                                           |
+                                           | S = MGU {t3 ≐ t4 → t5} = {t4 → t5/t3}
+                       ____________________|____________________
+                      |                                         |
+                     z x => {z : t2 → t3, x : t2} > z x : t3    y => {y : t4} > y : t4
+                      |
+                      | S = MGU {t1 ≐ t2 → t3} = {t2 → t3/ t1}
+  ____________________|____________________
+ |                                         |
+ z => {z : t1} > z : t1                    x => {x : t2} > x : t2
+
+
+Para el lector parte 2.
+_________________________
+ii.                      |
+...                      |
+vii.                     |
+_________________________|
+
+
+
+7) Indicar tipos σ y τ apropiados de modo que los términos de la forma λy : σ.λx : τ.y^n(x) resulten tipables para todo n natural. El par (σ, τ) debe ser el mismo para todos los términos. Observar si tienen todos el mismo tipo. Notación: M^0(N) = N, M^(n+1)(N) = M(M^n(N)). Sugerencia: empezar haciendo inferencia para n = 2 (es decir, calcular W(λy.λx.y(yx))) y generalizar el resultado.
+
+
+                                                                            λy.λx.y(yx) => ø > λy : t3 → t3.λx : t3.y(yx) : (t3 → t3) → t3 → t3 
+                                                                                |
+                                                                             λx.y(yx) => {y : t3 → t3} > λx : t3.y(yx) : t3 → t3 
+                                                                                |
+                                                                              y(yx) => {y : t3 → t3, x : t3} > y(yx) : t3
+                                                                                |
+                                                                                | S = MGU {t4 ≐ t2 → t3, t4 ≐ t3 → t5} = {t2 → t3 ≐ t3 → t5} | {t2 → t3/t4} = {t2 → t3/t4, t3/t2, t3/t5}
+                                                                   _____________|_____________
+                                                                  |                           |
+                                                                  y => {y : t4} > y : t4     yx => {y : t2 → t3, x : t2} > y x : t3
+                                                                                              |
+                                                                                              | S = MGU {t1 ≐ t2 → t3} = {t2 → t3/t1}
+                                                                                 _____________|_____________
+                                                                                |                           |
+                                                                                y => {y : t1} > y : t1      x => {x : t2} > x :t2
+
+
+
+Dado que y toma elementos de su imagen como argumento (ya que se puede hacer y(yx)), entonces los tipos del dominio y la imágen deben coincidir (t3 → t3). Por otro lado, como x es pasado como argumento de y, debe tener el tipo que acepta y (t3). Finalmente, debido a que la lambda es una aplicación anidada de y, el tipo de salida es el de la imagen de y (t3).
+
+En general, tomando (σ, τ) = (t3 → t3, t3) se consigue lo que se quiere.
+
+Todos los términos tienen el mismo tipo ya que los tipos de los argumentos no cambian aunque lo haga el subtérmino de la lambda. Es decir, continúa recibiendo una función de tipo t3 → t3, una variable de tipo t3 y devuelve algo de tipo t3.
+
+PREGUNTA: es necesaria la demostración por inducción?
+
+Sean M : t3 → t3 y N : t3. Supongo que vale que M^k(N) : t3, con k >= 2, entonces, si R = M^k(N), por E-App vale M R : t3. Es decir, M(M^k(N)) : t3 => M^(k+1)(N) : t3.  
+
+
+
+8) 
+
+PREGUNTA: qué pasa si me quedan variables de tipo al terminar la aplicación del algoritmo? reemplazo por tipos genéricos? NO! DEVUEVLO ASÍ 
+
+                                                                                λy.(x y) (λz.x2) => {x : t2 → (t5 → t4) → t7, x2 : t4} > λy : t2.(x y) (λz.x2) : t2 → t7
+                                                                                        |
+                                                                                   (x y) (λz.x2) => {x : t2 → (t5 → t4) → t7, y : t2, x2 : t4} > (x y) (λz.x2) : t7 
+                                                                                        |
+                                                                                        | S = MGU {t3 ≐ (t5 → t4) → t7} = {(t5 → t4) → t7/t3}
+                                            ____________________________________________|____________________________________________
+                                           |                                                                                         |
+                                          x y => {x : t2 → t3, y : t2} > x y : t3                                                  λz.x2 => {x2 : t4} > λz : t5.x2 : t5 → t4
+                                           |                                                                                         |   
+                                           | S = MGU {t1 ≐ t2 → t3} = {t2 → t3/t1}                                                  x2 => {x2 : t4} > x2 : t4
+                           ________________|________________                                                                         
+                          |                                 |                                                                        
+                          x => {x : t1} > x : t1            y => {y : t2} > y : t2
+
+
+
+
+
+{x : σ → (t5 → ρ) → τ, x2 : ρ} > λy : σ.(x y) (λz.x2) : σ → τ
 
 
 
@@ -197,4 +292,3 @@ Para el punto viii, asumir extentido el algoritmo de inferencia con W(fix) = ∅
 
 
 
-  

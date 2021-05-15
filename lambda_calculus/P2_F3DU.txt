@@ -872,7 +872,7 @@ map(M, N) → map(M, N')
 __________________________________(E-MapList) PREGUNTA: acá la asociatividad me salva de poner parentésis? 
 map(M, v :: vs) → M v :: map(M, vs) 
 
-ø > M : σ → τf
+ø > M : σ → τ
 _________________(E-MapEmpty) PREGUNTA: hay que aclarar algo más sobre los tipos acá? (por ejemplo, que τ es el tipo de retorno de M) 
 map(M, []σ) → []τ
 
@@ -881,21 +881,22 @@ map(M, []σ) → []τ
 19) A partir de la extensión del ejercicio 17, agregaremos términos para representar listas por comprensión, con un selector y una guarda, de la siguiente manera: 
 [M | x ← S, P], donde x es el nombre de una variable que puede aparecer libre en los términos M y P. La semántica es análoga a la de Haskell: para cada valor de la lista representada por el término S, se sustituye x en P y, de resultar verdadero, se agrega M con x sustituido al resultado. Definir las reglas de tipado, el conjunto de valores y las reglas de semántica para esta extensión.
 
-Valores ::= ... | [M | x ← V, P] PREGUNTA: es correcto que sea valor? está de más pedirle que M y P sean valores también? pierdo determinismo a la hora de reducir? 
+Valores ::= ... | [M | x ← V, P] PREGUNTA: es correcto que sea valor? está de más pedirle que M y P sean valores también? pierdo determinismo a la hora de reducir? NO!
 
 Términos ::= ... | [M | x ← S, P]        
 
 Regla de tipado.
 
-Γ > M : τ → σ  Γ > S : [τ]  Γ > P : τ → Bool 
-_____________________________________________(T-CompList)
+Γ U {x : τ} > M : σ  Γ > S : [τ]  Γ U {x : τ} > P : Bool (!!!!) 
+_______________________________________________________________(T-CompList)
 Γ > [M | x ← S, P] : [σ]
+
 
 
 Reglas de reducción. 
              
              S → S'
-_______________________________(E-CompList) PREGUNTA: es incorrecto ir contra la evaluación lazy?
+_______________________________(E-CompList)
 [M | x ← S, P] → [M | x ← S', P]
 
 
@@ -1012,7 +1013,9 @@ Xor ≡ (λx: Bool.(λx: Bool. if x then Not y else y)) PREGUNTA: idem @macros
 
 Se desea extender el cálculo lambda tipado agregando unión de funciones. Para ello, extenderemos el conjunto de términos y el de tipos de la siguiente manera:
 
-M1 ... Mk ::= ··· | [(M1, ... , Mk)] σ ::= ··· | Union(σ1, ... , σk)τ
+M1 ... Mk ::= ··· | [(M1, ... , Mk)] 
+
+σ ::= ··· | Union(σ1, ... , σk)τ
 
 Cada Mi dentro de “[()]” es una función con distinto dominio del resto pero con la misma imagen.
 
@@ -1037,7 +1040,7 @@ ___________________________________________(T-Union)
 Γ > [(M1, ... , Mk)] : Union(σ1, ... , σk)τ                    
 
 
-Γ > [(M1, ... , Mk)] : Union(σ1, ... , σk)τ          ??????????????
+Γ > [(M1, ... , Mk)] : Union(σ1, ... , σk)τ     ∃i ∈ [1,k] | Γ > N : σi
 __________________________________________________________________________(T-AppUnion) PREGUNTA: puedo usar un cuantificador acá? (por ejemplo, ∃i ∈ [1,k] | Γ > N : σi)
 Γ > [(M1, ... , Mk)] N : τ 
 
@@ -1045,20 +1048,20 @@ __________________________________________________________________________(T-App
 
 b) PREGUNTA: qué es el árbol de un juicio de tipado?
 
-c) Valores ::= ... | [(V1, ... , Vk)] PREGUNTA: hay más modificaciones?
+c) Valores ::= ... | [(V1, ... , Vk)] PREGUNTA: hay más modificaciones?  
 
 d) 
 
 Regla de evaluación. => PREGUNTA: es necesario tener una en la que no se aplique la unión?
 
-              M1 → M1'    
+                M1 → M1'    
 ________________________________________(E-Union) => PREGUNTA: para generalizar esto para todas las funciones puede usarse un 
 [(M1, ... , Mk)] N → [(M1', ... , Mk)] N                       cuantificador? (por ejemplo, Mi → Mi' y ∀j<i, Mj es valor) 
                                                                De otra forma tendría que repetir esto k veces y no parece prolijo
 
-
-______________________________________(E-AppUnion) => PREGUNTA: cómo chequeo el tipo para poder aplicar la función sobre N?
-[(V1, ... , Vk)] N →  ??????????????
+gamma > V_i : sigma → tau  gamma > V : sigma  V_i pertenece a {V1, ..., Vk}
+____________________________________________(E-AppUnion) => PREGUNTA: cómo chequeo el tipo para poder aplicar la función sobre N? USAR METALENGUAJE PARA CHEQUEO DE TIPO
+[(V1, ... , Vk)] V →  V_i V
 
 
 
@@ -1067,7 +1070,8 @@ ______________________________________(E-AppUnion) => PREGUNTA: cómo chequeo el
 Nota: en este ejercicio usamos la notación M : σ para decir que la expresión M a definir debe tener tipo σ en cualquier contexto. PREGUNTA: no es siempre así? de nuevo las macros
 
 a) 
-PREGUNTA: para qué está la recomendación de fix?
+PREGUNTA: para qué está la recomendación de fix? PENSAR EN CASE Y USAR FIX PARA QUE SE TILDE
+
 
 Γ > L : [σ]
 ________________(T-Head)
@@ -1137,9 +1141,8 @@ zipρ,σ x :: xs  []σ → []ρ x σ
 
 d)
 
-Γ > n : Nat
-_______________________(T-Take) PREGUNTA: es correcto esto o hay que pasarle la lista también? 
-Γ > takeσ n : [σ] → [σ]
+___________________________(T-Take)
+Γ > takeσ : Nat → [σ] → [σ]
 
         M → M'
 ______________________(E-AppTake) 
@@ -1200,7 +1203,7 @@ ________________________________________________________________________________
 
 c) 
 
-valores ::= PREGUNTA: se modifican los valores? quiero tener un término detenido como salida? no tendría que ser un error?
+valores ::= PREGUNTA: se modifican los valores? quiero tener un término detenido como salida? no tendría que ser un error? NECESITO QUE SEA VALOR PARA PODER TENER FUNCIONES QUE TOMEN TÉRMINOS DETENIDOS COMO PARÁMETROS
 
 Reglas de reducción.
 
@@ -1219,14 +1222,7 @@ _______________________________________________(E-AppDet) PREGUNTA: cómo indico
 
 26)
 
-c) PREGUNTAR: error de latex
-
-
-
-
-
-
-
+c) PREGUNTAR: error de latex => ??? = b)
 
 
 
