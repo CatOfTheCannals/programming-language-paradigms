@@ -171,8 +171,76 @@ R <: T y R <: S por S-Rcd pero no hay regla que permita establecer una relación
 
 
 
-6) Supongamos que sólo podemos construir tipos con Bool, Nat y funciones (sin registros). Demostrar que para todo tipo S construido de esa manera, la cantidad de subtipos y de supertipos de S es finita. 
+6) Supongamos que sólo podemos construir tipos con Bool, Nat y funciones (sin registros). Demostrar que para todo tipo S construido de esa manera, la cantidad de subtipos y de supertipos de S es finita.
 
+Demostración.
+
+S no es tipo función.
+
+
+Entonces S está en {Bool, Nat}. Si S = Bool y se tiene S' tal que S <: S', entonces S' está en {Bool, Nat, Int, Float}. Si S = Nat, entonces S' está en {Nat, Int, Float}. De forma análoga, los subtipos están en {Bool} y {Bool, Nat} respectivamente.
+
+
+S tipo función.
+ 
+
+Por inducción en la complejidad del término de tipo (un término M es más complejo que uno N si hay más apariciones de → en M que en en N). 
+
+Los casos base son los del paso anterior. 
+
+Dados M y N tales que vale la hipótesis inductiva, quiero ver que también se cumple para M → N.
+
+Supertipos.
+
+M' <: M  N <: N'
+__________________(S-Func)
+M → N <: M' → N'
+
+La cantidad de supertipos M' → N' está dada por #_supertipos(N)*#_subtipos(M) y esto es finito por hipótesis inductiva. 
+
+Subtipos.
+
+M <: M'  N' <: N
+__________________(S-Func)
+M' → N' <: M → N
+
+De forma análoga, la cantidad de subtipos M' → N' está dada por #_supertipos(M)*#_subtipos(N) y esto es finito por hipótesis inductiva. 
+
+
+
+
+                                                                            SUBTIPADO EN EL CONTEXTO DE TIPADO
+7) Probar que los siguientes términos tipan si se tienen en cuenta las reglas de subtipado vistas en clase.
+
+
+a) λx: Bool.(λy : Nat.succ(y)) x
+
+y : Nat ∈ Γ ∪ {x : Bool} ∪ {y : Nat}
+____________________________________(T-Var)
+Γ ∪ {x : Bool} ∪ {y : Nat} > y : Nat                                   x : Bool ∈ Γ ∪ {x : Bool}
+___________________________________________(T-Succ) => σ = Nat         _________________________(T-Var) ___________(S-BoolNat)
+Γ ∪ {x : Bool} ∪ {y : Nat} > succ(y) : σ                               Γ ∪ {x : Bool} > x : Bool        Bool <: Nat
+_______________________________________________________________(T-Abs) _______________________________________________________(S-Sub)
+Γ ∪ {x : Bool} > λy : Nat.succ(y) : Nat → σ                            Γ ∪ {x : Bool} > x : Nat
+_____________________________________________________________________________________________________________________________________(T-App)
+Γ ∪ {x : Bool} > (λy : Nat.succ(y)) x : σ
+_____________________________________________________________________________________________________________________________________________(T-Abs)
+Γ > λx: Bool.(λy : Nat.succ(y)) x : Bool → σ
+
+
+b) (λr : {l1 : Bool, l2 : Float}.if r.l1 then r.l2 else 5,5) {l1 = true, l2 = −8, l3 = 9,0}
+
+
+
+
+
+
+
+
+
+
+____________________________________________________________________________________________________________________________________________________
+(λr : {l1 : Bool, l2 : Float}.if r.l1 then r.l2 else 5,5) {l1 = true, l2 = −8, l3 = 9,0}
 
 
 
