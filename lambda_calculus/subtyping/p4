@@ -1,0 +1,181 @@
+                                                                            SUBTIPADO
+
+1)
+
+a) Dar una derivación que pruebe que {x : Nat, y : Nat, z : Nat} <: {y : Nat}. ¿Es única?
+
+                                           
+{y} ⊆ {x, y, z}    Nat<:Nat
+________________________________________(S-Rcd)
+{x : Nat, y : Nat, z : Nat} <: {y : Nat}
+
+
+
+Otra forma
+
+Pruebo que vale {x : Nat, y : Nat, z : Nat} <: {y : Nat,x : Nat, z : Nat}
+
+{x : Nat, y : Nat, z : Nat} es permutación de {y : Nat, x : Nat, z : Nat}
+_________________________________________________________________________(S-RcdPerm)
+{x : Nat, y : Nat, z : Nat} <: {y : Nat, x : Nat, z : Nat}
+
+Y ahora veo que vale {y : Nat,x : Nat, z : Nat} <: {y : Nat}
+
+
+_______________________________________(S-RcdWidth)
+{y : Nat, x : Nat, z : Nat} <: {y : Nat}
+
+Luego, por transitividad vale que {x : Nat, y : Nat, z : Nat} <: {y : Nat}
+
+
+b) Dar al menos dos derivaciones de {x : Nat, y : Nat} <: {}
+
+
+_______________________(S-RcdWidth)
+{x : Nat, y : Nat} <: {}
+
+                                          _______________________(S-RcdWidth)
+{x : Nat, y : Nat} <: {y : Nat, x : Nat}  {y : Nat, x : Nat} <: {} 
+_____________________________________________________________________________(S-RcdPerm) => PREGUNTA: esto es re trucho ☹️
+{x : Nat, y : Nat} <: {}
+
+
+
+2) Asumiendo que tenemos los tipos básicos, Top, funciones y registros (sin referencias ni otras extensiones)...
+
+a) ¿Cuáles son los tipos que tienen infinitos subtipos?
+
+Cualquier tipo registro tiene un subtipo que resulta de agregarle un campo extra. Por lo tanto, cualquier tipo registro tiene infinitos subtipos.
+Cualquier tipo es subtipo del tipo Top. En particular, el tipo registro es subtipo de Top. Por lo tanto, Top también tiene infinitos subtipos.
+Las funciones que tienen codominios de tipo Top o tipo registro, también tienen infinitos subtipos (ya que el codominio puede subtiparse infinitamente).
+Los tipos básicos tienen todos finitos subtipos.
+
+b) ¿Cuáles son los tipos que tienen infinitos supertipos?
+
+Las funciones que tienen dominos de tipo Top o tipo registro, tienen infinitos supertipos (ya que el dominio puede subtiparse infinitamente).
+
+
+3)
+
+a) ¿Es verdad que ∃S ∀T T <: S? Verdadero. Top es supertipo de todos los tipos.
+
+b) ¿Es verdad que ∃S ∀T S <: T ? Falso. No hay un subtipo en común para todos los tipos.
+
+Demostración.
+
+Supongo que vale la proposición. Luego tendría que darse que exista S tal que S <: Bool y, por ejemplo, S <: {}. Pero si S <: Bool => S = Bool y Bool no subtipa {}. ABSURDO
+
+c) ¿Es verdad que ∃S1, S2 ∀T1, T2 S1 → S2 <: T1 → T2? Falso.
+
+T1 <: S1  S2 <: T2            ________________________________________________________________________________________________________________________________________________________________
+__________________(S-Func) =>|IDEA: T1 = Bool y T2 = Bool => S1 está en {Bool, Nat, Int, Float} y S2 = Bool. Por otro lado, T1 = Bool y T2 = {} => S1 está en {Bool, Nat, Int, Float} y S2 es |
+S1 → S2 <: T1 → T2           |                                                                                                                      algún registro que extiende {}            |
+                             |                               No se puede encontrar un subtipo en común entre estos dos tipos.                                                                 |
+                             |________________________________________________________________________________________________________________________________________________________________|
+
+Si se diera esto, entones tendría que existir S1 para todo T1 tal que T1 <: S1. Esto vale tomando S1 como Top.
+Por otro lado, tendría que darse que exista S2 para todo T2 tal que S2 <: T2. Esto es falso por b).
+
+Luego no vale la proposición.
+
+d) ¿Es verdad que ∃S1, S2 ∀T1, T2 T1 → T2 <: S1 → S2? 
+
+S1 <: T1  T2 <: S2
+__________________(S-Func)
+T1 → T2 <: S1 → S2
+
+Para que se cumpla esto, tiene que existir S1 para todo T1 tal que S1 <: T1, esto es falso por b).
+
+Luego no vale la proposición.
+
+
+
+4) Decidir si cada uno de los siguientes enunciados es verdadero o falso. Si es verdadero demostrarlo y si es falso dar un contraejemplo.
+
+a) T <: S si y sólo si existe un A tal que S → T <: A → A.
+
+Demostración.
+
+=>)
+
+Si T <: S entonces tomando A = T quiero ver que S → T <: T → T.
+
+Vale por hipótesis      Vale
+__________________      _______
+T <: S                  T <: T
+_______________________________________(S-Func)
+S → T  <:  A → A
+
+
+<=)
+
+Si existe A tal que S → T <: A → A, entonces vale lo siguiente:
+
+A <: S  T <: A
+________________(S-Func)
+S → T  <:  A → A
+
+Luego por transitividad de <:, T <: S.
+
+
+
+b) {x: S, y : T} siempre tiene menos supertipos que S → T.
+
+S' <: S  T <: T'
+__________________(S-Func) => IDEA: Quiero que S' y T' sean únicos.
+S → T <: S' → T'
+
+Tomando S = Bool y T = Float vale que si S' <: S => S' = Bool y si T <: T' => T' = Float. Entonces el único supertipo de Bool → Float es Bool → Float.
+
+Por otro lado, {x : Bool, y : Float} tiene como supertipos {x : Bool} y {} (entre otros). 
+
+Luego es falsa la proposición.
+
+
+
+c) {x: S, y : T} nunca tiene menos supertipos que S → T.
+
+S' <: S  T <: T'
+__________________(S-Func) => IDEA: Quiero que S' o T' sean infinitos.
+S → T <: S' → T'
+
+Tomando S = Top y T = Float vale que si S' <: S => S' es cualquier tipo y si T <: T' => T' = Float. Entonces Top → Float tiene infinitos supertipos.
+
+Por otro lado {x : Top, y : Float}
+
+{li | i ∈ 1..n} ⊆ {x : Top, y : Float}      kj = li ⇒ σj<:τi donde σj es el tipo de kj en {x : Top, y : Float} 
+______________________________________________________________________________________________________________(S-Rcd)
+{x : Top, y : Float} <: {li : τi | i ∈ 1..n}
+
+Entonces {li : τi | i ∈ 1..n} = {y : T', x : S'}|{x : S', y : T'}|{x : S'}|{y : T'}|{}. Entonces resta por ver qué tipos pueden ser S' y T'.
+
+Si Top <: S' => S' = Top.
+
+Si Float <: T' => T' = Float.
+
+Luego, el conjunto de supertipos de {x : Top, y : Float} es {{y : Float, x : Top}, {x : Top, y : Float}, {x : Top}, {y : Float}, {}}.
+
+Por lo tanto es falsa la proposición.
+
+
+
+5) Exhibir tipos R, S y T tales que R <: S y R <: T pero no exista una relación de subtipado entre S y T.
+
+R = {x : {}, y : Bool}
+
+S = {x : {}}
+
+T = {y : Bool}
+
+R <: T y R <: S por S-Rcd pero no hay regla que permita establecer una relación de subtipado entre S y T (ya sea S <: T o T <: S)
+
+
+
+6) Supongamos que sólo podemos construir tipos con Bool, Nat y funciones (sin registros). Demostrar que para todo tipo S construido de esa manera, la cantidad de subtipos y de supertipos de S es finita. 
+
+
+
+
+
+
+
