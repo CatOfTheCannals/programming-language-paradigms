@@ -284,3 +284,15 @@ S = MGU({ρ = Nat, σ1 = σ, ... , σk = σ} U {σ1 = σ2 | x : σ1 ∈ Γi, x :
 	W(T) = Γ0 > M : ρ
 	W(Ui) = Γi > Ni : σi / ∀i,j (1 ≤ i, j ≤ k ∧ i != j ⇒ ni != nj)
 	W(V) = Γk+1 > N : σ
+
+
+
+
+17)
+
+i. el llamado recursivo de M esta asumiendo algo sobre el tipo que se devuelve (que es una funcion)
+	DUDA: no se me ocurre un ejemplo que no tipe.
+
+ii. NO SE :C
+
+iii.
