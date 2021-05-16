@@ -473,7 +473,7 @@ W(W) = Γ3 > O : µ
 
 S = MGU {σ ≐ AB_(τ_v), µ ≐ ð, σ ≐ τ_r, σ ≐ τ_l} ∪ {σ1 ≐ σ2 | x : σ1 ∈ Γi, x : σ2 ∈ Γj, i, j ∈ {1, 2, 3'}}
  
-Γ3' = Γ3 ⊖ {l, v, r}
+Γ3' = Γ3 ⊖ {l, v, r} (elimina la información de tipo relacionada con l, v y r, y deja el resto igual)
 
 
 
@@ -506,4 +506,349 @@ S = MGU {σ ≐ Nat, τ1 ≐ τ, τ2 ≐ τ, ... , τk ≐ τ} ∪ {σ1 ≐ σ2 
 
 
 13)
+
+En este ejercicio extenderemos el algoritmo de inferencia para soportar operadores binarios. Dichos operadores se comportan de manera similar a las funciones, excepto que siempre tienen 2 parámetros y su aplicación se nota de manera infija. Para esto extenderemos la sintaxis y el sistema de tipos del cálculo lambda tipado de la
+siguiente manera:
+
+                                        M ::= ... | ϕx : σ y : τ.M | ⟨M N O⟩ 
+                                        
+                                        σ ::= ... | Op(σ, τ → υ)
+
+Aquí ϕ es el constructor de operadores que liga las variables x (parámetro anterior al operador) e y (parámetro posterior) y ⟨M N O⟩ es la aplicación del operador N a los parámetros M y O (lo ponemos entre h y i para evitar problemas de ambigüedad con la aplicación estándar). Op(σ, τ → υ), por otro lado, representa el tipo de
+los operadores cuyo parámetro anterior es de tipo σ, el posterior de tipo τ y dan como resultado un tipo υ.
+
+Las reglas de tipado que se incorporan son las siguientes:
+
+Γ ∪ {x: σ, y : τ} > M : υ                                   Γ > M : σ   Γ > N : Op(σ, τ → υ)   Γ > O : τ                                        
+_________________________________                           _______________________________________________
+Γ > ϕx : σ y : τ.M : Op(σ, τ → υ)                           Γ > ⟨M N O⟩ : υ
+
+
+i. Dar la extensión al algoritmo necesaria para soportar el tipado de las nuevas expresiones. Recordar que el parámetro de entrada es un término sin anotaciones de tipos.
+
+W(ϕx y .U) = Γ' > ϕx : τ_x y : τ_y.M : Op(τ_x, τ_y → σ)
+
+W(U) = Γ > M : σ
+
+τ_x | α si x : α ∈ Γ
+    | s variable fresca si no
+
+τ_y | β si y : β ∈ Γ
+    | s variable fresca si no
+ 
+Γ' = Γ ⊖ {x, y}
+
+
+W(⟨U V W⟩) = S(Γ1) ∪ S(Γ2) ∪ S(Γ3) > S(⟨M N O⟩) : S(t)
+
+W(U) = Γ1 > M : σ1
+W(V) = Γ2 > N : σ2
+W(W) = Γ3 > O : σ3
+
+S = MGU {σ2 ≐ Op(σ1, σ3 → t)} ∪ {σ4 ≐ σ5 | x : σ4 ∈ Γi, x : σ5 ∈ Γj, i, j ∈ {1, 2, 3}}
+
+
+ii. Aplicar el algoritmo extendido con el método del árbol para tipar: ⟨(λx.succ(x)) (ϕxy.xy) 0⟩
+
+                                                                ⟨(λx.succ(x)) (ϕxy.xy) 0⟩ => ø > ⟨(λx : Nat.succ(x)) (ϕx : Nat → Nat y : Nat. x y) 0⟩ : Nat
+                                                                             |
+                                                                             | S = MGU {Op(t2 → t3, t2  →  t3) ≐ Op(Nat → Nat, Nat  →  t)} =
+                                                                             |         {t2 → t3 ≐ Nat → Nat, t2 ≐ Nat, t3 ≐ t} | {}
+                                                                             |         {t2 ≐ Nat, t3 ≐ Nat, t2 ≐ Nat, t3 ≐ t} | {}
+                                                                             |         {t3 ≐ Nat, Nat ≐ Nat, t3 ≐ t} | {Nat/t2}
+                                                                             |         {Nat ≐ t} | {Nat/t2, Nat/t3}
+                                                                             |         {} | {Nat/t2, Nat/t3, Nat/t}
+                            _________________________________________________|______________________________________________________________________
+                           |                                                 |                                                                      |
+                           |                                                 |                                                                      |
+                           |                                                 |                                                                      |
+                        λx.succ(x) => ø > λx : Nat.succ(x) : Nat → Nat    ϕxy.xy ø > ϕx : t2 → t3 y : t2. x y : Op(t2 → t3, t2  →  t3)              0 ø > 0 : Nat
+                           |                                                 |                                                 
+                           |                                                 |                                                  
+                           |                                                 |                                                 
+                        succ(x) => {x : Nat} > succ(x) : Nat                x y => {x : t2 → t3, y : t2} > x y : t3
+                           |                                                 |                                                 
+                           | S = MGU {t4 ≐ Nat} = {} | {Nat/t4}              | S = MGU {t1 ≐ t2 → t3} = {} | {t2 → t3/t1}
+                           |                              ___________________|___________________                                                 
+                           x => {x : t4} > x : t4        |                                       |
+                                                         x => {x : t1} > x : t1                  y => {y : t2} > y : t2
+
+
+
+14)
+
+Considerar el algoritmo de inferencia extendido para soportar listas:
+
+                                        W([]) = ∅ > []t : [t], con t variable fresca.
+
+                                        W(M : N) = SΓ1 ∪ SΓ2 > S(U : V) : [Sσ], con:
+
+                                        W(M) = Γ1 . U : σ
+                                        W(N) = Γ2 . V : τ
+
+                                        S = MGU({τ ≐ [σ]} ∪ {α ≐ β | x : α ∈ Γ1 ∧ x : β ∈ Γ2})
+
+i. Extender el algoritmo de inferencia para soportar expresiones de la forma "∃x in M/N".
+
+                                        Γ ∪ {x : σ} > N : Bool   Γ > M : [σ]
+                                        _____________________________________
+                                        Γ > ∃x in M/N : Bool
+
+W(∃x in U/V) = S(Γ1) ∪ S(Γ2') > S(∃x in M/N) : Bool 
+
+W(U) = Γ1 > M : σ
+W(V) = Γ2 > N : τ
+
+τ_x | α si x : α ∈ Γ2
+    | s variable fresca si no 
+
+S = MGU {σ ≐ [τ_x], τ ≐ Bool} ∪ {σ1 ≐ σ2 | x : σ1 ∈ Γ1, x : σ2 ∈ Γ2'}
+
+Γ2' = Γ2 ⊖ {x}
+
+
+ii. Aplicar el algoritmo extendido con el método del árbol para tipar las siguientes expresiones. Si alguna de ellas no tipa, indicar el motivo.
+
+    i) (λx.∃y in x/y)(0 : [ ])
+
+
+                                                                (λx.∃y in x/y)(0 : [ ])
+                                                                           |
+                                                                           | S = MGU {[Bool] → Bool ≐ [Nat] → t4} = {[Bool] ≐ [Nat], Bool ≐ t4} ERROR (Colisión)
+                        ___________________________________________________|___________________________________________________
+                       |                                                                                                       |
+                       |                                                                                                       |
+                       |                                                                                                       |
+                  λx.∃y in x/y => ø > λx : [Bool].∃y in x/y : [Bool] → Bool                                                  0 : [] => ø > 0 : []_Nat : [Nat]   
+                       |                                                                                                       |
+                       |                                                                                                       | S = MGU {t3 ≐ [Nat]} = {} | {[Nat]/t3}
+                       |                                                                                            ___________|___________
+                    ∃y in x/y => {x : [Bool]} > ∃y in x/y : Bool                                                   |                       |
+                       |                                                                                           0 => ø > 0 : Nat       [] => ø > []_t3 : [t3] 
+                       | S = MGU {t1 ≐ [t2], t2 ≐ Bool} = {t1 ≐ [Bool]} | {Bool/t2} = {} | {Bool/t2, [Bool]/t1} 
+            ___________|___________
+           |                       |
+           x => {x : t1} > x : t1  y => {y : t2} > y : t2
+
+
+    ii) (λx.∃y in x/y)(iszero(z) : [ ])
+
+                                                    (λx.∃y in x/y)(iszero(z) : [ ]) => {z : Nat} > (λx : [Bool].∃y in x/y)(iszero(z) : [ ]) : Bool
+                                                               |
+                                                               | S = MGU {[Bool] → Bool ≐ [Bool] → t5} = {[Bool] ≐ [Bool], Bool ≐ t5} = {} | {Bool/t5}
+            ___________________________________________________|___________________________________________________
+           |                                                                                                       |
+           |                                                                                                       |
+           |                                                                                                       |
+      λx.∃y in x/y => ø > λx : [Bool].∃y in x/y : [Bool] → Bool                                          iszero(z) : [ ] => {z : Nat} >  iszero(z) : []_Bool : [Bool]   
+           |                                                                                                       |
+           |                                                                                                       | S = MGU {t4 ≐ [Bool]} = {} | {[Bool]/t4}
+           |                                                                                    ___________________|___________________
+        ∃y in x/y => {x : [Bool]} > ∃y in x/y : Bool                                           |                                       |
+           |                                                                             iszero(z) => {z : Nat} > isZero(z) : Bool  [] => ø > []_t4 : [t4] 
+           | S = MGU {t1 ≐ [t2], t2 ≐ Bool} =                                                  |
+           |         {t1 ≐ [Bool]} | {Bool/t2} =                                               |
+           |         {} | {Bool/t2, [Bool]/t1}                                                 | S = MGU {t3 ≐ Nat} = {} | {Nat/t3}
+ __________|____________                                                                       | 
+|                       |                                                                      |
+x => {x : t1} > x : t1  y => {y : t2} > y : t2                                                 z => {z : t3} > z : t3
+                                        
+
+    iii) ∃x in [ ]/True
+
+                                                                            ∃x in [ ]/True => ø > ∃x in []_t2/True : Bool
+                                                                                  |
+                                                                                  | S = MGU {[t1] ≐ [t2], Bool ≐ Bool} = {t2/t1}
+                                                         _________________________|_________________________
+                                                        |                                                   |
+                                                        [] => ø > []_t1 : [t1]                             True => ø > True : Bool
+                                                        
+
+    iv) ∃x in [ ]/(λy.True)
+
+                                                                    ∃x in []/(λy.True) 
+                                                                            |
+                                                                            | S = MGU {[t1] ≐ [t3], Bool ≐ t2 → Bool} ERROR (Colisión)
+                                                   _________________________|_________________________
+                                                  |                                                   |
+                                                 [] => ø > []_t1 : [t1]                           λy.True => ø > λy : t2.True : t2 → Bool
+                                                                                                      |
+                                                                                                     True => ø > True : Bool       
+                                        
+
+    v) ∃x in (0 : [ ])/iszero(x)
+
+                                                                 ∃x in (0 : [ ])/iszero(x) => ø > ∃x in (0 : []_Nat)/iszero(x) : Bool 
+                                                                            |
+                                                                            | S = MGU {[Nat] ≐ [Nat], Bool ≐ Bool}
+                                                   _________________________|_________________________
+                                                  |                                                   |
+                                                0 : [ ] => ø > 0 : []_Nat : [Nat]                  iszero(x) => {x : Nat} > isZero(x) : Bool
+                                                  |                                                   |
+                                                  | S = MGU {[t1] ≐ [Nat]} = {} | {Nat/t1}            | S = MGU {t2 ≐ Nat} = {} | {Nat/t2}
+                         _________________________|_________________________                          |
+                        |                                                   |                         x => {x : t2} > x : t2
+                        0 => ø > 0 : Nat                                    [] => ø > []_t1 : [t1]
+
+
+                     
+15)
+
+Se desea diseñar un algoritmo de inferencia de tipos para el cálculo λ extendido con fórmulas proposicionales de la siguiente manera:
+
+                                        M ::= · · · | ¬M | M ⊃ M | esTautología(M) 
+                                        
+                                        σ := · · · | Prop
+                                        
+Las reglas de tipado son:
+
+                                        Γ > M : Prop
+                                        _____________(tNeg)
+                                        Γ > ¬M : Prop           
+                                        
+                                        Γ > M : Prop   Γ > N : Prop
+                                        ____________________________(tImp)
+                                        Γ > M ⊃ N : Prop 
+
+                                        Γ, x1 : Prop, . . . , xn :Prop > M : Prop   fv(M) = {x1, . . . , xn}
+                                        _____________________________________________________________________(tTaut)
+                                        Γ > esTautología(M): Bool
+
+Notar que esTautología(M) liga todas las variables libres de M. Por ejemplo, esTautología(p ⊃ (q ⊃ p)) es un término cerrado y bien tipado (de tipo Bool).
+
+i. Extender el algoritmo de inferencia para admitir las expresiones incorporadas al lenguaje, de tal manera que implemente las reglas de tipado tNeg, tImp y tTaut.
+
+
+W(¬U) = S(Γ) > S(M) : S(σ)
+
+W(U) = Γ > M : σ
+
+S = MGU {σ ≐ Prop}
+
+
+W(U ⊃ V) = S(Γ1) ∪ S(Γ2) > S(M ⊃ N) : Prop 
+
+W(U) = Γ1 > M : σ1
+W(V) = Γ2 > M : σ2
+
+S = MGU {σ1 ≐ Prop, σ2 ≐ Prop} ∪ {σ3 ≐ σ4 | x : σ3 ∈ Γ1, x : σ4 ∈ Γ2}
+
+
+W(esTautología(U)) = S(Γ') > esTautología(U) : Prop 
+
+W(U) = Γ > M : σ
+
+τ_x1 | α si x1 : α ∈ Γ
+     | s variable fresca si no
+...
+τ_xn | α si xn : α ∈ Γ
+     | s variable fresca si no
+
+S = MGU {σ ≐ Prop, τ_x1 ≐ Prop, ... , τ_xn ≐ Prop} donde fv(M) = {x1, ... , xn}
+
+Γ' = Γ ⊖ fv(M)
+
+ii. Aplicar el algoritmo extendido con el método del árbol para tipar las siguientes expresiones (exhibiendo siempre las sustituciones utilizadas). Si alguna de ellas no tipa, indicar el motivo.
+
+                                                            λy.¬((λx.¬x)(y ⊃ y)) => ø > λy : Prop.¬((λx : Prop.¬x)(y ⊃ y)) : Prop → Prop 
+                                                                     |
+                                                                     |
+                                                                     | 
+                                                             ¬((λx.¬x)(y ⊃ y)) => {y : Prop} > ¬((λx : Prop.¬x)(y ⊃ y)) : Prop
+                                                                     |
+                                                                     | 
+                                                                     |
+                                                               (λx.¬x)(y ⊃ y) => {y : Prop} > (λx : Prop.¬x)(y ⊃ y) : Prop 
+                                                                     |
+                                                                     | S = MGU {Prop → Prop ≐ Prop → t4} = {Prop ≐ Prop, Prop ≐ t4} | {} = {} | {Prop/t4}
+                                        _____________________________|_____________________________
+                                       |                                                           |
+                                       |                                                           |
+                                       |                                                           |
+                                     λx.¬x => ø > λx.¬x : Prop → Prop                            y ⊃ y => {y : Prop} > y ⊃ y : Prop 
+                                       |                                                           |
+                                       |                                                           | S = MGU {t2 ≐ Prop, t3 ≐ Prop, t2 ≐ t3} = {} | {Prop/t2, Prop/t3}
+                                       |                                             ______________|______________
+                                      ¬x => {x : Prop} > ¬x : Prop                  |                             |
+                                       |                                            |                             | 
+                                       | S = MGU {t1 ≐ Prop} = {} | {Prop/t1}       |                             | 
+                                       |                                            y => {y : t2} > y : t2        y => {y : t3} > y : t3
+                                       x => {x : t1} > x : t1
+
+
+
+    
+                                                                            (λx.esTautología(if x then y else z))True
+                                                                                            |
+                                                                                            |
+                                          __________________________________________________|__________________________________________________
+                                         |                                                                                                     |
+                          λx.esTautología(if x then y else z)                                                                               True
+                                         |                          
+                                         |
+                                         |
+                             esTautología(if x then y else z)
+                                         |
+                                         | S = MGU {t2 ≐ Prop, Bool ≐ Prop} = {Bool ≐ Prop} | {Prop/t2} ERROR(Colisión)
+                                         |
+                                    if x then y else z => {x : Bool, y : t2, z : t2} > if x then y else z : t2 
+                                         |
+                                         | S = MGU {t1 ≐ Bool, t2 ≐ t3} = {} | {Bool/t1, t2/t3}
+                 ________________________|________________________
+                |                        |                        |
+                x => {x : t1} > x : t1   y => {y : t2} > y : t2   z => {z : t3} > z : t3                  
+
+
+
+16)
+
+En este ejercicio consideramos dada la extensión para listas vista en el ejercicio 14.
+
+Además, agregaremos términos para representar listas por comprensión, con un selector y una guarda, de la siguiente manera: [M | x ← S, P], donde x es el nombre de una variable que puede aparecer libre en los términos M y P. La semántica es análoga a la de Haskell: para cada valor de la lista representada por el término S, se sustituye x en P y, de resultar verdadero, se agrega M con x sustituido al resultado. La regla de tipado para este nuevo término es la siguiente:
+
+                                    Γ ∪ {x : τ} > M : σ   Γ > S : [τ]   Γ ∪ {x : τ} > P : Bool
+                                    __________________________________________________________(T-Comp)
+                                    Γ > [M|x ← S, P] : [σ]
+
+i. Dar la modificación del algoritmo necesaria para soportar las listas por comprensión.
+
+W([U|x ← V, T]) = S(Γ1') ∪ S(Γ2) ∪ S(Γ3') > S([M|x ← S, P]) : S([σ1])  
+
+W(U) = Γ1 > M : σ1
+W(V) = Γ2 > S : σ2
+W(T) = Γ3 > P : σ3
+
+τ_x1 | α si x : α ∈ Γ1
+     | s variable fresca si no
+
+τ_x2 | α si x : α ∈ Γ3
+     | s variable fresca si no
+
+S = MGU {τ_x1 ≐ τ_x2, σ2 ≐ [τ_x1], σ3 ≐ Bool} ∪ {σ1 ≐ σ2 | x : σ1 ∈ Γi, x : σ2 ∈ Γj, i, j ∈ {1', 2, 3'}}
+
+Γ1' = Γ1 ⊖ {x}
+Γ3' = Γ3 ⊖ {x}
+
+ii. Aplicar el algoritmo extendido para tipar la siguiente expresión (sin renombrar ninguna variable):
+
+
+                                                  [λy.succ(x) | x ← x True, y x] => {x : Bool → [Nat], y : Nat → Bool} > [λy.succ(x) | x ← x True, y x] : [t5 → Nat] 
+                                                              |
+                                                              | S = MGU {Nat ≐ t3, t6 ≐ [Nat], t7 ≐ Bool} = {} | {Nat/t3, [Nat]/t6, Bool/t7}
+  ____________________________________________________________|____________________________________________________________
+ |                                                            |                                                            |
+λy.succ(x) => {x : Nat} > λy : t5.succ(x) : t5 → Nat         x True => {x : Bool → t6} > x True : t6                      y x => {y : t3 → t7, x : t3} > y x : t7
+ |                                                            |                                                            |
+ |                                                            | S = MGU {t1 ≐ Bool → t6} = {} | {Bool → t6/t1}             | S = MGU {t2 ≐ t3 → t7} = {} | {t3 → t7/t2}
+ |                                          __________________|__________________                        __________________|__________________
+succ(x) => {x : Nat} > succ(x) : Nat       |                                     |                      |                                     |
+ |                                         x => {x : t1} > x : t1             True => ø > True : Bool   y => {y : t2} > y : t2                x => {x : t3} > x : t3
+ | S = MGU {t4 ≐ Nat} = {} | {Nat/t4} 
+ |
+ x => {x : t4} > x : t4
+
+
+
+17) 
+
 
