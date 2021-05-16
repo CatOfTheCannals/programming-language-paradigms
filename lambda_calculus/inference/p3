@@ -851,4 +851,100 @@ succ(x) => {x : Nat} > succ(x) : Nat       |                                    
 
 17) 
 
+En este ejercicio modificaremos el algoritmo de inferencia para incorporar la posibilidad de utilizar letrec en nuestro cálculo.
+
+                                    M ::= . . .| letrec f = M in N
+        
+letrec permite por ejemplo representar el factorial de 10 de la siguiente manera:
+
+
+                                    letrec f = (λ x : Nat. if isZero(x) then 1 else x × f (pred(x))) in f 10
+    
+Para ello se agrega la siguiente regla de tipado:
+
+                                    Γ ∪ {f : π → τ} > M : π → τ   Γ ∪ {f : π → τ} > N : σ
+                                    ______________________________________________________
+                                    Γ > letrec f = M in N : σ
+
+Suponiendo que se propone el siguiente pseudocódigo:
+W(letrec f = M in N) = Γ > S (letrec f = M0 in N0): S σ donde:
+
+W(M) = Γ1 > M0 : π → τ      (1)
+W(N) = Γ2 > N0 : σ
+
+S = MGU ({τ1 ≐ τ2 | f : τ1 ∈ Γ1 ∧ f : τ2 ∈ Γ2} ∪ COMPLETAR)
+Γ = S Γ1 ∪ S Γ2
+
+i. Explicar cuál es el error en los llamados recursivos. Dar un ejemplo que debería tipar y no lo hace debido a este error.
+
+Se le pide de más al tipo de M0 en (1). Debería ser un tipo concreto pero no necesariamente tipo función.
+
+                                     letrec f = x in y 
+                                              |
+                                              | Acá se produce el error dado que t1 no es de la forma π → τ. Sin embargo debería ser un término válido
+         _____________________________________|_____________________________________
+        |                                                                           |
+        x => {x : t1} > x : t1                                                      y => {y : t2} > y : t2
+
+
+
+ii. Explicar cuál es el error en el pseudocódigo con respecto la unificación de los contextos (pista: los nombres importan). Dar un ejemplo que debería tipar y no lo hace debido a este error.
+
+Asume que f está en ambos términos y que llega a esta unificación con tipos asignados en ambos contextos.
+
+                                letrec f = (λx.0) in f x
+                                            |
+                                            | Acá falla el MGU porque no hay información sobre f del lado izquierdo. Debería asignar una variable fresca y unificar con la derecha
+       _____________________________________|_____________________________________
+      |                                                                           |
+    λx.0                                                                         f x => {f : t2 → t3, x : t2} > f x : t3
+      |                                                         __________________|__________________
+      0 => ø > 0 : Nat                                         |                                     |
+                                                               f => {f : t1} > f : t1                x => {x : t2} > x : t2
+
+iii. El contexto Γ ¿puede contener a f? ¿Es un comportamiento deseable? Mostrar un ejemplo donde esto trae conflictos (ayuda: usar letrec dentro de un término más grande).
+
+No es deseable ya que f aparece ligada en este contexto. Debería poder usarse f por fuera de letrec de forma similar a lo que se hace con las variables ligadas en las lambdas.
+
+                                                    (f 0) (letrec f = f True in f y)
+                                                                 |
+                                                                 | Acá se produce la colisión entre Nat y Bool al unificar los tipos de f
+                                 ________________________________|______________________________
+                                |                                                               |
+                               f 0 => {f : Nat → t7} > f 0 : t7                               letrec f = (λx.f True) in f y => {f : Bool → t2, y : Bool} > letrec f = (λx.f True) in f y : t2
+                                |                                                               |
+                                | S = MGU {t6 ≐ Nat → t7} = {} | {Nat → t7/t6}                  | S = MGU {Bool → t2 ≐ t4 → t5, COMPLETAR} = {COMPLETAR} | {Bool/t4, t2/t5}
+                   _____________|_____________                  ________________________________|________________________________
+                  |                           |                |                                                                 |
+                  f => {f : t6} > f : t6      0 => ø > 0 : Nat (λx.f True) => {f : Bool → t2} > λx : t3.f True : t3 → t2          f y => {f : t4 → t5, y : t4} > f y : t5
+                                                               |                                                                 |
+                                                               |                                                                 | S = MGU {t3 ≐ t4 → t5} = {} | {t4 → t5/t3}
+                                                               |                                               __________________|__________________
+                                                              f True => {f : Bool → t2} > f True : t2         |                                     |
+                                                               |                                              f => {f : t3} > f : t3                y => {y : t4} > y : t4               
+                                                               | S = MGU {t1 ≐ Bool → t2} = {} | {Bool → t2/t1}
+                                             __________________|__________________
+                                            |                                     |
+                                            f => {f : t1} > f : t1               True => ø > True : Bool   
+
+
+                   
+
+iv. Reescribir el pseudocódigo para que funcione correctamente (corregir los errores y completar la definición de S).
+
+W(letrec f = M in N) = S(Γ1') ∪ S(Γ2') > S(letrec f = M0 in N0): S(σ) donde:
+
+W(M) = Γ1 > M0 : τ      
+W(N) = Γ2 > N0 : σ
+
+τ_f1 | α si f : α ∈ Γ1
+     | s variable fresca si no
+
+τ_f2 | α si f : α ∈ Γ2
+     | s variable fresca si no
+
+S = MGU {τ_f1 ≐ τ_f2, τ_f1 ≐ τ, τ ≐ s1 → s2} ∪ {σ1 ≐ σ2 | x : σ1 ∈ Γ1', x : σ2 ∈ Γ2'}
+
+Γ1' = Γ1 ⊖ {f}
+Γ2' = Γ2 ⊖ {f}
 
