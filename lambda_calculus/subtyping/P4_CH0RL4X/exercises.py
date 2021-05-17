@@ -123,3 +123,46 @@ b)
 
 			Int <: Float # caso l2
 				s-intFloat √
+
+
+9)
+a)
+Propongo:
+(λf : Int -> Int. f 2) (λs : Float. 0.5 + s)
+
+Si uno intenta evaluar la expresion, va a terminar tratando pasarle un Int a una funcion que toma floats.
+En esta funcion se va a realizar una operacion que no esta definida para los Int''s
+
+ø > (λf : Int -> Int. f 2) (λs : Float. 0.5 + s) : µ
+	t-app
+
+	ø > (λf : Int -> Int. f 2) : (Int -> Int) -> µ
+		t-abs
+		{f : Int -> Int} > f 2 : µ, con ¥ = Int -> Int
+			t-app
+			{f : Int -> Int} > f : Int -> µ, con µ = Int
+				t-var
+				(f : Int -> Int) € {f : Int -> Int} √
+
+	ø > (λs : Float. 0.5 + s) : Int -> Int
+		t-sub
+
+		ø > (λs : Float. 0.5 + s) : Float -> Float
+			t-abs
+			{s : Float} > 0.5 + s : Float
+				t-+
+				{s : Float} > 0.5 : Float
+					t-half √
+
+				{s : Float} > s : Float
+					t-var
+					(s : Float) € {s : Float}
+
+		Float -> Float <: Int -> Int
+			s-arrow''
+
+			Int <: Float 
+				s-intFloat √
+
+			Int <: Float 
+				s-intFloat √
