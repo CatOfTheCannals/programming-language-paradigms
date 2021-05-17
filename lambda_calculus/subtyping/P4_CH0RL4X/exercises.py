@@ -357,3 +357,17 @@ S − Comp
 	(LF <: L''F) ^ (LO <: L''O) ^ (LI <: L''I) <==> Comp(LF, LO, LI) <: Comp(L''F ,L''O ,L''I)
 
 DUDA: checkear que no se me escapo nada
+
+
+21) 
+a) y b) DUDA: por que deberia saber esto?
+
+
+22) 
+dado que ProveedorCanino es subclase de Proveedor, no deberia haber problema
+el valor printeado deberia ser:
+	"ProveedorCanino::Entregar"
+DUDA: esta bien esto?
+
+23) 
+la expresion no es valida, porque Felino no es una subclase de Canino
