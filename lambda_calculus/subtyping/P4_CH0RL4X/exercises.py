@@ -250,3 +250,110 @@ c)
 		{c : CompFloat} > c : CompFloat
 			t-var
 			(c : CompFloat) € {c : CompFloat} √
+
+
+12)
+a)
+
+s-curry
+	<µ, ∂> -> ¥ <: µ -> ∂ -> ¥
+
+s-uncurry
+	µ -> ∂ -> ¥ <: <µ, ∂> -> ¥
+
+b)
+
+{x : A''} -> (B'' -> C) <: <{x : A, y : A''} X B> -> C
+	s-trans
+
+	{x : A''} -> (B'' -> C) <: <{x : A} X B> -> C
+		s-trans
+
+		{x : A''} -> (B'' -> C) <: <{x : A''} X B''> -> C
+			s-uncurry √
+
+		<{x : A''} X B''> -> C <: <{x : A} X B> -> C
+			s-arrow
+			<{x : A} X B> <: <{x : A''} X B''>
+				s-tup
+				{x : A} <: {x : A''}
+					s-rcdDepth
+					A <: A'' √
+
+				B <: B'' √
+
+			C <: C
+				s-refl √
+
+	<{x : A} X B> -> C <: <{x : A, y : A''} X B> -> C
+		s-arrow
+
+		<{x : A, y : A''} X B> <: <{x : A} X B>
+			s-tup
+			{x : A, y : A''} <: {x : A}
+				s-rcdWidth √
+
+			B <: B
+				s-refl √
+
+		C <: C
+			s-refl √
+
+c)
+
+pensemos terminos posibles
+
+ø > (λt1 : Int. (λt2 : Int. 4)) 7
+
+esto seguro tipa y seguro tambien tipa al reducirlo
+
+otra posibilidad:
+
+ø > (λt : <Int,Int>. 4) 7
+
+esto lo podemos hacer tipar con la regla s-curry, pero no tenemos reglas para evaluarlo
+
+no obstante, esto no es lo que se pide en la consigna
+
+DUDA: como se resuelve?
+
+
+13)
+propongo que los arboles binarios son covariantes.
+
+s-ab
+	σ <: µ <==> ABσ <: ABµ
+
+como sabemos que los valores de σ son un subconjunto de los valores de µ,
+todos los arboles que se arman con valores de σ, se pueden armar con valores de tipo µ.
+tambien, toda operacion que use valores de tipo µ, va a poder usar valores de tipo σ.
+por lo tanto toda operacion que use elementos de un ABµ, tambien va a poder usar elementos de un ABσ
+
+DUDA: habia que justificar mas?
+
+15)
+
+S − Comp
+	??? <==> Comp(LF, LO, LI) <: Comp(L''F ,L''O ,L''I)
+
+que pasa si fijamos LO y LI??
+	en este caso necesitamos que LF <: L''F
+	porque en definitiva estamos diciendo que queremos mas compiladores,
+	entonces necesitamos poder leer mas programas
+
+que pasa si fijamos LF y LI??
+	en este caso necesitamos que LO <: L''O
+	porque el conjunto mas chico de compiladores deberia tener su output en
+	un subconjunto de los outputs pertenecientes al conjunto mas grande
+
+que pasa si fijamos LF y LO??
+	en este caso necesitamos que LI <: L''I
+	porque el conjunto mas chico de compiladores deberia estar implementado en
+	lenguajes que tambien se puedan usar en el conjunto mas grande
+
+es por esto que propongo
+
+S − Comp
+	(LF <: L''F) ^ (LO <: L''O) ^ (LI <: L''I) <==> Comp(LF, LO, LI) <: Comp(L''F ,L''O ,L''I)
+
+DUDA: checkear que no se me escapo nada
