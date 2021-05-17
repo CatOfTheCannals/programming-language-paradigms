@@ -248,10 +248,10 @@ iii.
 11)
 a)
 DUDA: hay que extender las reglas de martelli-montanari?
-W(Nilσ) = ø > Nilσ : ABσ
+W(Nil) = ø > Nilt : ABt
 
 W(Bin(T, U, V)) = SΓ1 U SΓ2 U SΓ3 > S(Bin(M, N, O)) : S(ABσ)
-S = MGU({ρ = ABσ, τ = ABσ} U {σ1= σ2 | x : σ1 ∈ Γi, x : σ2 ∈ Γj , i, j ∈ {1, 2, 3}})
+S = MGU({ρ = ABσ, τ = ABσ} U {σ1 = σ2 | x : σ1 ∈ Γi, x : σ2 ∈ Γj , i, j ∈ {1, 2, 3}})
 	W(T) = Γ1 > M : ρ
 	W(U) = Γ2 > N : σ
 	W(V) = Γ3 > O : τ
@@ -261,23 +261,38 @@ b)
 regla de tipado
 
 t-case
-	(Γ > M : σ) ^ (Γ > N : τ) ^ (Γ > O : τ) <==>  case M of {Nilσ ~~> N | Bin(i, r, d) ~~> O} : τ
+	(Γ > M : σ) ^ (Γ > N : τ) ^ (Γ U {i : ABσ, r : σ, d : ABσ} > O : τ) 
+		<==>  case M of {Nilσ ~~> N | Bin(i, r, d) ~~> O} : τ
 
 W(case T of {Nilσ ~~> U | Bin(i, r, d) ~~> V}) = 
-	SΓ1 U SΓ2 U SΓ3 > S(case M of {Nilσ ~~> N | Bin(i, r, d) ~~> O}) : τ
-S = MGU({ρ = ABt, σ = τ} U {σ1= σ2 | x : σ1 ∈ Γi, x : σ2 ∈ Γj , i, j ∈ {1, 2, 3}})
+	SΓ1 U SΓ2 U SΓ3'' > S(case M of {Nilσ ~~> N | Bin(i, r, d) ~~> O}) : Sτ
+S = MGU({ρ = ABt, σ = τ, ßi = ρ, ßr = t, ßd = ρ} U {σ1= σ2 | x : σ1 ∈ Γi, x : σ2 ∈ Γj , i, j ∈ {1, 2, 3''}})
 	W(T) = Γ1 > M : ρ
 	W(U) = Γ2 > N : σ
 	W(V) = Γ3 > O : τ
-
-DUDA: en Γ3 tengo que especificar los tipos de i r d ??
+	ßi = if i : α ∈ Γ3 then α else t1
+	ßr = if r : α ∈ Γ3 then α else t2
+	ßd = if d : α ∈ Γ3 then α else t3
+	Γ3'' = Γ3 - {i, r, d}
 
 
 12)
 
 W(switch T {case n1 : U1 . . . case nk : Uk default : V}) =
-	SΓ0 U ... U SΓk+1 > S(switch M {case n1 : N1 . . . case nk : Nk default : N}) : S σ
-S = MGU({ρ = Nat, σ1 = σ, ... , σk = σ})
+	SΓ0 U ... U SΓk+1 > S(switch M {case n1 : N1 . . . case nk : Nk default : N}) : Sσ
+S = MGU({ρ = Nat, σ1 = σ, ... , σk = σ} U {σ1 = σ2 | x : σ1 ∈ Γi, x : σ2 ∈ Γj , i, j ∈ {0, ... , k+1}})
 	W(T) = Γ0 > M : ρ
 	W(Ui) = Γi > Ni : σi / ∀i,j (1 ≤ i, j ≤ k ∧ i != j ⇒ ni != nj)
 	W(V) = Γk+1 > N : σ
+
+
+
+
+17)
+
+i. el llamado recursivo de M esta asumiendo algo sobre el tipo que se devuelve (que es una funcion)
+	DUDA: no se me ocurre un ejemplo que no tipe.
+
+ii. NO SE :C
+
+iii.
