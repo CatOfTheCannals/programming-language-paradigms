@@ -210,6 +210,7 @@ De forma análoga, la cantidad de subtipos M' → N' está dada por #_supertipos
 
 
                                                                             SUBTIPADO EN EL CONTEXTO DE TIPADO
+
 7) Probar que los siguientes términos tipan si se tienen en cuenta las reglas de subtipado vistas en clase.
 
 
@@ -231,19 +232,160 @@ ________________________________________________________________________________
 b) (λr : {l1 : Bool, l2 : Float}.if r.l1 then r.l2 else 5,5) {l1 = true, l2 = −8, l3 = 9,0}
 
 
+                                                                      No hay una regla para aplicar
+Γ' > r : C  l1 : Bool ∈ C          Γ' > r : C  l2 : Float ∈ C         pero debería funcionar (*)
+_________________________(T-Proj)  __________________________(T-Proj) ________________(???)
+Γ' > r.l1 : Bool                   Γ' > r.l2 : Float                  Γ' > 5,5 : Float
+___________________________________________________________________________________________(T-If)           
+Γ' > if r.l1 then r.l2 else 5,5 : Float                                                                     
+_________________________________________________________________________________________________(T-Abs)    
+Γ > λr : {l1 : Bool, l2 : Float}.if r.l1 then r.l2 else 5,5 : {l1 : Bool, l2 : Float} → Float               (1)
+______________________________________________________________________________________________________________________________________________________________________________________(T-App)
+Γ > (λr : {l1 : Bool, l2 : Float}.if r.l1 then r.l2 else 5,5) {l1 = true, l2 = −8, l3 = 9,0} : Float
+
+Γ' = Γ ∪ {r : {l1 : Bool, l2 : Float}}
+C = {l1 : Bool, l2 : Float}
+
+    
+(1)
+                       Idem (*)
+                       ____________(???) ____________(T-IntFloat)
+                       Γ > -8 : Int      Int <: Float                Idem (*)
+______________(T-True) ______________________________________(T-Sub) _______________(???)
+Γ > true : Bool        Γ > -8 : Float                                Γ > 9,0 : Float
+__________________________________________________________________________________________(T-Rcd)  ______________________________________________________________(S-RcdWidth)
+Γ > {l1 = true, l2 = −8, l3 = 9,0} : {l1 : Bool, l2 : Float, l3 : Float}                           {l1 : Bool, l2 : Float, l3 : Float} <: {l1 : Bool, l2 : Float}
+______________________________________________________________________________________________________________________________________________________________________________(T-Sub)
+Γ > {l1 = true, l2 = −8, l3 = 9,0} : {l1 : Bool, l2 : Float}
+
+
+
+8) Mostrar que el término xx no es tipable en cálculo-λ clásico, pero sí es tipable al considerar las reglas de subtipado según lo visto. Exhibir contexto y tipo para este término.
+
+
+Ya se mostró que no tipa en otra práctica.
+
+                                                          x : τ → σ ∈ Γ
+                                                          _____________(T-Var) __________(S-Top) => τ = Top => Top → σ <: Top vale por definición de Top. PREGUNTA: esto es horrible de nuevo ☹️
+x : τ → σ ∈ Γ  => µ = τ → σ                               Γ > x : τ → σ        τ → σ <: τ 
+______________(T-Var)                                     ____________________________________(T-Sub)
+Γ > x : τ → σ                                             Γ > x : τ   
+______________________________________________________________________________________________________________________________________(T-App)
+Γ > xx : σ
+
+Γ = {x : µ}
+
+Entonces Γ = {x : Top → σ} > xx : σ
+
+
+
+9) En este ejercicio trabajaremos con los tipos Bool <: Nat <: Int <: Float, funciones y registros.
+
+Puede asumirse que Float tiene la operación +, que Int tiene además las operaciones pred y suc, y que Bool cuenta también con la operación if, con las reglas de tipado habituales:
+
+                                                Γ > M : Int
+                                                ________________(T-Suc)
+                                                Γ > suc(M) : Int
+
+
+                                                Γ > M : Int
+                                                __________________(T-Pred)
+                                                Γ > pred(M) : Int
+
+
+                                                Γ > M : Float  Γ > N : Float
+                                                ____________________________(T-+)
+                                                Γ > M + N : Float
+
+
+                                                Γ > M : Bool  Γ > N : σ  Γ > O : σ
+                                                ___________________________________(T-If)
+                                                Γ > if M then N else O : σ
+
+
+a) Suponer que la regla de subtipado para funciones fuera contravariante en el argumento y en el resultado, es decir:
+
+S <: T  U <: V
+______________(S-Arrow')
+T → V <: S → U
+
+Mostrar que esto no sería una buena idea:
+
+- Dar una expresión M del cálculo lambda.
+- Explicar brevemente por qué no tiene sentido evaluar M.
+- Demostrar que, sin embargo, M tiene tipo.
+
+
+M = PENSAR
 
 
 
 
 
+REGLA CORRECTA
+
+S1 <: T1  T2 <: S2
+__________________(S-Func)
+T1 → T2 <: S1 → S2
 
 
 
-____________________________________________________________________________________________________________________________________________________
-(λr : {l1 : Bool, l2 : Float}.if r.l1 then r.l2 else 5,5) {l1 = true, l2 = −8, l3 = 9,0}
+b) Suponer ahora que la regla de subtipado para funciones fuera covariante en el argumento y en el resultado es decir:
+
+S <: T  U <: V
+_______________(S-Arrow'')
+S → U <: T → V
 
 
 
+M = (λf : Int → Bool. f 2) (λx : Bool. if x then true else false)
+
+
+No tiene sentido reducir esto ya que le estoy pasando, a la primera lambda, una función con un tipo de dominio más restrictivo que el que espera que tenga. Así, es posible que queden fuera valores que deberían ser válidos. Por ejemplo, no tiene sentido evaluar f 2 cuando f : Bool → Bool. Sin embargo tipa:
+
+
+                                        ______________________________(T-Zero)  __________(S-NatInt)
+                                        Γ ∪ {f : Int → Bool} > 0 : Nat          Nat <: Int
+                                        ________________________________________________________________(T-Sub)
+=> τ → σ = Int → Bool                   Γ ∪ {f : Int → Bool} > 0 : Int
+                                        _______________________________________________________________________(T-Suc)
+f : τ → σ ∈ Γ ∪ {f : Int → Bool}        Γ ∪ {f : Int → Bool} > 1 : Int
+________________________________(T-Var) ______________________________________________________________________________(T-Suc)   
+Γ ∪ {f : Int → Bool} > f : τ → σ        Γ ∪ {f : Int → Bool} > 2 : Int          
+_____________________________________________________________________________________________________________________________(T-App)   
+Γ ∪ {f : Int → Bool} > f 2 : σ                                                 
+____________________________________________________________________________________________________________________________________(T-Abs) 
+Γ > λf : Int → Bool. f 2 : (Int → Bool) → σ                                                                                                                              (1)
+________________________________________________________________________________________________________________________________________________________________________________________(T-App)
+Γ > (λf : Int → Bool. f 2) (λx : Bool. if x then true else false) : σ
+
+
+
+
+
+(1)
+
+x : Bool ∈ Γ ∪ {x : Bool}
+_________________________(T-Var)  ____________________________(T-True)  _____________________________(T-False)
+Γ ∪ {x : Bool} > x : Bool         Γ ∪ {x : Bool} > True : Bool          Γ ∪ {x : Bool} > False : Bool
+_______________________________________________________________________________________________________________(T-Abs) _________________________(S-Arrow'')
+Γ > λx : Bool. if x then true else false : Bool → Bool                                                                 Bool → Bool <: Int → Bool
+____________________________________________________________________________________________________________________________________________________________________(T-Sub)
+Γ > λx : Bool. if x then true else false : Int → Bool
+
+
+
+10)
+
+a) Suponer que el operador Ref es covariante. Escribir un programa (en un lenguaje a elección) que arroje error/excepción a causa de esto.
+
+
+σ <: τ
+______________(S-Ref)
+Ref σ <: Ref τ
+
+
+b) Hacer lo mismo pero suponiendo que el operador Ref es contravariante.
 
 
 
