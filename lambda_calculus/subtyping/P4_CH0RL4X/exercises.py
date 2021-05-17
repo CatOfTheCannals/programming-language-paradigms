@@ -166,3 +166,87 @@ En esta funcion se va a realizar una operacion que no esta definida para los Int
 
 			Int <: Float 
 				s-intFloat √
+
+11)
+a)
+ø > λc : Comp{x:Int}. mejorSegún(c, {x = 1, y = 2}, {x = 0}) : Comp{x:Int} -> Bool
+	t-abs
+	{c : Comp{x:Int}} > mejorSegún(c, {x = 1, y = 2}, {x = 0}) : Bool
+		t-comp
+
+		{c : Comp{x:Int}} > c : Comp{x:Int}
+			t-var
+			(c : Comp{x:Int}) € {c : Comp{x:Int}} √
+
+		{c : Comp{x:Int}} > {x = 1, y = 2} : {x:Int}
+			t-sub
+			{x = 1, y = 2} : {x : Int, y : Int}
+				t-rcd
+				1 : Int # x
+					t-intUno √
+				2 : Int # y
+					t-intDos √
+
+			{x : Int, y : Int} <: {x : Int}			
+				s-rcdWidth √
+
+		{c : Comp{x:Int}} > {x = 0} : {x:Int}
+			t-rcd
+				0 : Int # x
+					t-intZero √
+
+b)
+si compσ fuera covariante entonces, dado µ / σ <: µ, se tendria que compσ <: compµ
+esto significaria, por ejemplo, que donde se usa compFloat se puede usar compBool.
+pero esto implicaria que se pasen floats donde se esperan bools, lo cual va a romper.
+
+veamos si podemos probar que compσ es contravariante.
+
+µ / σ <: µ, se tendria que compµ <: compσ
+esto significa que donde se puede usar compσ, se puede usar compµ
+Aca no deberiamos tener problemas, porque todas las operaciones que use compµ, esperan al tipo µ.
+Dado que σ <: µ, estas operaciones se podran usar con elementos de tipo σ.
+
+Por lo tanto nos convencemos de que comp es contravariante. Llamaremos s-comp a esta regla.
+
+s-comp
+σ <: µ <==> compµ <: compσ
+
+c)
+ø > λc : CompFloat.(λx: CompNat.mejorSegún(x, 3, 4)) c : CompFloat -> Bool
+	t-abs
+	{c : CompFloat} > (λx: CompNat.mejorSegún(x, 3, 4)) c : Bool
+		t-app
+
+		{c : CompFloat} > (λx: CompNat.mejorSegún(x, 3, 4)) : CompFloat -> Bool
+			t-sub
+
+			{c : CompFloat} > (λx: CompNat.mejorSegún(x, 3, 4)) : CompNat -> Bool
+				t-abs
+				{c : CompFloat, x : CompNat} > mejorSegún(x, 3, 4) : Bool
+					t-comp
+					{c : CompFloat, x : CompNat} > x : CompNat
+						t-var
+						(x : CompNat) € {x : CompNat}
+
+					3 : Nat √
+
+					4 : Nat √
+
+			CompNat -> Bool <: CompFloat -> Bool
+				s-arrow
+				CompFloat <: CompNat
+					s-comp
+					Nat <: Float
+						s-trans
+						Nat <: Int 
+							s-natInt √
+						Int <: Float
+							s-intFloat √
+
+				Bool <: Bool
+					s-refl √
+
+		{c : CompFloat} > c : CompFloat
+			t-var
+			(c : CompFloat) € {c : CompFloat} √
