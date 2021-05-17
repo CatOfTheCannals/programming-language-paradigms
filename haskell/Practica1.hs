@@ -212,6 +212,15 @@ insertarOrdenado e l = recr (f e) [] l
 
 
 -- ej 13
+genLista :: a -> (a -> a) -> Integer -> [a]
+genLista _ _ 0 = []
+genLista seed f n = seed : genLista (f seed) f (n - 1)
+
+
+--ii. Usando genLista, definir la función desdeHasta, que dado un par de números (el primero menor que el
+--segundo), devuelve una lista de números consecutivos desde el primero hasta el segundo.
+desdeHasta :: Integer -> Integer -> [Integer]
+desdeHasta start end = genLista start ((+) 1) (end - start)
 
 -- ej 14
 
