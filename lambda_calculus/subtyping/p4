@@ -517,27 +517,32 @@ En términos de σ' y σ, esto requiere que σ'<:σ. Por ejemplo:
 
 Si AlimentoPara(Felino) es subtipo de AlimentoPara(Tigre) e y ∈ AlimentoPar(Felino), entonces cualquier integrante del tipo Tigre debe poder comerse a y.
 
-El enunciado que aparece arriba, tiene mucho sentido ya que cualquier tigre puede comer algo que sea comida de cualquier felino. En cierto modo, el alimento para Felino debe incluir todos los alimentos de los distintos subtipos de felinos que hay. Es decir, el alimento para Felino está constituido por la unión de los alimentos para todos sus subtipos. Por ello tiene sentido que AlimentoPara(Felino) subtipe de AlimentoPara(σ), donde σ <: Felino.
+El enunciado que aparece arriba, tiene mucho sentido ya que cualquier tigre puede comer algo que sea comida de cualquier felino. En cierto modo, el alimento para Felino debe incluir todos los alimentos de los distintos subtipos de felinos que hay. Es decir, el alimento para Felino está constituido por la unión de los alimentos para todos sus subtipos. Por ello tiene sentido que AlimentoPara(Felino) subtipe de AlimentoPara(σ), donde σ <: Felino. 
+
+=> NO, esto rompe con y ∈ AlimentoPara(σ) ⇔ ∀x ∈ σ . x puede comer y. Tomando σ como Felino y ∈ AlimentoPara(León) y algún x Tigre, se tiene que no necesariamente vale que x come a y
 
 Esto es similar a lo que ocurre con los registros donde {} es el más general y a medida que se agregan campos se obtienen subtipos. Acá AlimentoPara(Tigre) es uno de los más generales (junto con todas las hojas) y a medida que se avanza hacia la raíz del árbol se agregan alimentos.
 
-
+{vegetales, ciervo, pavo} 
 Tigre----
-         |
-          ---- Felinos ---------
+         |     {vegetales, ciervo}
+          ---- Felino  ---------
          |                      |
 León-----                       |
-                                 ------- Animal
+{vegetales, ciervo, mono}       |        {vegetales}
+                                 ------- Animal 
+{vegetales, pasto, grano}       |
 Vaca -----                      |
-          |                     |
+          |    {vegetales,pasto}|
            ----Rumiante --------
           |
 Ciervo ---
+{vegetales, pasto, raíces}
 
 
-σ' <: σ
-__________________________________(S-Alim)
-AlimentoPara(σ) <: AlimentoPara(σ')
+Esto parece indicar que la idea planteada por el enunciado es correcta => ???????????????????? kernel panic 😫️
+
+
 
 
 
