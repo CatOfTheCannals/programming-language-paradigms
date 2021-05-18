@@ -48,7 +48,7 @@ a) ¿Cuáles son los tipos que tienen infinitos subtipos?
 Cualquier tipo registro tiene un subtipo que resulta de agregarle un campo extra. Por lo tanto, cualquier tipo registro tiene infinitos subtipos.
 Cualquier tipo es subtipo del tipo Top. En particular, el tipo registro es subtipo de Top. Por lo tanto, Top también tiene infinitos subtipos.
 Las funciones que tienen codominios de tipo Top o tipo registro, también tienen infinitos subtipos (ya que el codominio puede subtiparse infinitamente).
-Los tipos básicos tienen todos finitos subtipos.
+
 
 b) ¿Cuáles son los tipos que tienen infinitos supertipos?
 
@@ -380,12 +380,145 @@ ________________________________________________________________________________
 a) Suponer que el operador Ref es covariante. Escribir un programa (en un lenguaje a elección) que arroje error/excepción a causa de esto.
 
 
-σ <: τ
-______________(S-Ref)
-Ref σ <: Ref τ
-
-
 b) Hacer lo mismo pero suponiendo que el operador Ref es contravariante.
+
+
+Ejemplos, en cálculo lambda, para ambos casos en la teórica.
+
+
+
+11) Supongamos que agregamos al lenguaje el tipo Comp_σ, para representar comparadores de términos de tipo σ. Los comparadores tienen la operación mejorSegún, que indica si el primer término es mejor que el segundo.
+
+                                            Γ > M : Comp_σ   Γ > N : σ   Γ > O : σ
+                                            _______________________________________(T-Comp)
+                                            Γ > mejorSegún(M, N, O) : Bool
+
+a) El siguente término: λc : Comp_{x:Int}.mejorSegún(c, {x = 1, y = 2}, {x = 0})
+
+¿Debería ser tipable, en términos del principio de sustitutividad? ¿Lo es? En caso afirmativo, dar una derivación que lo pruebe. Pueden asumirse como axiomas:
+
+                                            Γ > {x = 1, y = 2} : {x : Int, y : Int}         Γ > {x = 0} : {x : Int}
+                               
+
+                                                AXIOMA                                                                                      AXIOMA
+                               _______________________________________(T-Rcd) ______________________________(T-RcdWidth)          ________________________(T-Sub)
+c : Comp_{x : Int} ∈ Γ'        Γ' > {x = 1, y = 2} : {x : Int, y : Int}       {x : Int, y : Int} <: {x : Int}                     Γ' > 0 : Int
+_______________________(T-Var) ___________________________________________________________________________________________(T-Sub) _______________________________(T-Rcd)  
+Γ' > c : Comp_{x : Int}        Γ' > {x = 1, y = 2} : {x : Int}                                                                    Γ' > {x = 0} : {x : Int}    
+________________________________________________________________________________________________________________________________________________________________________(T-Comp) => τ = Bool
+Γ' > mejorSegún{c. {x = 1, y = 2}, {x = 0}} : τ
+________________________________________________________________________________________________________________________________________________________________________________________(T-Abs)
+Γ > λc : Comp_{x:Int}.mejorSegún(c, {x = 1, y = 2}, {x = 0}) : Comp_{x:Int} → τ
+
+Γ' = Γ ∪ {c : Comp_{x:Int}}
+
+PREGUNTA: es correcto el paso de aplicación de T-Comp? resolví el tipo {x : Int} como el menos restrictivo entre todos los candidatos 🤔️
+
+b) Dar la o las reglas de subtipado para comparadores.
+
+
+σ <: τ 
+________________(S-Comp) => Si quiero poder reemplazar Comp_σ por Comp_τ en cualquier contexto sin problemas, entonces Comp_τ debe ser, por lo menos, tan general como Comp_σ. Por ejemplo, si 
+Comp_τ <: Comp_σ            σ = Nat, quisiera que τ sea supertipo de Nat para poder manejar todas las comparaciones entre Nats y tal vez alguna entre Ints.
+
+
+c) El siguiente término: λc : Comp_Float.(λx: Comp_Nat.mejorSegún(x, 3, 4)) c
+
+¿Debería ser tipable, en términos del principio de sustitutividad? ¿Según las reglas dadas, lo es? En caso afirmativo, dar una derivación que lo pruebe. Pueden asumirse como axiomas:
+
+                                           Γ > 3 : Nat         Γ > 4 : Nat
+
+
+x : Comp_Nat ∈ Γ''          AXIOMA          AXIOMA
+___________________(T-Var) _____________   _____________                            
+Γ'' > x : Comp_Nat         Γ'' > 3 : Nat   Γ'' > 4 : Nat                               c : Comp_Float ∈ Γ'         Nat <: Float
+_________________________________________________________(T-Comp) => σ = Bool          ___________________(T-Var)  ______________________(S-Comp)    
+ > mejorSegún(x, 3, 4) : σ                                                             Γ' > c : Comp_Float         Comp_Float <: Comp_Nat 
+______________________________________________________________________________(T-Abs)  _______________________________________________________________(T-Sub)
+Γ' > λx: Comp_Nat.mejorSegún(x, 3, 4) : Comp_Nat → σ                                   Γ' > c : Comp_Nat
+___________________________________________________________________________________________________________________________________________________________________(T-App)
+Γ' > (λx: Comp_Nat.mejorSegún(x, 3, 4)) c : σ
+__________________________________________________________________________________________________________________________________________________________________________(T-Abs)
+Γ > λc : Comp_Float.(λx: Comp_Nat.mejorSegún(x, 3, 4)) c : Comp_Float → σ
+
+
+Γ' = Γ ∪ {c : Comp_Float}
+Γ'' = Γ' ∪ {x : Comp_Nat}
+
+
+
+12)
+
+
+
+13)
+
+
+
+14) Considerar un tipo Animal, más una jerarquía de subtipos que (por brevedad) limitaremos aquí a Vaca y León, más un tipo paramétrico AlimentoPara(σ) que identifica valores que pueden ser ingeridos por todos los de tipo σ.
+
+Además de las T-Sub y S-Trans usuales se han definido estas reglas de tipado y de subtipado:
+
+                                                                                                                                            Γ > M : σ   Γ > N : AlimentoPara(σ)
+_____________________(T-Clara)         ______________(S-León)       ______________(S-Vaca)      _________________________(S-VacaLeón)       ___________________________________(T-Comer) 
+Γ > Clarabelle : Vaca                  León <: Animal               Vaca <: Animal              Vaca <: AlimentoPara(León)                  Γ > comer(M, N) : σ
+
+
+
+a) Suponer que alguien nos propone incorporar la siguiente regla de subtipado:
+
+
+σ <: σ'
+__________________________________(S-Alim)
+AlimentoPara(σ) <: AlimentoPara(σ')
+
+
+_____________________________________________________________________
+                                                                     |
+                  León <: Animal                                     |                  
+                                                                     |
+                  Vaca <: Animal                                     |
+                                                                     |
+                  Vaca <: AlimentoPara(León)                         |
+                                                                     |
+    AlimentoPara(León) <: AlimentoPara(Animal)                       |
+                                                                     |
+    AlimentoPara(Vaca) <: AlimentoPara(Animal)                       |
+_____________________________________________________________________|
+
+
+Argumentar que no es buena idea mostrando que, con esta regla, Clarabelle se come a sí misma. Es decir, dar una derivación que pruebe que el término comer(Clarabelle, Clarabelle) resultaría tipable.
+
+Sugerencia: notar que el cálculo pretende capturar cierta noción de cadenas alimentarias (quién come a quién). Antes de hacer cuentas, pensar cómo lo intenta, y por qué. Imaginar la misma idea en contextos con fauna más diversa también puede ser útil para comprender las ventajas y detectar los problemas del enfoque.
+                             
+
+                                                       _____________________(T-Clara) _________________________(S-VacaLeón)         ______________(S-León)
+                                                       Γ > Clarabelle : Vaca          Vaca <: AlimentoPara(León)                    León <: Animal
+_____________________(T-Clara) ______________(S-Vaca)  _____________________________________________________________________(T-Sub) _________________________________________(S-Alim)
+Γ > Clarabelle : Vaca          Vaca <: Animal          Γ > Clarabelle : AlimentoPara(León)                                          AlimentoPara(León) <: AlimentoPara(Animal)        
+______________________________________________(T-Sub)  ______________________________________________________________________________________________________________________________(T-Sub)   
+Γ > Clarabelle : Animal                                Γ > Clarabelle : AlimentoPara(Animal)  
+______________________________________________________________________________________________________________________________________________________________________________________(T-Comer)
+Γ > comer(Clarabelle, Clarabelle) : Animal
+
+
+b)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
