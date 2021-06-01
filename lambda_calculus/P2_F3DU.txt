@@ -249,7 +249,7 @@ x : Bool → σ ∈ {x: σ}
 _____________________(T-Var) ____________________(T-True)
 {x: σ} > x : Bool → σ        {x: σ} > true : Bool   
 _________________________________________________________(T-App)
-{x: σ} > x true : σ
+{x: σ} > x true : σ 
 
 h) {x: σ} > x x : τ =>  No se puede dar el tipo porque nuevamente se define sobre sí mismo
 

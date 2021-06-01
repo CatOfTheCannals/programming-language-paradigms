@@ -583,8 +583,8 @@ Considerar el algoritmo de inferencia extendido para soportar listas:
 
                                         W(M : N) = SΓ1 ∪ SΓ2 > S(U : V) : [Sσ], con:
 
-                                        W(M) = Γ1 . U : σ
-                                        W(N) = Γ2 . V : τ
+                                        W(M) = Γ1 > U : σ
+                                        W(N) = Γ2 > V : τ
 
                                         S = MGU({τ ≐ [σ]} ∪ {α ≐ β | x : α ∈ Γ1 ∧ x : β ∈ Γ2})
 
