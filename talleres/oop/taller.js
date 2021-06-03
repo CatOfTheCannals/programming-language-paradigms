@@ -15,7 +15,7 @@ Agencia = function(programaDeEntrenamiento, selectorDeId, selectorDeTotal){
   this.programaDeEntrenamiento = programaDeEntrenamiento;
   
   // Dado que la cantidad total de agentes debe ser conocida por todos los agentes y su valor es el mismo para todos, 
-  // se establece como un mensaje del prototipo de todos los agentes creados con this.programaDeEntrenamiento
+  // se establece como un mensaje del prototipo de todos los agentes creados con this.programaDeEntrenamiento.
   this.programaDeEntrenamiento.prototype[selectorDeTotal] = 0;
   
   this.agenteAgregado = function(agente) {
@@ -24,20 +24,28 @@ Agencia = function(programaDeEntrenamiento, selectorDeId, selectorDeTotal){
     this.programaDeEntrenamiento.prototype[selectorDeTotal] += 1;
 
     // Hace que el agente sepa responder al mensaje selectorDeId que usan los agentes creados con this.programaDeEntrenamiento 
-    // y su valor (el número que identifica al agente) se corresponde con el nuevo total 
+    // y su valor (el número que identifica al agente) se corresponde con el nuevo total.
     agente[selectorDeId] = this.programaDeEntrenamiento.prototype[selectorDeTotal];
   };
   
   // Los mensajes espiar y dejarDeEspiar se agregan a this.programaDeEntrenamiento.prototype para que todos los agentes, 
-  // independientemente de la agencia a la que pertenezcan, sepan responderlos 
+  // independientemente de la agencia a la que pertenezcan, sepan responderlos.
   this.programaDeEntrenamiento.prototype.espiar = function(otraAgencia){
-    this.programaOriginal = programaDeEntrenamiento.prototype;
-    this.agenciaOriginal = this.agencia;
-    // (1)
-    Object.setPrototypeOf(this, otraAgencia.programaDeEntrenamiento.prototype); 
+    
+    // Guarda los valores originales si no estuvieran definidos ya (es decir, si el agente nunca hubiera espiado).
+    if(!('agenciaOriginal' in this)){
+      this.programaOriginal = programaDeEntrenamiento.prototype;
+      this.agenciaOriginal = this.agencia;
+    }
+
+    // Modifica el prototipo. Esto hace que sea identificado como un agente de la otra agencia y pueda responder el total de agentes que hay ahí.
+    Object.setPrototypeOf(this, otraAgencia.programaDeEntrenamiento.prototype); // (1) 
+  
   };
 
   this.programaDeEntrenamiento.prototype.dejarDeEspiar = function(){
+    // Restaura los valores originales. this vuelve a responder como lo hacía originalmente al mensaje agencia 
+    // y al que utiliza su agencia original para obtener el número total de agentes. Además, deja de poder responder el total de la agencia que espiaba.
     this.agencia = this.agenciaOriginal;
     Object.setPrototypeOf(this, this.programaOriginal);
   };
@@ -47,37 +55,37 @@ control = new Agencia(AgenteDeControl, "idC", "nC");
 
 nuevoAgente = function(agencia){
   
-  // Crea un nuevo agente de la agencia
+  // Crea un nuevo agente de la agencia.
   let agente = new (agencia.programaDeEntrenamiento)();
   
-  // Indica que se agregó un nuevo agente
+  // Indica que se agregó un nuevo agente.
   agencia.agenteAgregado(agente);
   return agente;
 };
 enrolar = function(agente, agencia){
   
   // Asocia el parámetro this de la función agencia.programaDeEntrenamiento, con el agente 
-  // y ejecuta la función obtenida para hacer pasar al agente por el programa de entrenamiento de la agencia
+  // y ejecuta la función obtenida para hacer pasar al agente por el programa de entrenamiento de la agencia.
   agencia.programaDeEntrenamiento.bind(agente)();
 
-  // Establece el prototipo del agente como el de todos los agentes creados con la función agencia.programaDeEntrenamiento
-  Object.setPrototypeOf(agente, agencia.programaDeEntrenamiento.prototype);
+  // Establece el prototipo del agente como el de todos los agentes creados con la función agencia.programaDeEntrenamiento.
+  Object.setPrototypeOf(agente, agencia.programaDeEntrenamiento.prototype); // (3)
   
-  // Indica que se agregó un nuevo agente
+  // Indica que se agregó un nuevo agente.
   agencia.agenteAgregado(agente);
 };
 
 agenteEspecial = function(agencia, habilidad){ 
   let agente = new nuevoAgente(agencia);
 
-  // Hace que el agente sepa responder al mensaje habilidad
+  // Hace que el agente sepa responder al mensaje habilidad.
   agente[habilidad.name] = habilidad;
   return agente;
 };
 
 camuflar = function(otroObjeto){
 
-  // Hace que this sepa responder a todos los mensajes que sabe responder otroObjeto 
+  // Hace que this sepa responder a todos los mensajes que sabe responder otroObjeto.
   for(selector in otroObjeto) this[selector] = otroObjeto[selector];
 };
 
