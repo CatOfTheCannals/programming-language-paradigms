@@ -3,6 +3,7 @@
           Agregar tests para ver que:
                                       el agente que dejó de espiar ya no puede responder al mensaje selectorDeTotal de la agencia que espiaba (revisar que estén todos los casos cubiertos)
                                       un agente de cualquier agencia puede espiar 
+                                      un agente que espía dos veces puede volver a su agencia de origen
 */
 AgenteDeControl = function(){
   this.agencia = "Control";
