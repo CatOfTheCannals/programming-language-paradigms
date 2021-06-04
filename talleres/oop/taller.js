@@ -71,7 +71,6 @@ enrolar = function(agente, agencia){
 
   // Establece el prototipo del agente como el de todos los agentes creados con la función agencia.programaDeEntrenamiento.
   Object.setPrototypeOf(agente, agencia.programaDeEntrenamiento.prototype); // (3)
-  // DUDA(cgiudice): por que querriamos borrar esto?? como difiere de "hacer new" en la funcion nuevoAgente?
   
   // Indica que se agregó un nuevo agente.
   agencia.agenteAgregado(agente);
@@ -137,7 +136,7 @@ function testEjercicio2(res) {
   res.write(`La función Agencia ${si_o_no(agenciaEstaDefinida)} está definida`, agenciaEstaDefinida);
 
   let AgenteDeKaos = function() {};
-  kaos = new Agencia(AgenteDeKaos);  // DUDA(cgiudice): esto por que anda? si agencia toma mas parametros (selId y selTotal)
+  kaos = new Agencia(AgenteDeKaos); 
 
   let tieneDefinidoElProgramaDeEntrenamiento = Object.values(kaos).includes(AgenteDeKaos);
   res.write(`La agencia ${si_o_no(tieneDefinidoElProgramaDeEntrenamiento)} tiene definido un programa de entrenamiento`, tieneDefinidoElProgramaDeEntrenamiento);
