@@ -213,7 +213,47 @@ function testEjercicio4(res) {
   res.write("El agente de Kaos" + si_o_no(K_conoce_nC) + "sabe responder nC", !K_conoce_nC);
   res.write("El agente de Kaos" + si_o_no(K_conoce_idK) + "sabe responder idK", K_conoce_idK);
   res.write("El agente de Kaos" + si_o_no(K_conoce_nK) + "sabe responder nK", K_conoce_nK);
-  // Completar
+
+  // se inicializa correctamente el valor de los id's
+  let K_responde_idK = agenteK.idK == 1;
+  res.write("El primer agente de Kaos" + si_o_no(K_responde_idK) + "tiene ID adecuado", K_responde_idK);
+  let C_responde_idC = agenteC.idC == 1;
+  res.write("El primer agente de Control" + si_o_no(C_responde_idC) + "tiene ID adecuado", C_responde_idC);
+
+  // se inicializa correctamente el valor de los n
+  let K_responde_nK = agenteK.nK == 1;
+  res.write("El primer agente de Kaos" + si_o_no(K_responde_nK) + "tiene n adecuado", K_responde_nK);
+  let C_responde_nC = agenteC.nC == 1;
+  res.write("El primer agente de Control" + si_o_no(C_responde_nC) + "tiene n adecuado", C_responde_nC);
+
+  // agregar nuevos agentes
+  let segundoAgenteK = {};
+  let segundoAgenteC = nuevoAgente(control);
+  enrolar(segundoAgenteK, kaos);
+
+  // agregar nuevos agentes inicializa correctamente los valores de ID
+  let segundo_K_responde_idK = segundoAgenteK.idK == 2;
+  res.write("El segundo agente de Kaos" + si_o_no(segundo_K_responde_idK) + "tiene ID adecuado", segundo_K_responde_idK);
+  let segundo_C_responde_idC = segundoAgenteC.idC == 2;
+  res.write("El segundo agente de Control" + si_o_no(segundo_C_responde_idC) + "tiene ID adecuado", segundo_C_responde_idC);
+
+  // agregar nuevos agentes inicializa correctamente los valores de n
+  let segundo_K_responde_nK = segundoAgenteK.nK == 2;
+  res.write("El segundo agente de Kaos" + si_o_no(segundo_K_responde_nK) + "tiene n adecuado", segundo_K_responde_nK);
+  let segundo_C_responde_nC = segundoAgenteC.nC == 2;
+  res.write("El segundo agente de Control" + si_o_no(segundo_C_responde_nC) + "tiene n adecuado", segundo_C_responde_nC);
+
+  // los primeros agentes mantienen sus ID's
+  let K_sigue_respondiendo_idK = agenteK.idK == 1;
+  res.write("El primer agente de Kaos" + si_o_no(K_sigue_respondiendo_idK) + "sigue teniendo ID adecuado", K_sigue_respondiendo_idK);
+  let C_sigue_respondiendo_idC = agenteC.idC == 1;
+  res.write("El primer agente de Control" + si_o_no(C_sigue_respondiendo_idC) + "sigue teniendo ID adecuado", C_sigue_respondiendo_idC);
+
+  // los primeros agentes conocen el nuevo n
+  let K_sigue_respondiendo_nK = agenteK.nK == 2;
+  res.write("El primer agente de Kaos" + si_o_no(K_sigue_respondiendo_nK) + "sigue teniendo n adecuado", K_sigue_respondiendo_nK);
+  let C_sigue_respondiendo_nC = agenteC.nC == 2;
+  res.write("El primer agente de Control" + si_o_no(C_sigue_respondiendo_nC) + "sigue teniendo n adecuado", C_sigue_respondiendo_nC);
 
 }
 
