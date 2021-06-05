@@ -309,8 +309,6 @@ function testEjercicio5(res) {
   res.write("El espía de Kaos" + si_o_no(K_conoce_nK) + "sabe responder nK", K_conoce_nK);
 
 
-
-
   // Los espías responden correctamente 
   let segundo_agenteK = nuevoAgente(kaos);
   segundo_agenteK.espiar(control);
@@ -372,4 +370,38 @@ function testEjercicio6(res) {
   res.write(`El agente Camaleón ${si_o_no(camaleonRespondeQOnda)} responde 'q onda?' si le piden repetir 'q onda?'`, camaleonRespondeQOnda);
   // Completar
 
+  // cuando se agrega un agente especial, se le asigna un ID y sabe el n de la agencia
+
+  control = new Agencia(function() { }, "idC", "nC");
+  let agenteC = new agenteEspecial(control, sacarseElSombrero)
+
+  let C_responde_idC = agenteC.idC == 1;
+  res.write("El primer agente de Control" + si_o_no(C_responde_idC) + "tiene ID adecuado", C_responde_idC);
+
+  let C_responde_nC = agenteC.nC == 1;
+  res.write("El primer agente de Control" + si_o_no(C_responde_nC) + "tiene n adecuado", C_responde_nC);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
