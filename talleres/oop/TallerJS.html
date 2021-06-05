@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html style="background-color: black; color: white; padding: 1em;">
+<html style="background-color: #393E41; color: white; padding: 1em;">
 <html>
   <head>
     <title>Taller de JavaScript</title>
@@ -49,17 +49,17 @@
       let res = "";
       res += "<b>Ejemplo</b>\n" + f(0, testEjemplo);
       res += "\n";
-      res += "<b>Ejercicio 1</b>\n" + f(1, testEjercicio1);
+      res += "<hr><br><b>Ejercicio 1</b>\n" + f(1, testEjercicio1);
       res += "\n";
-      res += "<b>Ejercicio 2</b>\n" + f(2, testEjercicio2);
+      res += "<hr><br><b>Ejercicio 2</b>\n" + f(2, testEjercicio2);
       res += "\n";
-      res += "<b>Ejercicio 3</b>\n" + f(3, testEjercicio3);
+      res += "<hr><br><b>Ejercicio 3</b>\n" + f(3, testEjercicio3);
       res += "\n";
-      res += "<b>Ejercicio 4</b>\n" + f(4, testEjercicio4);
+      res += "<hr><br><b>Ejercicio 4</b>\n" + f(4, testEjercicio4);
       res += "\n";
-      res += "<b>Ejercicio 5</b>\n" + f(5, testEjercicio5);
+      res += "<hr><br><b>Ejercicio 5</b>\n" + f(5, testEjercicio5);
       res += "\n";
-      res += "<b>Ejercicio 6</b>\n" + f(6, testEjercicio6);
+      res += "<hr><br><b>Ejercicio 6</b>\n" + f(6, testEjercicio6);
       return res;
     }
     // Función auxiliar que crea un test genérico a partir de un número i y una función f
@@ -74,8 +74,8 @@
         text:"",
         write: function(s, t) {
           if (t!=undefined) {
-            if (t) s = "<span style='color:green'>" + s + "</span>";
-            else s = "<span style='color:red'>" + s + "</span>";
+            if (t) s = "<span style='color:#16DB65'>" + s + "</span>";
+            else s = "<span style='color:#EF3E36'>" + s + "</span>";
           }
           s += "\n";
           this.text += s;
@@ -92,6 +92,7 @@
   </head>
 <body>
   <h1>Taller de Javascript</h1>
+  <hr style="width: 20%; float: left;"><br>
   <div>
     <h2>Instrucciones</h2>
     <p>Editen el archivo taller.js y luego recarguen esta p&aacute;gina para ver el resultado de la ejecuci&oacute;n.</p>

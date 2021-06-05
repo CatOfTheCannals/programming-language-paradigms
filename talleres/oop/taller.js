@@ -1,9 +1,6 @@
 /* TO DO: 
           Tal vez sacar código repetido de (1), (2) y (3)
           Agregar tests para ver que:
-                                      el agente que dejó de espiar ya no puede responder al mensaje selectorDeTotal de la agencia que espiaba (revisar que estén todos los casos cubiertos)
-                                      un agente de cualquier agencia puede espiar 
-                                      un agente que espía dos veces puede volver a su agencia de origen
 */
 AgenteDeControl = function(){
   this.agencia = "Control";
@@ -18,12 +15,14 @@ Agencia = function(programaDeEntrenamiento, selectorDeId, selectorDeTotal){
   // Dado que la cantidad total de agentes debe ser conocida por todos los agentes y su valor es el mismo para todos, 
   // se establece como un mensaje del prototipo de todos los agentes creados con this.programaDeEntrenamiento.
   this.programaDeEntrenamiento.prototype[selectorDeTotal] = 0;
+
+  this.sumarAgente = function() {this.programaDeEntrenamiento.prototype[selectorDeTotal] += 1};
   
   this.agenteAgregado = function(agente) {
 
     // Incrementa el total de agentes agregados
-    this.programaDeEntrenamiento.prototype[selectorDeTotal] += 1;
-
+    //this.programaDeEntrenamiento.prototype[selectorDeTotal] += 1;
+    this.sumarAgente();
     // Hace que el agente sepa responder al mensaje selectorDeId que usan los agentes creados con this.programaDeEntrenamiento 
     // y su valor (el número que identifica al agente) se corresponde con el nuevo total.
     agente[selectorDeId] = this.programaDeEntrenamiento.prototype[selectorDeTotal];
@@ -41,6 +40,7 @@ Agencia = function(programaDeEntrenamiento, selectorDeId, selectorDeTotal){
 
     // Modifica el prototipo. Esto hace que sea identificado como un agente de la otra agencia y pueda responder el total de agentes que hay ahí.
     Object.setPrototypeOf(this, otraAgencia.programaDeEntrenamiento.prototype); // (1) 
+    otraAgencia.sumarAgente();
   
   };
 
@@ -70,7 +70,7 @@ enrolar = function(agente, agencia){
   agencia.programaDeEntrenamiento.bind(agente)();
 
   // Establece el prototipo del agente como el de todos los agentes creados con la función agencia.programaDeEntrenamiento.
-  Object.setPrototypeOf(agente, agencia.programaDeEntrenamiento.prototype); // (3)
+  Object.setPrototypeOf(agente, agencia.programaDeEntrenamiento.prototype); // (3) adoptarProtocoloDeLaAgencia(agente, agencia)
   
   // Indica que se agregó un nuevo agente.
   agencia.agenteAgregado(agente);
@@ -265,6 +265,8 @@ function testEjercicio5(res) {
 	let agenteK = nuevoAgente(kaos);
   let agenteC = {};
   enrolar(agenteC, control);
+
+  // Los espías saben responder exactamente los mensajes que deben
   agenteC.espiar(kaos);
   agenteK.espiar(control);
   let C_conoce_idC = "idC" in agenteC;
@@ -283,7 +285,58 @@ function testEjercicio5(res) {
   res.write("El espía de Kaos" + si_o_no(K_conoce_nC) + "sabe responder nC", K_conoce_nC);
   res.write("El espía de Kaos" + si_o_no(K_conoce_idK) + "sabe responder idK", K_conoce_idK);
   res.write("El espía de Kaos" + si_o_no(K_conoce_nK) + "sabe responder nK", !K_conoce_nK);
-  // Completar
+
+
+  // Al dejar de espíar vuelven a responder exactamente los mismos mensajes que respondían antes de ser espías
+  agenteK.dejarDeEspiar();
+  agenteC.dejarDeEspiar();
+
+  C_conoce_idC = "idC" in agenteC;
+  C_conoce_nC = "nC" in agenteC;
+  C_conoce_idK = "idK" in agenteC;
+  C_conoce_nK = "nK" in agenteC;
+  K_conoce_idC = "idC" in agenteK;
+  K_conoce_nC = "nC" in agenteK;
+  K_conoce_idK = "idK" in agenteK;
+  K_conoce_nK = "nK" in agenteK;
+  res.write("El espía de Control" + si_o_no(C_conoce_idC) + "sabe responder idC", C_conoce_idC);
+  res.write("El espía de Control" + si_o_no(C_conoce_nC) + "sabe responder nC", C_conoce_nC);
+  res.write("El espía de Control" + si_o_no(C_conoce_idK) + "sabe responder idK", !C_conoce_idK);
+  res.write("El espía de Control" + si_o_no(C_conoce_nK) + "sabe responder nK", !C_conoce_nK);
+  res.write("El espía de Kaos" + si_o_no(K_conoce_idC) + "sabe responder idC", !K_conoce_idC);
+  res.write("El espía de Kaos" + si_o_no(K_conoce_nC) + "sabe responder nC", !K_conoce_nC);
+  res.write("El espía de Kaos" + si_o_no(K_conoce_idK) + "sabe responder idK", K_conoce_idK);
+  res.write("El espía de Kaos" + si_o_no(K_conoce_nK) + "sabe responder nK", K_conoce_nK);
+
+
+
+
+  // Los espías responden correctamente 
+  let segundo_agenteK = nuevoAgente(kaos);
+  segundo_agenteK.espiar(control);
+  let segundo_agenteK_responde_nC_correctamente = segundo_agenteK.nC === 3;
+  res.write("El espía de Kaos" + si_o_no(segundo_agenteK_responde_nC_correctamente) + "sabe responder nC correctamente", segundo_agenteK_responde_nC_correctamente);
+
+  let segundo_agenteK_responde_idK_correctamente = segundo_agenteK.idK === 3;
+  res.write("El espía de Kaos" + si_o_no(segundo_agenteK_responde_idK_correctamente) + "sabe responder idK correctamente", segundo_agenteK_responde_idK_correctamente);
+
+
+  // Al dejar de espiar dejan de responder el total de la otra agencia y recuperan el original
+  segundo_agenteK.dejarDeEspiar();
+  let segundo_agenteK_responde_nK_correctamente = segundo_agenteK.nK === 3;
+  res.write("El espía de Kaos" + si_o_no(segundo_agenteK_responde_nK_correctamente) + "sabe responder nK correctamente", segundo_agenteK_responde_nK_correctamente);
+
+
+  // El doble espía sabe volver a su agencia original
+  let equilibrio = new Agencia(function(){}, "idE", "nE");
+  let agenteE = nuevoAgente(equilibrio);
+  agenteE.espiar(control);
+  agenteE.espiar(kaos);
+  agenteE.dejarDeEspiar();
+  let agenteE_responde_nE = "nE" in agenteE;
+  res.write("El espía de Equilibrio" + si_o_no(agenteE_responde_nE) + "sabe responder nE", agenteE_responde_nE);
+  let agenteE_responde_nE_correctamente = agenteE.nE === 1;
+  res.write("El espía de Equilibrio" + si_o_no(agenteE_responde_nE_correctamente) + "sabe responder nE correctamente", agenteE_responde_nE_correctamente);
 
 }
 
