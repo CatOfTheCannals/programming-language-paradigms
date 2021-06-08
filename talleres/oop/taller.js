@@ -1,7 +1,3 @@
-/* TO DO: 
-          Tal vez sacar código repetido de (1), (2) y (3)
-          Agregar tests para ver que:
-*/
 AgenteDeControl = function(){
   this.agencia = "Control";
 };
@@ -21,7 +17,6 @@ Agencia = function(programaDeEntrenamiento, selectorDeId, selectorDeTotal){
   this.agenteAgregado = function(agente) {
 
     // Incrementa el total de agentes agregados
-    //this.programaDeEntrenamiento.prototype[selectorDeTotal] += 1;
     this.sumarAgente();
     // Hace que el agente sepa responder al mensaje selectorDeId que usan los agentes creados con this.programaDeEntrenamiento 
     // y su valor (el número que identifica al agente) se corresponde con el nuevo total.
@@ -141,8 +136,6 @@ function testEjercicio2(res) {
   let tieneDefinidoElProgramaDeEntrenamiento = Object.values(kaos).includes(AgenteDeKaos);
   res.write(`La agencia ${si_o_no(tieneDefinidoElProgramaDeEntrenamiento)} tiene definido un programa de entrenamiento`, tieneDefinidoElProgramaDeEntrenamiento);
 
-  // Completar
-
 }
 
 // Test Ejercicio 3
@@ -182,8 +175,6 @@ function testEjercicio3(res) {
   enrolar(miniEspia3, cia);
   agenciaRegistraEnrolamiento = agentes == 1;
   res.write(`El agente enrolado ${si_o_no(agenciaRegistraEnrolamiento)} pasó por el programa de entrenamiento`, agenciaRegistraEnrolamiento);
-  
-  // Completar
 
 }
 
@@ -336,6 +327,11 @@ function testEjercicio5(res) {
   let agenteE_responde_nE_correctamente = agenteE.nE === 1;
   res.write("El espía de Equilibrio" + si_o_no(agenteE_responde_nE_correctamente) + "sabe responder nE correctamente", agenteE_responde_nE_correctamente);
 
+  // La agencia equilibrio tiene el total correcto luego que el agenteE deje de espiar
+  let otroAgenteE = nuevoAgente(equilibrio);
+  let total_intacto = otroAgenteE.nE === 2;
+  res.write("Cuando un agente deja de espiar el número de agentes de la agencia espiada" + si_o_no(total_intacto) + "mantiene el valor correcto", total_intacto);
+
 }
 
 // Test Ejercicio 6
@@ -368,7 +364,6 @@ function testEjercicio6(res) {
   let camaleonRespondeQOnda = camaleon.repetir('q onda?') == 'q onda?';
   res.write(`El agente Camaleón ${si_o_no(camaleonEsRojo)} es de color rojo`, camaleonEsRojo);
   res.write(`El agente Camaleón ${si_o_no(camaleonRespondeQOnda)} responde 'q onda?' si le piden repetir 'q onda?'`, camaleonRespondeQOnda);
-  // Completar
 
   // cuando se agrega un agente especial, se le asigna un ID y sabe el n de la agencia
 
@@ -376,10 +371,10 @@ function testEjercicio6(res) {
   let agenteC = new agenteEspecial(control, sacarseElSombrero)
 
   let C_responde_idC = agenteC.idC == 1;
-  res.write("El primer agente de Control" + si_o_no(C_responde_idC) + "tiene ID adecuado", C_responde_idC);
+  res.write("El agente especial de Control" + si_o_no(C_responde_idC) + "sabe responder idC correctamente", C_responde_idC);
 
   let C_responde_nC = agenteC.nC == 1;
-  res.write("El primer agente de Control" + si_o_no(C_responde_nC) + "tiene n adecuado", C_responde_nC);
+  res.write("El agente especial de Control" + si_o_no(C_responde_nC) + "sabe responder nC correctamente", C_responde_nC);
 }
 
 
