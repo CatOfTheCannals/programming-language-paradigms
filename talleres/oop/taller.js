@@ -1,3 +1,63 @@
+/*
+
+Ejercicio 0
+
+function f(){
+  this.x = 0;
+  this.inc = function(){
+    this.x++;
+  };
+};
+
+let a = new f(); // a sabe responder x e inc
+a.inc();         // a sigue con los mismos mensajes pero pasa a responder x con 1
+
+
+
+function f(){
+  this.x = 0;
+};
+
+f.prototype.inc = function(){
+  this.x++;
+};
+
+let a = new f(); // a sabe responder x e inc (obtiene inc desde su prototipo que es f.prototype)
+a.inc()          // a sigue con los mismos mensajes pero pasa a responder x con 1 (sigue obteniendo inc desde el prototipo)
+
+
+
+
+function f(){
+  this.inc = function(){
+    this.x++;
+  };
+};
+
+f.prototype.x = 0;
+
+let a = new f(); // a sabe responder x e inc (acá obtiene x desde su prototipo)
+a.inc();         // a sigue con los mismos mensajes pero pasa a responder x con 1. Además, ya no obtendrá x desde su protitipo en el futuro
+                 // pues en el código de inc se define el selector x en a
+
+
+
+
+function f(){
+};
+
+f.prototype.x = 0;
+f.prototype.inc = function(){
+  this.x++;
+};
+
+let a = new f(); // a sabe responder x e inc (ambos los obtiene desde su prototitpo)
+a.inc();         // a sigue con los mismos mensajes pero pasa a responder x con 1. Además, ya no obtendrá x desde su protitipo en el futuro
+                 // pues en el código de inc se define el selector x en a (sigue obteniendo inc desde su prototipo)
+                 
+*/
+
+
 AgenteDeControl = function(){
   this.agencia = "Control";
 };
