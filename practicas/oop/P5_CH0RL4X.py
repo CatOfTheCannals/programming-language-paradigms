@@ -74,6 +74,70 @@ and = (λa. (λb. a.if(b.if(true)(false))(false)))
 or = (λa. (λb. a.if(true)(b.if(true)(false) )))
 
 
+17)
+
+a)
+
+origen = [
+	x = 0,
+	y = 0,
+	mv = Ç(p)(λv.(λw.((p.y := p.y + w).x := p.x + v)))
+]
+
+b)
+
+Punto = [
+	new = Ç(z)[
+		x = Ç(s)z.x(s)
+		y = Ç(s)z.y(s)
+		x = Ç(s)z.mv(s)
+	],
+	x = λs. 0,
+	y = λs. 0,
+	mv = λs. (λv.(λw.((s.y := s.y + w).x := s.x + v)))
+]
+
+c)
+
+
+										 			p -> p
+______________(obj)		_________________________________________________________________(obj)
+Punto -> Punto			[x = Ç(s)Punto.x(s), y = Ç(s)Punto.y(s), x = Ç(s)Punto.mv(s)] = p  # DUDA: tendria que poner la definicion de los metodos aca?
+__________________________________________________________________________________________________(sel)
+					Punto.new -> 
+
+
+d)
+
+PuntoColoreado = [
+
+	new = Ç(z)[
+		x = Ç(s)z.x(s)
+		y = Ç(s)z.y(s)
+		x = Ç(s)z.mv(s)
+		color = Ç(s)z.color(s)
+	],
+	x = Punto.x,
+	y = Punto.y,
+	mv = Punto.mv,
+	color = λs. blanco 
+	new_with_color = (λs. (λc. s.color := c)) # DUDA: esto esta bien??
+
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
