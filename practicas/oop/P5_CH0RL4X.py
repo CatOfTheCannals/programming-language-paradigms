@@ -11,7 +11,7 @@ a)
 				______(obj)		_______________(obj)
 				o --> o  		x{o/x} = o --> o
 ______(obj)     _____________________________________(sel)
-o --> o 				x.arg{o/x} = o.arg --> o	DUDA: esta bien sacar el ς al usar sel??
+o --> o 				x.arg{o/x} = o.arg --> o
 _____________________________________________________(sel)
 					o.val --> o
 
@@ -70,8 +70,8 @@ false = true.not
 
 b)
 
-and = (λa. (λb. a.if(b.if(true)(false))(false)))
-or = (λa. (λb. a.if(true)(b.if(true)(false) )))
+and = (λa. (λb. a.if(b)(false)))
+or = (λa. (λb. a.if(true)(b)))
 
 
 17)
@@ -83,6 +83,15 @@ origen = [
 	y = 0,
 	mv = Ç(p)(λv.(λw.((p.y := p.y + w).x := p.x + v)))
 ]
+
+# se pasa argumentos con parentesis!! 
+origen.mv (a) (b)
+
+	# esto se resolveria primero aplicando 
+		# origen.mv (a) (app)
+		# desplegando la macro (con origen.mv (a) -> z) se tiene  (z.arg := b).val
+
+
 
 b)
 
