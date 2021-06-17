@@ -54,7 +54,7 @@ f.prototype.inc = function(){
 let a = new f(); // a sabe responder x e inc (ambos los obtiene desde su prototitpo)
 a.inc();         // a sigue con los mismos mensajes pero pasa a responder x con 1. Además, ya no obtendrá x desde su protitipo en el futuro
                  // pues en el código de inc se define el selector x en a (sigue obteniendo inc desde su prototipo)
-                 
+
 */
 
 
@@ -92,9 +92,10 @@ Agencia = function(programaDeEntrenamiento, selectorDeId, selectorDeTotal){
       this.programaOriginal = programaDeEntrenamiento.prototype;
       this.agenciaOriginal = this.agencia;
     }
-
+    //Pasa por el programa de entrenamiento
+    otraAgencia.programaDeEntrenamiento.bind(this)();
     // Modifica el prototipo. Esto hace que sea identificado como un agente de la otra agencia y pueda responder el total de agentes que hay ahí.
-    Object.setPrototypeOf(this, otraAgencia.programaDeEntrenamiento.prototype); // (1) 
+    Object.setPrototypeOf(this, otraAgencia.programaDeEntrenamiento.prototype);
     otraAgencia.sumarAgente();
   
   };
@@ -125,18 +126,17 @@ enrolar = function(agente, agencia){
   agencia.programaDeEntrenamiento.bind(agente)();
 
   // Establece el prototipo del agente como el de todos los agentes creados con la función agencia.programaDeEntrenamiento.
-  Object.setPrototypeOf(agente, agencia.programaDeEntrenamiento.prototype); // (3) adoptarProtocoloDeLaAgencia(agente, agencia)
+  Object.setPrototypeOf(agente, agencia.programaDeEntrenamiento.prototype);
   
   // Indica que se agregó un nuevo agente.
   agencia.agenteAgregado(agente);
 };
 
 agenteEspecial = function(agencia, habilidad){ 
-  let agente = new nuevoAgente(agencia);
-
+  //Enrolamos al agente nuevo
+  enrolar(this, agencia);                                     //PREGUNTA: alcanza con esto para que sea constructora?
   // Hace que el agente sepa responder al mensaje habilidad.
-  agente[habilidad.name] = habilidad;
-  return agente;
+  this[habilidad.name] = habilidad;
 };
 
 camuflar = function(otroObjeto){
@@ -435,28 +435,5 @@ function testEjercicio6(res) {
 
   let C_responde_nC = agenteC.nC == 1;
   res.write("El agente especial de Control" + si_o_no(C_responde_nC) + "sabe responder nC correctamente", C_responde_nC);
+  console.log(agenteC.nC);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
