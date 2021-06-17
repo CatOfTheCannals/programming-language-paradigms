@@ -81,6 +81,9 @@ Agencia = function(programaDeEntrenamiento, selectorDeId, selectorDeTotal){
     // Hace que el agente sepa responder al mensaje selectorDeId que usan los agentes creados con this.programaDeEntrenamiento 
     // y su valor (el número que identifica al agente) se corresponde con el nuevo total.
     agente[selectorDeId] = this.programaDeEntrenamiento.prototype[selectorDeTotal];
+    agente.dejarDeEspiar = function() {
+      Object.setPrototypeOf(this, programaDeEntrenamiento.prototype);
+    };
   };
   
   // Los mensajes espiar y dejarDeEspiar se agregan a this.programaDeEntrenamiento.prototype para que todos los agentes, 
@@ -88,10 +91,10 @@ Agencia = function(programaDeEntrenamiento, selectorDeId, selectorDeTotal){
   this.programaDeEntrenamiento.prototype.espiar = function(otraAgencia){
     
     // Guarda los valores originales si no estuvieran definidos ya (es decir, si el agente nunca hubiera espiado).
-    if(!('agenciaOriginal' in this)){
+    /*if(!('agenciaOriginal' in this)){
       this.programaOriginal = programaDeEntrenamiento.prototype;
       this.agenciaOriginal = this.agencia;
-    }
+    }*/
     //Pasa por el programa de entrenamiento
     otraAgencia.programaDeEntrenamiento.bind(this)();
     // Modifica el prototipo. Esto hace que sea identificado como un agente de la otra agencia y pueda responder el total de agentes que hay ahí.
@@ -100,12 +103,12 @@ Agencia = function(programaDeEntrenamiento, selectorDeId, selectorDeTotal){
   
   };
 
-  this.programaDeEntrenamiento.prototype.dejarDeEspiar = function(){
+  /*this.programaDeEntrenamiento.prototype.dejarDeEspiar = function(){
     // Restaura los valores originales. this vuelve a responder como lo hacía originalmente al mensaje agencia 
     // y al que utiliza su agencia original para obtener el número total de agentes. Además, deja de poder responder el total de la agencia que espiaba.
     this.agencia = this.agenciaOriginal;
     Object.setPrototypeOf(this, this.programaOriginal);
-  };
+  };*/
 };
 
 control = new Agencia(AgenteDeControl, "idC", "nC");
