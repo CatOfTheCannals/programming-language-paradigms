@@ -2,3 +2,9 @@ not working
 	ex6
 	ex8 - partir
 	ex8 - permutacion
+	ex10b
+	ex12 - altura - cantidadDeNodos
+		% the following does not work
+		% {altura, cantidadDeNodos}(bin(nil, 1, nil), H).
+		% {altura, cantidadDeNodos}(bin(bin(nil, 1, nil), 1, D), H).
+
