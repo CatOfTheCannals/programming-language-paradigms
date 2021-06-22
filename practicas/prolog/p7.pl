@@ -477,7 +477,6 @@ inorder(bin(I,V,D), L) :- inorder(I, LI), inorder(D, LD), append(LI, [V], LIV), 
 arbolConInorder([], nil).
 arbolConInorder(L, AB) :- length(L, LEN), N is LEN-1, between(0, N, I), partir(I, L, LI, LDV), arbolConInorder(LI, AI), LDV = [V|LD], arbolConInorder(LD, AD), AB = bin(AI, V, AD).
 
-
 % iii)
 
 aBB(nil) :- !.
@@ -487,4 +486,10 @@ aBB(bin(nil,V,D)) :- root(D, R), R >= V, aBB(D), !.
 aBB(bin(I,V,D)) :- root(I, RI), root(D, RD), RI < V, RD >= V, aBB(I), aBB(D).
 
 
-root(bin(_,V,_), V).
+root(bin(_,V,_), V). 
+
+% iv)
+
+aBBInsertar(X, nil, bin(nil,X,nil)).
+aBBInsertar(X, bin(I,V,D), T2) :- X < V, aBBInsertar(X, I, IX), T2 = bin(IX, V, D).
+aBBInsertar(X, bin(I,V,D), T2) :- X >= V, aBBInsertar(X, D, DX), T2 = bin(I, V, DX).
