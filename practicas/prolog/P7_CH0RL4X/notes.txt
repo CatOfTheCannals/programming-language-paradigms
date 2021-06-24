@@ -1,5 +1,4 @@
 not working
-	ex6
 	ex8 - partir
 	ex8 - permutacion
 	ex10b
@@ -7,4 +6,6 @@ not working
 		% the following does not work
 		% {altura, cantidadDeNodos}(bin(nil, 1, nil), H).
 		% {altura, cantidadDeNodos}(bin(bin(nil, 1, nil), 1, D), H).
+
+consult("/Users/cgiudice/facu/plp/programming-language-paradigms/practicas/prolog/P7_CH0RL4X/ex6.pl").
 

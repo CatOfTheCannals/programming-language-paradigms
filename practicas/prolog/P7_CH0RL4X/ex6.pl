@@ -7,10 +7,8 @@ is_list([]).
 %aplanar(+Xs, -Ys)
 aplanar(E, [E]) :- not(is_list(E)).
 aplanar([], []).
-aplanar([X|Xs], Ys) :- Xa = aplanar(X), Xsa = aplanar(Xs), append(Xa, Xsa, Ys).
+aplanar([X|Xs], Ys) :- aplanar(X, Xa), aplanar(Xs, Xsa), append(Xa, Xsa, Ys).
 
-%this does not work yet!!
-%aplanar([1], X).
 
 
 
