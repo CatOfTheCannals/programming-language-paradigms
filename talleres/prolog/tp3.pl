@@ -16,10 +16,9 @@
 % evaluar(+Estado, +Var, -Val)
 % Dado un estado y una variable, instancia en el tercer argumento el valor
 %   de la variable en el estado. Las variables que no aparecen en el estado tienen valor 0.
-evaluar([], _, 0).
-evaluar([(VAR,VAL)|_], X, XVAL) :- VAR = X, XVAL = VAL.
-evaluar([(VAR,_)|ST], X, XVAL) :- VAR \= X, evaluar(ST, X, XVAL).
 
+evaluar(ST, VAR, 0) :- not(member((VAR, _), ST)).
+evaluar(ST, VAR, VAL) :- member((VAR, VAL), ST).
 
 %% CODIFICACIÓN
 
@@ -50,16 +49,17 @@ iesimoPrimo(1, 2).
 iesimoPrimo(I, P) :- PREV is I-1, iesimoPrimo(PREV, PREVP), FROM is PREVP+1, desde(FROM, P), esPrimo(P), !.
 
 
-cuentaRegresiva(X, X).
-cuentaRegresiva(X, Y) :- nonvar(Y), Y < X.
-cuentaRegresiva(X, Y) :- var(Y), N is X-1, N>=1, cuentaRegresiva(N, Y).
+intervaloDecreciente(X, X).
+intervaloDecreciente(X, Y) :- nonvar(Y), Y < X.
+intervaloDecreciente(X, Y) :- var(Y), N is X-1, N>=1, intervaloDecreciente(N, Y).
 
 elevar(0, N, 0) :- N \= 0. 
 elevar(P, 0, 1) :- P \= 0.
 elevar(P, N, POW) :- N>0, M is N-1, elevar(P, M, POWM), POW is POWM*P.
 
 % maximoExponenteQueDivideA(-X, +P, +Z)
-maximoExponenteQueDivideA(X, P, Z) :- cuentaRegresiva(Z, X), elevar(P, X, PX), divide(PX, Z), !.
+maximoExponenteQueDivideA(X, P, Z) :- intervaloDecreciente(Z, X), elevar(P, X, PX), divide(PX, Z), !. 
+/*El problema con esto es que si X va instanciado no es posible determinar si efectivamente es el mayor exponente*/
 
 %% OBSERVADORES
 
@@ -108,33 +108,38 @@ iEsimaInstruccion(E, Indice, Instruccion) :- is_list(E), iesimo(E, Indice, Instr
 instanciarEstado([], _, []).
 instanciarEstado([VAL|VALS], VAR, [(VAR, VAL)|STS]) :- NEXT is VAR+1, instanciarEstado(VALS, NEXT, STS).
 
+indiceParaEtiqueta(P, E, I) :- existeIndice(P, E, I), !.
+indiceParaEtiqueta(P, E, I) :- not(existeIndice(P, E, _)), length(P, LEN), I is LEN+1.
 
-valorUnificaConCero(_, []).
-valorUnificaConCero(V, [(VAR, VAL)|_]) :- VAR = V, VAL = 0.
-valorUnificaConCero(V, [(VAR, _)|VALS]) :- VAR \= V, valorUnificaConCero(V, VALS).
-
-indiceParaEtiqueta([], SEEN, _, I) :- I is SEEN+1.
-indiceParaEtiqueta([INS|_], SEEN, E, I) :- etiquetaInstruccion(INS, EINS), EINS = E, I is SEEN+1.
-indiceParaEtiqueta([INS|INSS], SEEN, E, I) :- etiquetaInstruccion(INS, EINS), EINS \= E, NEWSEEN is SEEN+1, indiceParaEtiqueta(INSS, NEWSEEN, E, I).
-
-
+existeIndice(P, E, I) :- nth1(I, P, INS), etiquetaInstruccion(INS, E).
 
 avanzarIndice(_, _, INS, IO, I) :- codigoInstruccion(INS, CODE), 2 =< CODE, I is IO+1.
-avanzarIndice(_, S, goto(_, V, _), IO, I) :- valorUnificaConCero(V, S), I is IO+1.
-avanzarIndice(P, S, goto(_, V, E), _, I) :- not(valorUnificaConCero(V, S)), indiceParaEtiqueta(P, 0, E, I).
-
-
+avanzarIndice(_, S, goto(_, V, _), IO, I) :- evaluar(S, V, 0), I is IO+1.
+avanzarIndice(P, S, goto(_, V, E), _, I) :- not(evaluar(S, V, 0)), indiceParaEtiqueta(P, E, I).
 
 avanzarEstado(nada(_, _), SO, SO).
-avanzarEstado(suma(_, V), SO, S) :- finaegoea(SO, V, S). % QUÉ MIERDA HACEMOS ACÁ?????????????????!!!!!!!!!!!????????!!!!!!!!!!????????
-avanzarEstado(resta(_, V), SO, S) :- finaegoea(SO, V, S).% ÁCÁ TAMBIÉN
-avanzarEstado(goto(_, _, _), SO, SO). 
+avanzarEstado(suma(_, VAR), SO, S) :- actualizarEstado(SO, suma(_,VAR), S). % QUÉ MIERDA HACEMOS ACÁ?????????????????!!!!!!!!!!!????????!!!!!!!!!!????????
+avanzarEstado(resta(_, VAR), SO, S) :- actualizarEstado(SO, resta(_, VAR), S).% ÁCÁ TAMBIÉN
+avanzarEstado(goto(_, _, _), SO, SO).
 
+actualizarEstado(SO, suma(_, VAR), S) :- evaluar(SO, VAR, VAL), NEWVAL is VAL+1, actualizarVariable(SO, VAR, NEWVAL, S).
+actualizarEstado(SO, resta(_, VAR), S) :- evaluar(SO, VAR, VAL), VAL > 1, NEWVAL is VAL-1, actualizarVariable(SO, VAR, NEWVAL, S). 
+actualizarEstado(SO, resta(_, VAR), S) :- evaluar(SO, VAR, VAL), 1 >= VAL, delete(SO, (VAR,_), S).
+
+actualizarVariable(SO, VAR, NEWVAL, S) :- delete(SO, (VAR,_), DSO), append(DSO, (VAR, NEWVAL), S).
 
 % snap(+Xs, +P, +T, -Di)
 % Instancia en el cuarto argumento la descripción instantánea resultante de
 % ejecutar el programa P con entradas Xs tras T pasos.
-snap(XS, _, 0, (1, S)) :- instanciarEstado(XS, 1, S). 
+/* 
+    XS: lista de enteros con los valores de entrada de las variables
+    P: lista de instrucciones que representa el programa
+    T: numero de pasos a ejecutar
+
+    snap = (INDICE DE LA PRÓXIMA INSTRUCCIÓN, ESTADO)
+*/
+
+snap(XS, _, 0, (1, S)) :- instanciarEstado(XS, 2, S). 
 snap(XS, P, T, (I, S)) :- PREV is T-1, snap(XS, P, PREV, PREVDI), PREVDI = (PREVI, PREVS), iEsimaInstruccion(P, PREVI, IESIMA), avanzarIndice(P, PREVS, IESIMA, PREVI, I), avanzarEstado(IESIMA, PREVS, S).                                         
 
 
