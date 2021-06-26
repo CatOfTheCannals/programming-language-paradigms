@@ -28,15 +28,15 @@ evaluar(ST, VAR, VAL) :- member((VAR, VAL), ST).
 codificacionLista(L, Z) :- codificacionListaDesde(L, Z, 1).
 
 % codificacionLista(?L, ?Z, +I)
-codificacionListaDesde([], 1, _).
-codificacionListaDesde([X|Xs], Z, I) :- ground([X|Xs]), Im1 is I+1, iesimoPrimo(I, P), codificacionListaDesde(Xs, Rec, Im1), Z is Rec*P**X.
-codificacionListaDesde([X|Xs], Z, I) :- var(X), var(Xs), Im1 is I+1, iesimoPrimo(I, P), maximoExponenteQueDivideA(X,P,Z), Rec is Z/(P**X), codificacionListaDesde(Xs, Rec, Im1).
+codificacionListaDesde([], 1, _) :- !. /*************************************************** ABUSAMOS DEL CUT???????????????????*************************************************************************************************/
+codificacionListaDesde([X|Xs], Z, I) :- ground([X|Xs]), Im1 is I+1, iesimoPrimo(I, P), codificacionListaDesde(Xs, Rec, Im1), Z is Rec*P**X, !.
+codificacionListaDesde([X|Xs], Z, I) :- var(X), var(Xs), Im1 is I+1, iesimoPrimo(I, P), maximoExponenteQueDivideA(X,P,Z), Rec is Z/(P**X), codificacionListaDesde(Xs, Rec, Im1), !.
 
 % divide(?A, +B)
-divide(A, B) :- between(1, B, A), between(1, B, X), B is A*X.
+divide(A, B) :- between(1, B, A), between(1, B, X), B is A*X, !.
 
 % esPrimo(+P)
-esPrimo(P) :- P \= 1, Pm1 is P-1, not((between(2, Pm1, X), divide(X, P))).
+esPrimo(P) :- P \= 1, Pm1 is P-1, not((between(2, Pm1, X), divide(X, P))), !.
 
 
 desde(X, X).
@@ -46,19 +46,16 @@ desde(X, Y) :- var(Y), N is X+1, desde(N, Y).
 
 % iesimoPrimo(+I, -P)
 iesimoPrimo(1, 2).
-iesimoPrimo(I, P) :- PREV is I-1, iesimoPrimo(PREV, PREVP), FROM is PREVP+1, desde(FROM, P), esPrimo(P), !.
+iesimoPrimo(I, P) :- I>1, PREV is I-1, iesimoPrimo(PREV, PREVP), FROM is PREVP+1, desde(FROM, P), esPrimo(P), !.
 
 
 intervaloDecreciente(X, X).
 intervaloDecreciente(X, Y) :- nonvar(Y), Y < X.
-intervaloDecreciente(X, Y) :- var(Y), N is X-1, N>=1, intervaloDecreciente(N, Y).
+intervaloDecreciente(X, Y) :- var(Y), N is X-1, N>=0, intervaloDecreciente(N, Y).
 
-elevar(0, N, 0) :- N \= 0. 
-elevar(P, 0, 1) :- P \= 0.
-elevar(P, N, POW) :- N>0, M is N-1, elevar(P, M, POWM), POW is POWM*P.
 
 % maximoExponenteQueDivideA(-X, +P, +Z)
-maximoExponenteQueDivideA(X, P, Z) :- intervaloDecreciente(Z, X), elevar(P, X, PX), divide(PX, Z), !. 
+maximoExponenteQueDivideA(X, P, Z) :- intervaloDecreciente(Z, X), PX is P**X, divide(PX, Z), !. 
 /*El problema con esto es que si X va instanciado no es posible determinar si efectivamente es el mayor exponente*/
 
 %% OBSERVADORES
@@ -104,7 +101,6 @@ iEsimaInstruccion(E, Indice, Instruccion) :- is_list(E), iesimo(E, Indice, Instr
 % indica el número de la próxima instrucción a ejecutar):
 %  (i,s)
 
-
 instanciarEstado([], _, []).
 instanciarEstado([VAL|VALS], VAR, [(VAR, VAL)|STS]) :- NEXT is VAR+1, instanciarEstado(VALS, NEXT, STS).
 
@@ -113,13 +109,13 @@ indiceParaEtiqueta(P, E, I) :- not(existeIndice(P, E, _)), length(P, LEN), I is 
 
 existeIndice(P, E, I) :- nth1(I, P, INS), etiquetaInstruccion(INS, E).
 
-avanzarIndice(_, _, INS, IO, I) :- codigoInstruccion(INS, CODE), 2 =< CODE, I is IO+1.
+avanzarIndice(_, _, INS, IO, I) :- codigoInstruccion(INS, CODE), CODE =< 2, I is IO+1.
 avanzarIndice(_, S, goto(_, V, _), IO, I) :- evaluar(S, V, 0), I is IO+1.
 avanzarIndice(P, S, goto(_, V, E), _, I) :- not(evaluar(S, V, 0)), indiceParaEtiqueta(P, E, I).
 
 avanzarEstado(nada(_, _), SO, SO).
-avanzarEstado(suma(_, VAR), SO, S) :- actualizarEstado(SO, suma(_,VAR), S). % QUÉ MIERDA HACEMOS ACÁ?????????????????!!!!!!!!!!!????????!!!!!!!!!!????????
-avanzarEstado(resta(_, VAR), SO, S) :- actualizarEstado(SO, resta(_, VAR), S).% ÁCÁ TAMBIÉN
+avanzarEstado(suma(_, VAR), SO, S) :- actualizarEstado(SO, suma(_,VAR), S). 
+avanzarEstado(resta(_, VAR), SO, S) :- actualizarEstado(SO, resta(_, VAR), S).
 avanzarEstado(goto(_, _, _), SO, SO).
 
 actualizarEstado(SO, suma(_, VAR), S) :- evaluar(SO, VAR, VAL), NEWVAL is VAL+1, actualizarVariable(SO, VAR, NEWVAL, S).
@@ -127,6 +123,8 @@ actualizarEstado(SO, resta(_, VAR), S) :- evaluar(SO, VAR, VAL), VAL > 1, NEWVAL
 actualizarEstado(SO, resta(_, VAR), S) :- evaluar(SO, VAR, VAL), 1 >= VAL, delete(SO, (VAR,_), S).
 
 actualizarVariable(SO, VAR, NEWVAL, S) :- delete(SO, (VAR,_), DSO), append(DSO, (VAR, NEWVAL), S).
+
+prevSnap(XS, P, T, (PREVI, PREVS)) :- T > 0, PREV is T-1, snap(XS, P, PREV, (PREVI, PREVS)).
 
 % snap(+Xs, +P, +T, -Di)
 % Instancia en el cuarto argumento la descripción instantánea resultante de
@@ -139,31 +137,33 @@ actualizarVariable(SO, VAR, NEWVAL, S) :- delete(SO, (VAR,_), DSO), append(DSO, 
     snap = (INDICE DE LA PRÓXIMA INSTRUCCIÓN, ESTADO)
 */
 
-snap(XS, _, 0, (1, S)) :- instanciarEstado(XS, 2, S). 
-snap(XS, P, T, (I, S)) :- PREV is T-1, snap(XS, P, PREV, PREVDI), PREVDI = (PREVI, PREVS), iEsimaInstruccion(P, PREVI, IESIMA), avanzarIndice(P, PREVS, IESIMA, PREVI, I), avanzarEstado(IESIMA, PREVS, S).                                         
-
+snap(XS, _, 0, (1, S)) :- instanciarEstado(XS, 2, S), !. 
+snap(XS, P, T, (I, S)) :- prevSnap(XS, P, T, (PREVI, PREVS)), iEsimaInstruccion(P, PREVI, IESIMA), avanzarIndice(P, PREVS, IESIMA, PREVI, I), avanzarEstado(IESIMA, PREVS, S), !.                                         
+snap(XS, P, T, (I, S)) :- prevSnap(XS, P, T, (PREVI, S)), length(P, LEN), PREVI > LEN, I is LEN+1.
 
 % stp(+Xs, +P, +T)
 % Indica si el programa P con entradas Xs termina tras T pasos.
 % Se dice que un programa terminó cuando la próxima instrucción a ejecutar es
 % 1 más que la longitud del programa.
-% COMPLETAR
+stp(XS, P, T) :- snap(XS, P, T, (I, _)), length(P, LEN), I is LEN+1.
 
 %% Pseudo-Halt
 
 % pseudoHalt(+X, +Y)
-% COMPLETAR
+pseudoHalt(X, P) :- desde(0, 1), stp([X], P, 1), !.
 
 % Buscar entradas para las cuales el programa Y termina
 % pseudoHalt2(-X, +Y)
-% COMPLETAR
+pseudoHalt2(X, P) :- desde(0, C), codificacionDePares((X, T), C), stp([X], P, T).
+
+codificacionDePares((X,Y), Z) :- ZPLUS is Z+1, maximoExponenteQueDivideA(X, 2, ZPLUS), DX is 2**X, Y is (-1 + ZPLUS/DX)/2. 
 
 % Buscar pares programa-entrada que terminen
-% pseudoHalt3(-X, -Y)
-% COMPLETAR
+% pseudoHalt3(-X, -Y)                                       
+pseudoHalt3(X, P) :- desde(1, C), codificacionLista(L, C), L=[X, T, CP], programa(P, CP), TM is T-1, not(stp([X], P, TM)), stp([X], P, T).
 
 % programa(-P, +N)
-programa([], 0).
+programa([], 0) :- !.
 programa([I|Is], N) :- N > 0, between(1,N,C), instruccion(I,C), N2 is N-C, programa(Is,N2).
 
 % instruccion(-I, +N)
@@ -194,7 +194,7 @@ testSnapYstp(2) :- snap([10],[suma(0,1)],0,(1,[(2,10)])).
 % Agregar más tests
 
 cantidadTestsHalt(1). % Actualizar con la cantidad de tests que entreguen
-testHalt(1) :- pseudoHalt([1],[suma(0,1)]).
+testHalt(1) :- pseudoHalt(1,[suma(0,1)]).
 % Agregar más tests
 
 tests(evaluar) :- cantidadTestsEvaluar(M), forall(between(1,M,N), testEvaluar(N)).
