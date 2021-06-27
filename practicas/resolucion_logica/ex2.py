@@ -1,3 +1,5 @@
+I.
+
 i)
 FNC: p v (¬p) 
 FC: {p, ¬p}
@@ -41,3 +43,61 @@ negamos
 p ^ ¬p
 resolvente []
 con lo cual la formula original es tautologia
+
+
+II. 
+qvq: (¬p ⊃ q) ∧ (p ⊃ q) ∧ (¬p ⊃ ¬q) ⊃ (p ∧ q)
+
+simplificar implicaciones
+¬((p v q) ∧ (¬p v q) ∧ (p v ¬q)) v (p ∧ q)
+
+negar
+((p v q) ∧ (¬p v q) ∧ (p v ¬q)) ∧ ¬(p ∧ q)
+
+pasar a FNC
+(p v q) ∧ (¬p v q) ∧ (p v ¬q) ∧ (¬p v ¬q)
+FC: {p, q}, {¬p, q}, {p, ¬q}, {¬p, ¬q}
+
+resolvente de {p, q}, {¬p, q} es {q}
+{p, q}, {¬p, q}, {p, ¬q}, {¬p, ¬q}, {q}
+
+resolvente de {p, ¬q} y {¬p, ¬q} es {¬q}
+{p, q}, {¬p, q}, {p, ¬q}, {¬p, ¬q}, {q}, {¬q}
+
+
+resolvente de {q} y {¬q} es []
+esta formula no es valida
+la formula inicial es tautologia
+podemos afirmar que la implicacion original es correcta
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

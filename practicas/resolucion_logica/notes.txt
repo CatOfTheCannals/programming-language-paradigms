@@ -1,0 +1,3 @@
+dudas en 
+	ex4 - hay forma/estrategia de hacerlo mas sencillo?
+	"regla de resolucion binaria y factorizacion" ??
