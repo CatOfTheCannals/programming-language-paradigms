@@ -17,8 +17,8 @@
 % Dado un estado y una variable, instancia en el tercer argumento el valor
 %   de la variable en el estado. Las variables que no aparecen en el estado tienen valor 0.
 
-evaluar(ST, VAR, 0) :- not(member((VAR, _), ST)).
-evaluar(ST, VAR, VAL) :- member((VAR, VAL), ST).
+evaluar(ST, VAR, 0) :- VAR > 0, not(member((VAR, _), ST)).
+evaluar(ST, VAR, VAL) :- VAR > 0, member((VAR, VAL), ST).
 
 %% CODIFICACIÓN
 
@@ -178,10 +178,13 @@ instruccion(goto(L,V,E),N) :- N > 2, N2 is N-1, between(1,N2,V), N3 is N-V, betw
 
 %% TESTS
 
-cantidadTestsEvaluar(2). % Actualizar con la cantidad de tests que entreguen
+cantidadTestsEvaluar(3). % Actualizar con la cantidad de tests que entreguen
 testEvaluar(1) :- evaluar([],1,0).
 testEvaluar(2) :- evaluar([(4,0),(2,3)],2,3).
 % Agregar más tests
+% pedir variables con indice negativo falla
+testEvaluar(3) :- not(evaluar([], -1, _)).
+
 
 cantidadTestsCodificacion(2). % Actualizar con la cantidad de tests que entreguen
 testCodificacion(1) :- codificacionLista([],1).
