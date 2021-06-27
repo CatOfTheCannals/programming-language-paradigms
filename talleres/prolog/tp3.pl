@@ -26,7 +26,7 @@ evaluar(ST, VAR, VAL) :- VAR > 0, member((VAR, VAL), ST).
 
 % al menos uno de los parametros DEBE estar instanciado
 % codificacionLista(?L, ?Z)
-codificacionLista(L, Z) :- Z > 0, codificacionListaDesde(L, Z, 1).
+codificacionLista(L, Z) :- codificacionListaDesde(L, Z, 1).
 
 % codificacionLista(?L, ?Z, +I)
 codificacionListaDesde([], 1, _) :- !. /*************************************************** ABUSAMOS DEL CUT???????????????????*************************************************************************************************/
@@ -192,15 +192,14 @@ testEvaluar(2) :- evaluar([(4,0),(2,3)],2,3).
 testEvaluar(3) :- not(evaluar([], -1, _)).
 
 
-cantidadTestsCodificacion(4). % Actualizar con la cantidad de tests que entreguen
+cantidadTestsCodificacion(5). % Actualizar con la cantidad de tests que entreguen
 testCodificacion(1) :- codificacionLista([],1).
 testCodificacion(2) :- codificacionLista([1],2).
 % Agregar más tests
 testCodificacion(3) :- codificacionLista([2],4).
 testCodificacion(4) :- codificacionLista([2,1],12).
-
-% rompe mal pasar un Z no instanciado
-%testCodificacion(5) :- not(codificacionLista([-1,1],_)).
+testCodificacion(5) :- not(codificacionLista([-1,1],_)).
+testCodificacion(6) :- not(codificacionLista([1,-1],_)).
 
 
 cantidadTestsSnapYstp(2). % Actualizar con la cantidad de tests que entreguen
