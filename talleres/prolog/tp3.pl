@@ -24,12 +24,13 @@ evaluar(ST, VAR, VAL) :- VAR > 0, member((VAR, VAL), ST).
 
 %% Codificación de listas
 
+% al menos uno de los parametros DEBE estar instanciado
 % codificacionLista(?L, ?Z)
-codificacionLista(L, Z) :- codificacionListaDesde(L, Z, 1).
+codificacionLista(L, Z) :- Z > 0, codificacionListaDesde(L, Z, 1).
 
 % codificacionLista(?L, ?Z, +I)
 codificacionListaDesde([], 1, _) :- !. /*************************************************** ABUSAMOS DEL CUT???????????????????*************************************************************************************************/
-codificacionListaDesde([X|Xs], Z, I) :- ground([X|Xs]), Im1 is I+1, iesimoPrimo(I, P), codificacionListaDesde(Xs, Rec, Im1), Z is Rec*P**X, !.
+codificacionListaDesde([X|Xs], Z, I) :- ground([X|Xs]), X > 0, Im1 is I+1, iesimoPrimo(I, P), codificacionListaDesde(Xs, Rec, Im1), Z is Rec*P**X, !.
 codificacionListaDesde([X|Xs], Z, I) :- var(X), var(Xs), Im1 is I+1, iesimoPrimo(I, P), maximoExponenteQueDivideA(X,P,Z), Rec is Z/(P**X), codificacionListaDesde(Xs, Rec, Im1), !.
 
 % divide(?A, +B)
@@ -39,6 +40,7 @@ divide(A, B) :- between(1, B, A), between(1, B, X), B is A*X, !.
 esPrimo(P) :- P \= 1, Pm1 is P-1, not((between(2, Pm1, X), divide(X, P))), !.
 
 
+% TODO: testear
 desde(X, X).
 desde(X, Y) :- nonvar(Y), Y > X.
 desde(X, Y) :- var(Y), N is X+1, desde(N, Y).
@@ -49,11 +51,15 @@ iesimoPrimo(1, 2).
 iesimoPrimo(I, P) :- I>1, PREV is I-1, iesimoPrimo(PREV, PREVP), FROM is PREVP+1, desde(FROM, P), esPrimo(P), !.
 
 
+% TODO: testear
+% intervaloDecreciente(+X, ?Y)
 intervaloDecreciente(X, X).
 intervaloDecreciente(X, Y) :- nonvar(Y), Y < X.
 intervaloDecreciente(X, Y) :- var(Y), N is X-1, N>=0, intervaloDecreciente(N, Y).
 
 
+% TODO: testear
+% que X no pueda dar negativo
 % maximoExponenteQueDivideA(-X, +P, +Z)
 maximoExponenteQueDivideA(X, P, Z) :- intervaloDecreciente(Z, X), PX is P**X, divide(PX, Z), !. 
 /*El problema con esto es que si X va instanciado no es posible determinar si efectivamente es el mayor exponente*/
@@ -186,10 +192,16 @@ testEvaluar(2) :- evaluar([(4,0),(2,3)],2,3).
 testEvaluar(3) :- not(evaluar([], -1, _)).
 
 
-cantidadTestsCodificacion(2). % Actualizar con la cantidad de tests que entreguen
+cantidadTestsCodificacion(4). % Actualizar con la cantidad de tests que entreguen
 testCodificacion(1) :- codificacionLista([],1).
 testCodificacion(2) :- codificacionLista([1],2).
 % Agregar más tests
+testCodificacion(3) :- codificacionLista([2],4).
+testCodificacion(4) :- codificacionLista([2,1],12).
+
+% rompe mal pasar un Z no instanciado
+%testCodificacion(5) :- not(codificacionLista([-1,1],_)).
+
 
 cantidadTestsSnapYstp(2). % Actualizar con la cantidad de tests que entreguen
 testSnapYstp(1) :- stp([],[],1).
