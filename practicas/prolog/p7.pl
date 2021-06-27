@@ -493,3 +493,50 @@ root(bin(_,V,_), V).
 aBBInsertar(X, nil, bin(nil,X,nil)).
 aBBInsertar(X, bin(I,V,D), T2) :- X < V, aBBInsertar(X, I, IX), T2 = bin(IX, V, D).
 aBBInsertar(X, bin(I,V,D), T2) :- X >= V, aBBInsertar(X, D, DX), T2 = bin(I, V, DX).
+
+
+% Ejercicio 14
+
+coprimos(X, Y) :- desde2(1, N), between(1, N, X), X \= N, Y is N-X, 1 is gcd(X, Y).
+
+
+% Ejercicio 15
+
+% i)
+
+cuadradoSemiLatino(0, []).
+cuadradoSemiLatino(N, XSS) :- desde2(0, S), matrizSemiLatina(XSS, N, N, S).
+
+matrizSemiLatina([], _, 0, _).
+matrizSemiLatina(XSS, C, F, S) :- F>0, FMU is F-1, matrizSemiLatina(XSSREC, C, FMU, S), listaQueSuma(L, C, S), append(XSSREC, [L], XSS).
+
+listaQueSuma([], 0, 0).
+listaQueSuma(L, C, S) :- C > 0, between(0, S, ELEM), SME is S-ELEM, CMU is C-1, listaQueSuma(LREC, CMU, SME), append(LREC, [ELEM], L).
+
+% ii)
+
+cuadradoMagico(N, XSS) :- cuadradoSemiLatino(N, XSS), sumaFila(XSS, S), esMagico(XSS, N, S).
+
+sumaFila([], 0).
+sumaFila([XS|_], S) :- sum(XS, S).
+
+sum([], 0).
+sum([X|XS], S) :- sum(XS, SUMXS), S is SUMXS + X.
+
+esMagico(XSS, N, S) :- transpose(XSS, XSST), matrizSemiLatina(XSST, N, N, S), !. % PREGUNTA: mejor idea?
+
+% Robado de swipl
+
+transpose([], []).
+transpose([F|Fs], Ts) :-
+    transpose(F, [F|Fs], Ts).
+
+transpose([], _, []).
+transpose([_|Rs], Ms, [Ts|Tss]) :-
+        lists_firsts_rests(Ms, Ts, Ms1),
+        transpose(Rs, Ms1, Tss).
+
+lists_firsts_rests([], [], []).
+lists_firsts_rests([[F|Os]|Rest], [F|Fs], [Os|Oss]) :-
+        lists_firsts_rests(Rest, Fs, Oss).
+
