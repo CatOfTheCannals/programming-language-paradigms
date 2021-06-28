@@ -39,8 +39,7 @@ divide(A, B) :- between(1, B, A), between(1, B, X), B is A*X, !.
 % esPrimo(+P)
 esPrimo(P) :- P \= 1, Pm1 is P-1, not((between(2, Pm1, X), divide(X, P))), !.
 
-
-% TODO: testear
+%desde(+X, ?Y) 
 desde(X, X).
 desde(X, Y) :- nonvar(Y), Y > X.
 desde(X, Y) :- var(Y), N is X+1, desde(N, Y).
@@ -51,15 +50,12 @@ iesimoPrimo(1, 2).
 iesimoPrimo(I, P) :- I>1, PREV is I-1, iesimoPrimo(PREV, PREVP), FROM is PREVP+1, desde(FROM, P), esPrimo(P), !.
 
 
-% TODO: testear
 % intervaloDecreciente(+X, ?Y)
 intervaloDecreciente(X, X).
 intervaloDecreciente(X, Y) :- nonvar(Y), Y < X.
 intervaloDecreciente(X, Y) :- var(Y), N is X-1, N>=0, intervaloDecreciente(N, Y).
 
 
-% TODO: testear
-% que X no pueda dar negativo
 % maximoExponenteQueDivideA(-X, +P, +Z)
 maximoExponenteQueDivideA(X, P, Z) :- intervaloDecreciente(Z, X), PX is P**X, divide(PX, Z), !. 
 /*El problema con esto es que si X va instanciado no es posible determinar si efectivamente es el mayor exponente*/
@@ -192,20 +188,49 @@ testEvaluar(2) :- evaluar([(4,0),(2,3)],2,3).
 testEvaluar(3) :- not(evaluar([], -1, _)).
 
 
-cantidadTestsCodificacion(5). % Actualizar con la cantidad de tests que entreguen
+cantidadTestsCodificacion(17). % Actualizar con la cantidad de tests que entreguen
 testCodificacion(1) :- codificacionLista([],1).
 testCodificacion(2) :- codificacionLista([1],2).
+
 % Agregar más tests
 testCodificacion(3) :- codificacionLista([2],4).
 testCodificacion(4) :- codificacionLista([2,1],12).
 testCodificacion(5) :- not(codificacionLista([-1,1],_)).
 testCodificacion(6) :- not(codificacionLista([1,-1],_)).
 
+% testear "desde"
+testCodificacion(7) :- desde(1,2).
+testCodificacion(8) :- not(desde(2,1)).
 
-cantidadTestsSnapYstp(2). % Actualizar con la cantidad de tests que entreguen
+% testear"iesimoPrimo"
+testCodificacion(9) :- iesimoPrimo(1,X), X = 2.
+testCodificacion(10) :- not(iesimoPrimo(-1,_)).
+testCodificacion(11) :- iesimoPrimo(4,X), X = 7.
+
+% testear"intervaloDecreciente"
+testCodificacion(12) :- intervaloDecreciente(2,1).
+testCodificacion(13) :- intervaloDecreciente(1,X), X = 0.
+testCodificacion(14) :- not(intervaloDecreciente(1,2)).
+
+% testear"maximoExponenteQueDivideA"
+testCodificacion(15) :- maximoExponenteQueDivideA(X, 2, 1), X = 0.
+testCodificacion(16) :- maximoExponenteQueDivideA(X, 2, 5), X = 0.
+testCodificacion(17) :- maximoExponenteQueDivideA(X, 2, 1024), X = 10.
+
+
+cantidadTestsSnapYstp(4). % Actualizar con la cantidad de tests que entreguen
 testSnapYstp(1) :- stp([],[],1).
 testSnapYstp(2) :- snap([10],[suma(0,1)],0,(1,[(2,10)])).
+
 % Agregar más tests
+
+% testear "snap"
+% las distintas instrucciones
+testSnapYstp(3) :- snap([10],[nada(0,1),nada(0,1),nada(0,1)],3,(4,[(2,10)])).
+
+% esto falla!!!
+testSnapYstp(4) :- snap([10],[suma(0,2)],1,(2,[(2,11)])).
+
 
 cantidadTestsHalt(1). % Actualizar con la cantidad de tests que entreguen
 testHalt(1) :- pseudoHalt(1,[suma(0,1)]).
