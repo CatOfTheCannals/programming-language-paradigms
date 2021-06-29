@@ -291,12 +291,12 @@ testSnapYstp(34) :- not(stp(_, _, -1)).
 cantidadTestsHalt(10).
 testHalt(1) :- pseudoHalt(1,[nada(0,1)]).
 testHalt(2) :- between(1, 10, T), pseudoHalt(T, [nada(0,1)]).
-testHalt(3) :- pseudoHalt2(X,[nada(0,1)]), X == 0, !.
-testHalt(4) :- pseudoHalt2(X,[nada(0,1)]), X == 1, !.
-testHalt(5) :- pseudoHalt2(X,[resta(0,1)]), X == 0, !.
-testHalt(6) :- pseudoHalt3(X, P), X == 0, P = [nada(0,1)], !. 
-testHalt(7) :- pseudoHalt3(X, P), X == 2, P = [resta(0,1)], !. 
-testHalt(8) :- pseudoHalt3(X, P), X == 0, P = [nada(0,1), nada(0,1)], !. 
+testHalt(3) :- pseudoHalt2(X,[nada(0,1)]), X = 0, !.
+testHalt(4) :- pseudoHalt2(X,[nada(0,1)]), X = 1, !.
+testHalt(5) :- pseudoHalt2(X,[resta(0,1)]), X = 0, !.
+testHalt(6) :- pseudoHalt3(X, P), X = 0, P = [nada(0,1)], !. 
+testHalt(7) :- pseudoHalt3(X, P), X = 2, P = [resta(0,1)], !. 
+testHalt(8) :- pseudoHalt3(X, P), X = 0, P = [nada(0,1), nada(0,1)], !. 
 % Codificación de pares.
 testHalt(9) :- codificacionDePares((1,0), 1).
 testHalt(10):- desde(0, C), codificacionDePares((2,5), C), !.
