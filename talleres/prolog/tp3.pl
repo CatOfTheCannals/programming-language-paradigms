@@ -37,7 +37,7 @@ codificacionListaDesde([X|Xs], Z, I) :- var(X), var(Xs), Im1 is I+1, iesimoPrimo
 divide(A, B) :- between(1, B, A), between(1, B, X), B is A*X.
 
 % esPrimo(+P)
-esPrimo(P) :- P \= 1, Pm1 is P-1, not((between(2, Pm1, X), divide(X, P))).
+esPrimo(P) :- P > 1, Pm1 is P-1, not((between(2, Pm1, X), divide(X, P))).
 
 %desde(+X, ?Y) 
 desde(X, X).
@@ -174,14 +174,14 @@ instruccion(goto(L,V,E),N) :- N > 2, N2 is N-1, between(1,N2,V), N3 is N-V, betw
 
 %% TESTS
 
-cantidadTestsEvaluar(3). % Actualizar con la cantidad de tests que entreguen
+cantidadTestsEvaluar(3).
 testEvaluar(1) :- evaluar([],1,0).
 testEvaluar(2) :- evaluar([(4,0),(2,3)],2,3).
 % pedir variables con indice negativo falla
 testEvaluar(3) :- not(evaluar([], -1, _)).
 
 
-cantidadTestsCodificacion(17). % Actualizar con la cantidad de tests que entreguen
+cantidadTestsCodificacion(20). 
 testCodificacion(1) :- codificacionLista([],1).
 testCodificacion(2) :- codificacionLista([1],2).
 testCodificacion(3) :- codificacionLista([2],4).
@@ -189,27 +189,32 @@ testCodificacion(4) :- codificacionLista([2,1],12).
 testCodificacion(5) :- not(codificacionLista([-1,1],_)).
 testCodificacion(6) :- not(codificacionLista([1,-1],_)).
 
-% testear "desde"
+% tests "desde"
 testCodificacion(7) :- desde(1,2).
 testCodificacion(8) :- not(desde(2,1)).
 
-% testear"iesimoPrimo"
-testCodificacion(9) :- iesimoPrimo(1,X), X = 2.
-testCodificacion(10) :- not(iesimoPrimo(-1,_)).
-testCodificacion(11) :- iesimoPrimo(4,X), X = 7.
+% tests "esPrimo"
+testCodificacion(9) :- not(esPrimo(-1)).
+testCodificacion(10) :- not(esPrimo(1)).
+testCodificacion(11) :- esPrimo(5).
 
-% testear"intervaloDecreciente"
-testCodificacion(12) :- intervaloDecreciente(2,1).
-testCodificacion(13) :- intervaloDecreciente(1,X), X = 0.
-testCodificacion(14) :- not(intervaloDecreciente(1,2)).
+% tests "iesimoPrimo"
+testCodificacion(12) :- iesimoPrimo(1,X), X = 2.
+testCodificacion(13) :- not(iesimoPrimo(-1,_)).
+testCodificacion(14) :- iesimoPrimo(4,X), X = 7.
 
-% testear"maximoExponenteQueDivideA"
-testCodificacion(15) :- maximoExponenteQueDivideA(X, 2, 1), X = 0.
-testCodificacion(16) :- maximoExponenteQueDivideA(X, 2, 5), X = 0.
-testCodificacion(17) :- maximoExponenteQueDivideA(X, 2, 1024), X = 10.
+% tests "intervaloDecreciente"
+testCodificacion(15) :- intervaloDecreciente(2,1).
+testCodificacion(16) :- intervaloDecreciente(1,X), X = 0.
+testCodificacion(17) :- not(intervaloDecreciente(1,2)).
 
-% testear "snap"
-cantidadTestsSnapYstp(34). % Actualizar con la cantidad de tests que entreguen
+% tests "maximoExponenteQueDivideA"
+testCodificacion(18) :- maximoExponenteQueDivideA(X, 2, 1), X = 0.
+testCodificacion(19) :- maximoExponenteQueDivideA(X, 2, 5), X = 0.
+testCodificacion(20) :- maximoExponenteQueDivideA(X, 2, 1024), X = 10.
+
+% tests "snap"
+cantidadTestsSnapYstp(34). 
 % La lista de valores vacía, instancia un estado vacío.
 testSnapYstp(1) :- instanciarEstado([], _, []).
 % Una lista de valores no vacía, instancia un estado con las tuplas correspondientes.
@@ -234,7 +239,7 @@ testSnapYstp(9) :- actualizarVariable([(1,2)], 1, 1, [(1,1)]).
 % Solamente se modifica la variable indicada
 testSnapYstp(10) :- actualizarVariable([(2,3), (1,2)], 1, 1, [(2,3), (1,1)]).
 
-% testear avanzarIndice(+P, +S, +Ins, +I0, -I)
+% tests avanzarIndice(+P, +S, +Ins, +I0, -I)
 % La instrucción nada, suma y resta avanzan el índice en 1
 testSnapYstp(11) :- avanzarIndice([nada(0,1)], [], nada(0,1), 1, 2).
 testSnapYstp(12) :- avanzarIndice([suma(0,1)], [], suma(0,1), 1, 2).
@@ -244,7 +249,7 @@ testSnapYstp(14) :- avanzarIndice([goto(0,1,1)], [], goto(0,1,1), 1, 2).
 % La instrucción goto modifica el índice si la variable tiene valor distinto de 0
 testSnapYstp(15) :- avanzarIndice([goto(0,1,1), resta(0,1), resta(1,1)], [(1,1)], goto(0,1,1), 1, 3).
 
-% testear avanzarEstado(+Ins, +S0, -S)
+% tests avanzarEstado(+Ins, +S0, -S)
 % La instrucción 'nada' no altera el estado
 testSnapYstp(16) :- avanzarEstado(nada(0,1), [(1,3),(2,5)], [(1,3),(2,5)]).
 % La instrucción 'suma' altera el estado
@@ -283,7 +288,7 @@ testSnapYstp(33) :- not(snap(_, _, -1, _)).
 % Stp no permite cantidad de pasos negativa.
 testSnapYstp(34) :- not(stp(_, _, -1)).
 
-cantidadTestsHalt(10). % Actualizar con la cantidad de tests que entreguen
+cantidadTestsHalt(10).
 testHalt(1) :- pseudoHalt(1,[nada(0,1)]).
 testHalt(2) :- between(1, 10, T), pseudoHalt(T, [nada(0,1)]).
 testHalt(3) :- pseudoHalt2(X,[nada(0,1)]), X == 0, !.
