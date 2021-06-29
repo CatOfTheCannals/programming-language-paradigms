@@ -1,3 +1,6 @@
 dudas en 
 	ex4 - hay forma/estrategia de hacerlo mas sencillo?
-	"regla de resolucion binaria y factorizacion" ??
+	ex11 
+	ex12
+	teorica primer orden - "regla de resolucion binaria y factorizacion" ??
+
