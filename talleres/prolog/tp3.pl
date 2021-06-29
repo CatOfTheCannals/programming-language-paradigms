@@ -26,18 +26,18 @@ evaluar(ST, VAR, VAL) :- VAR > 0, member((VAR, VAL), ST).
 
 % al menos uno de los parametros DEBE estar instanciado
 % codificacionLista(?L, ?Z)
-codificacionLista(L, Z) :- codificacionListaDesde(L, Z, 1).
+codificacionLista(L, Z) :- codificacionListaDesde(L, Z, 1), !.
 
 % codificacionLista(?L, ?Z, +I)
-codificacionListaDesde([], 1, _) :- !. /*************************************************** ABUSAMOS DEL CUT???????????????????*************************************************************************************************/
-codificacionListaDesde([X|Xs], Z, I) :- ground([X|Xs]), X > 0, Im1 is I+1, iesimoPrimo(I, P), codificacionListaDesde(Xs, Rec, Im1), Z is Rec*P**X, !.
-codificacionListaDesde([X|Xs], Z, I) :- var(X), var(Xs), Im1 is I+1, iesimoPrimo(I, P), maximoExponenteQueDivideA(X,P,Z), Rec is Z/(P**X), codificacionListaDesde(Xs, Rec, Im1), !.
+codificacionListaDesde([], 1, _).
+codificacionListaDesde([X|Xs], Z, I) :- ground([X|Xs]), X > 0, Im1 is I+1, iesimoPrimo(I, P), codificacionListaDesde(Xs, Rec, Im1), Z is Rec*P**X.
+codificacionListaDesde([X|Xs], Z, I) :- var(X), var(Xs), Im1 is I+1, iesimoPrimo(I, P), maximoExponenteQueDivideA(X,P,Z), Rec is Z/(P**X), codificacionListaDesde(Xs, Rec, Im1).
 
 % divide(?A, +B)
-divide(A, B) :- between(1, B, A), between(1, B, X), B is A*X, !.
+divide(A, B) :- between(1, B, A), between(1, B, X), B is A*X.
 
 % esPrimo(+P)
-esPrimo(P) :- P \= 1, Pm1 is P-1, not((between(2, Pm1, X), divide(X, P))), !.
+esPrimo(P) :- P \= 1, Pm1 is P-1, not((between(2, Pm1, X), divide(X, P))).
 
 %desde(+X, ?Y) 
 desde(X, X).
@@ -58,7 +58,6 @@ intervaloDecreciente(X, Y) :- var(Y), N is X-1, N>=0, intervaloDecreciente(N, Y)
 
 % maximoExponenteQueDivideA(-X, +P, +Z)
 maximoExponenteQueDivideA(X, P, Z) :- intervaloDecreciente(Z, X), PX is P**X, divide(PX, Z), !. 
-/*El problema con esto es que si X va instanciado no es posible determinar si efectivamente es el mayor exponente*/
 
 %% OBSERVADORES
 
@@ -104,15 +103,16 @@ iEsimaInstruccion(E, Indice, Instruccion) :- is_list(E), iesimo(E, Indice, Instr
 %  (i,s)
 
 instanciarEstado([], _, []).
-instanciarEstado([VAL|VALS], VAR, [(VAR, VAL)|STS]) :- NEXT is VAR+1, instanciarEstado(VALS, NEXT, STS).
+instanciarEstado([0|VALS], VAR, STS) :- NEXT is VAR+1, instanciarEstado(VALS, NEXT, STS).
+instanciarEstado([VAL|VALS], VAR, [(VAR, VAL)|STS]) :- VAL \= 0, NEXT is VAR+1, instanciarEstado(VALS, NEXT, STS).
 
 indiceParaEtiqueta(P, E, I) :- existeIndice(P, E, I), !.
 indiceParaEtiqueta(P, E, I) :- not(existeIndice(P, E, _)), length(P, LEN), I is LEN+1.
 
 existeIndice(P, E, I) :- nth1(I, P, INS), etiquetaInstruccion(INS, E).
 
-avanzarIndice(_, _, INS, IO, I) :- codigoInstruccion(INS, CODE), CODE =< 2, I is IO+1.
-avanzarIndice(_, S, goto(_, V, _), IO, I) :- evaluar(S, V, 0), I is IO+1.
+avanzarIndice(_, _, INS, IO, I) :- INS \= goto(_,_,_), I is IO+1, !.
+avanzarIndice(_, S, goto(_, V, _), IO, I) :- evaluar(S, V, 0), I is IO+1, !.
 avanzarIndice(P, S, goto(_, V, E), _, I) :- not(evaluar(S, V, 0)), indiceParaEtiqueta(P, E, I).
 
 avanzarEstado(nada(_, _), SO, SO).
@@ -124,44 +124,38 @@ actualizarEstado(SO, suma(_, VAR), S) :- evaluar(SO, VAR, VAL), NEWVAL is VAL+1,
 actualizarEstado(SO, resta(_, VAR), S) :- evaluar(SO, VAR, VAL), VAL > 1, NEWVAL is VAL-1, actualizarVariable(SO, VAR, NEWVAL, S). 
 actualizarEstado(SO, resta(_, VAR), S) :- evaluar(SO, VAR, VAL), 1 >= VAL, delete(SO, (VAR,_), S).
 
-actualizarVariable(SO, VAR, NEWVAL, S) :- delete(SO, (VAR,_), DSO), append(DSO, (VAR, NEWVAL), S).
+actualizarVariable(SO, VAR, NEWVAL, S) :- delete(SO, (VAR,_), DSO), append(DSO, [(VAR, NEWVAL)], S).
 
 prevSnap(XS, P, T, (PREVI, PREVS)) :- T > 0, PREV is T-1, snap(XS, P, PREV, (PREVI, PREVS)).
 
 % snap(+Xs, +P, +T, -Di)
 % Instancia en el cuarto argumento la descripción instantánea resultante de
 % ejecutar el programa P con entradas Xs tras T pasos.
-/* 
-    XS: lista de enteros con los valores de entrada de las variables
-    P: lista de instrucciones que representa el programa
-    T: numero de pasos a ejecutar
-
-    snap = (INDICE DE LA PRÓXIMA INSTRUCCIÓN, ESTADO)
-*/
-
 snap(XS, _, 0, (1, S)) :- instanciarEstado(XS, 2, S), !. 
-snap(XS, P, T, (I, S)) :- prevSnap(XS, P, T, (PREVI, PREVS)), iEsimaInstruccion(P, PREVI, IESIMA), avanzarIndice(P, PREVS, IESIMA, PREVI, I), avanzarEstado(IESIMA, PREVS, S), !.                                         
-snap(XS, P, T, (I, S)) :- prevSnap(XS, P, T, (PREVI, S)), length(P, LEN), PREVI > LEN, I is LEN+1.
+snap(XS, P, T, (I, S)) :- T>0, prevSnap(XS, P, T, (PREVI, PREVS)), iEsimaInstruccion(P, PREVI, IESIMA), avanzarIndice(P, PREVS, IESIMA, PREVI, I), avanzarEstado(IESIMA, PREVS, S), !.                                         
+snap(XS, P, T, (I, S)) :- T>0, prevSnap(XS, P, T, (PREVI, S)), length(P, LEN), PREVI > LEN, I is LEN+1.
 
 % stp(+Xs, +P, +T)
 % Indica si el programa P con entradas Xs termina tras T pasos.
 % Se dice que un programa terminó cuando la próxima instrucción a ejecutar es
 % 1 más que la longitud del programa.
-stp(XS, P, T) :- snap(XS, P, T, (I, _)), length(P, LEN), I is LEN+1.
+stp(XS, P, T) :- T >= 0, snap(XS, P, T, (I, _)), length(P, LEN), I is LEN+1.
 
 %% Pseudo-Halt
 
 % pseudoHalt(+X, +Y)
-pseudoHalt(X, P) :- desde(0, 1), stp([X], P, 1), !.
+pseudoHalt(X, P) :- desde(0, T), stp([X], P, T), !.
 
 % Buscar entradas para las cuales el programa Y termina
 % pseudoHalt2(-X, +Y)
-pseudoHalt2(X, P) :- desde(0, C), codificacionDePares((X, T), C), stp([X], P, T).
+pseudoHalt2(X, P) :- desde(0, C), codificacionDePares((X, T), C), TM is T-1, not(stp([X], P, TM)), stp([X], P, T).
 
-codificacionDePares((X,Y), Z) :- ZPLUS is Z+1, maximoExponenteQueDivideA(X, 2, ZPLUS), DX is 2**X, Y is (-1 + ZPLUS/DX)/2. 
+% codificacionDePares(?X, +Z)
+% Instancia el par correspondiente a la codificación Z.
+codificacionDePares((X,Y), Z) :- ZPLUS is Z+1, maximoExponenteQueDivideA(X, 2, ZPLUS), DX is 2**X, Y is (-1 + ZPLUS/DX)/2, !. 
 
 % Buscar pares programa-entrada que terminen
-% pseudoHalt3(-X, -Y)                                       
+% pseudoHalt3(-X, -Y)  
 pseudoHalt3(X, P) :- desde(1, C), codificacionLista(L, C), L=[X, T, CP], programa(P, CP), TM is T-1, not(stp([X], P, TM)), stp([X], P, T).
 
 % programa(-P, +N)
@@ -183,7 +177,6 @@ instruccion(goto(L,V,E),N) :- N > 2, N2 is N-1, between(1,N2,V), N3 is N-V, betw
 cantidadTestsEvaluar(3). % Actualizar con la cantidad de tests que entreguen
 testEvaluar(1) :- evaluar([],1,0).
 testEvaluar(2) :- evaluar([(4,0),(2,3)],2,3).
-% Agregar más tests
 % pedir variables con indice negativo falla
 testEvaluar(3) :- not(evaluar([], -1, _)).
 
@@ -191,8 +184,6 @@ testEvaluar(3) :- not(evaluar([], -1, _)).
 cantidadTestsCodificacion(17). % Actualizar con la cantidad de tests que entreguen
 testCodificacion(1) :- codificacionLista([],1).
 testCodificacion(2) :- codificacionLista([1],2).
-
-% Agregar más tests
 testCodificacion(3) :- codificacionLista([2],4).
 testCodificacion(4) :- codificacionLista([2,1],12).
 testCodificacion(5) :- not(codificacionLista([-1,1],_)).
@@ -217,24 +208,94 @@ testCodificacion(15) :- maximoExponenteQueDivideA(X, 2, 1), X = 0.
 testCodificacion(16) :- maximoExponenteQueDivideA(X, 2, 5), X = 0.
 testCodificacion(17) :- maximoExponenteQueDivideA(X, 2, 1024), X = 10.
 
-
-cantidadTestsSnapYstp(4). % Actualizar con la cantidad de tests que entreguen
-testSnapYstp(1) :- stp([],[],1).
-testSnapYstp(2) :- snap([10],[suma(0,1)],0,(1,[(2,10)])).
-
-% Agregar más tests
-
 % testear "snap"
+cantidadTestsSnapYstp(34). % Actualizar con la cantidad de tests que entreguen
+% La lista de valores vacía, instancia un estado vacío.
+testSnapYstp(1) :- instanciarEstado([], _, []).
+% Una lista de valores no vacía, instancia un estado con las tuplas correspondientes.
+testSnapYstp(2) :- instanciarEstado([1, -4], 2, [(2, 1), (3, -4)]).
+
+% El índice de una etiqueta que no se encuentra en el programa es igual a su longitud mas 1.
+testSnapYstp(3) :- indiceParaEtiqueta([], 5, 1).
+% El índice obtenido es el de la etiqueta indicada
+testSnapYstp(4) :- indiceParaEtiqueta([nada(5,_)], 5, 1).
+
+% El programa vacío no contiene etiquetas.
+testSnapYstp(5) :- not(existeIndice([], _, _)).
+% Si la etiqueta existe, se instancia correctamente su índice
+testSnapYstp(6) :- existeIndice([nada(5,_)], 5, 1).
+% El predicado falla si la etiqueta no existe
+testSnapYstp(7) :- not(existeIndice([nada(4,_)], 5, _)).
+
+% Es posible actualizar una variable cuyo valore no aparece explícito en el estado
+testSnapYstp(8) :- actualizarVariable([], 1, 1, [(1,1)]).
+% Una variable presente en el estado, se actualiza correctamente
+testSnapYstp(9) :- actualizarVariable([(1,2)], 1, 1, [(1,1)]).
+% Solamente se modifica la variable indicada
+testSnapYstp(10) :- actualizarVariable([(2,3), (1,2)], 1, 1, [(2,3), (1,1)]).
+
+% testear avanzarIndice(+P, +S, +Ins, +I0, -I)
+% La instrucción nada, suma y resta avanzan el índice en 1
+testSnapYstp(11) :- avanzarIndice([nada(0,1)], [], nada(0,1), 1, 2).
+testSnapYstp(12) :- avanzarIndice([suma(0,1)], [], suma(0,1), 1, 2).
+testSnapYstp(13) :- avanzarIndice([resta(0,1)], [], resta(0,1), 1, 2).
+% La instrucción goto avanza el índice en 1 si la variable tiene valor igual a 0
+testSnapYstp(14) :- avanzarIndice([goto(0,1,1)], [], goto(0,1,1), 1, 2).
+% La instrucción goto modifica el índice si la variable tiene valor distinto de 0
+testSnapYstp(15) :- avanzarIndice([goto(0,1,1), resta(0,1), resta(1,1)], [(1,1)], goto(0,1,1), 1, 3).
+
+% testear avanzarEstado(+Ins, +S0, -S)
+% La instrucción 'nada' no altera el estado
+testSnapYstp(16) :- avanzarEstado(nada(0,1), [(1,3),(2,5)], [(1,3),(2,5)]).
+% La instrucción 'suma' altera el estado
+testSnapYstp(17) :- avanzarEstado(suma(0,1), [(1,3),(2,5)], [(2,5),(1,4)]).
+% La instrucción 'resta' altera el estado
+testSnapYstp(18) :- avanzarEstado(resta(0,1), [(1,3),(2,5)], [(2,5),(1,2)]).
+% La instrucción 'GOTO' no altera el estado
+testSnapYstp(19) :- avanzarEstado(goto(0,1,0), [(1,3),(2,5)], [(1,3),(2,5)]).
+testSnapYstp(20) :- avanzarEstado(goto(0,1,0), [(1,0),(2,5)], [(1,0),(2,5)]).
+
 % las distintas instrucciones
-testSnapYstp(3) :- snap([10],[nada(0,1),nada(0,1),nada(0,1)],3,(4,[(2,10)])).
+% snap\4 es snap(+Xs, +P, +T, -Di)
+testSnapYstp(21) :- snap([10],[nada(0,2)],1,(2,[(2,10)])).
+testSnapYstp(22) :- snap([10],[suma(0,2)],1,(2,[(2,11)])).
+testSnapYstp(23) :- snap([10],[resta(0,2)],1,(2,[(2,9)])).
+testSnapYstp(24) :- snap([10],[goto(0,2,0)],1,(1,[(2,10)])).
+testSnapYstp(25) :- snap([],[goto(0,2,0)],1,(2,[])).
+% Snap funciona correctamente con 0 pasos.
+testSnapYstp(26) :- snap([10],[suma(0,2)],0,(1,[(2,10)])).
+% Snap funciona correctamente con 1 o más pasos.
+testSnapYstp(27) :- snap([10,13],[nada(0,3),suma(1,2),resta(2,4)],3,(4,[(3,13), (2,11)])).
 
-% esto falla!!!
-testSnapYstp(4) :- snap([10],[suma(0,2)],1,(2,[(2,11)])).
+% tests para stp(+Xs, +P, +T)
+% Stp funciona correctamente para programas que terminan en cero pasos.
+testSnapYstp(28) :- stp([],[],0).
+% Stp funciona correctamente para programas que terminan en uno o más pasos.
+testSnapYstp(29) :- stp([1], [nada(0,2)], 1).
+testSnapYstp(30) :- stp([1], [nada(0,2), nada(1,2)], 2).
+% Stp falla si se instancian menos pasos que los necesarios para culminar la ejecución.
+testSnapYstp(31) :- not(stp([1], [nada(0,2)], 0)).
+% Stp permite instanciar una cantidad de pasos mayor a la necesaria para culminar la ejecución. 
+testSnapYstp(32) :- stp([1], [nada(0,2)], 10).
 
+% Snap no permite cantidad de pasos negativa.
+testSnapYstp(33) :- not(snap(_, _, -1, _)).
+% Stp no permite cantidad de pasos negativa.
+testSnapYstp(34) :- not(stp(_, _, -1)).
 
-cantidadTestsHalt(1). % Actualizar con la cantidad de tests que entreguen
-testHalt(1) :- pseudoHalt(1,[suma(0,1)]).
-% Agregar más tests
+cantidadTestsHalt(10). % Actualizar con la cantidad de tests que entreguen
+testHalt(1) :- pseudoHalt(1,[nada(0,1)]).
+testHalt(2) :- between(1, 10, T), pseudoHalt(T, [nada(0,1)]).
+testHalt(3) :- pseudoHalt2(X,[nada(0,1)]), X == 0, !.
+testHalt(4) :- pseudoHalt2(X,[nada(0,1)]), X == 1, !.
+testHalt(5) :- pseudoHalt2(X,[resta(0,1)]), X == 0, !.
+testHalt(6) :- pseudoHalt3(X, P), X == 0, P = [nada(0,1)], !. 
+testHalt(7) :- pseudoHalt3(X, P), X == 2, P = [resta(0,1)], !. 
+testHalt(8) :- pseudoHalt3(X, P), X == 0, P = [nada(0,1), nada(0,1)], !. 
+% Codificación de pares.
+testHalt(9) :- codificacionDePares((1,0), 1).
+testHalt(10):- desde(0, C), codificacionDePares((2,5), C), !.
+
 
 tests(evaluar) :- cantidadTestsEvaluar(M), forall(between(1,M,N), testEvaluar(N)).
 tests(codificacion) :- cantidadTestsCodificacion(M), forall(between(1,M,N), testCodificacion(N)).
