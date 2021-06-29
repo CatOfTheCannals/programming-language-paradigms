@@ -83,6 +83,7 @@ Agencia = function(programaDeEntrenamiento, selectorDeId, selectorDeTotal){
     agente[selectorDeId] = this.programaDeEntrenamiento.prototype[selectorDeTotal];
     agente.dejarDeEspiar = function() {
       Object.setPrototypeOf(this, programaDeEntrenamiento.prototype);
+      programaDeEntrenamiento.bind(agente)();
     };
   };
   
@@ -394,6 +395,17 @@ function testEjercicio5(res) {
   let otroAgenteE = nuevoAgente(equilibrio);
   let total_intacto = otroAgenteE.nE === 2;
   res.write("Cuando un agente deja de espiar el número de agentes de la agencia espiada" + si_o_no(total_intacto) + "mantiene el valor correcto", total_intacto);
+
+  let balance = new Agencia(function(){this.agencia = "Balance"}, "idB", "nB");
+  let zen = new Agencia(function(){this.agencia = "Zen"}, "idZ", "nZ");
+
+  let agenteB = nuevoAgente(balance);
+  agenteB.espiar(zen);
+  let agenteB_responde_agencia_con_zen = "Zen" === agenteB.agencia;
+  res.write("El espía de Balance" + si_o_no(agenteB_responde_agencia_con_zen) + "sabe responder agencia como un agente de Zen", agenteB_responde_agencia_con_zen);
+  agenteB.dejarDeEspiar();
+  let agenteB_responde_agencia_con_balance = "Balance" === agenteB.agencia;
+  res.write("El espía de Balance" + si_o_no(agenteB_responde_agencia_con_balance) + "responde agencia como un agente de Balance luego de dejar de espiar", agenteB_responde_agencia_con_balance);
 
 }
 
