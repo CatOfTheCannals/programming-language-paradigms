@@ -27,6 +27,8 @@ renombrar variables para evitar colisiones
 extraer cuantificadores # DUDA: se puede hacer en un solo paso asi??
 ∃x.∀y.∃z.∀w.(R(x, y) ^ ¬R(w, z))
 
+
+
 pasar a FNS:
 
 remuevo ∃x
@@ -135,7 +137,7 @@ resolucion
 1. {¬P(y)}
 2. {¬P(f(y))} # DUDA: aca el hecho de que ambos esten negados es un problema correcto?
 
-
+	
 
 
 

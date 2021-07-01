@@ -13,18 +13,23 @@ se quiere ver que se puede demostrar Espia(jefeGob)
 escribimos
 (Pago(smullyan) ^ ¬Pago(smullyan)) => Espia(jefeGob)
 
+negamos
+¬((Pago(smullyan) ^ ¬Pago(smullyan)) => Espia(jefeGob))
+
 eliminamos implicacion
-¬(Pago(smullyan) ^ ¬Pago(smullyan)) v Espia(jefeGob)
+¬(¬(Pago(smullyan) ^ ¬Pago(smullyan)) v Espia(jefeGob))
 
 de morgan
-(¬Pago(smullyan) v Pago(smullyan) v Espia(jefeGob)
+(Pago(smullyan) ^ ¬Pago(smullyan)) ^ ¬Espia(jefeGob)
 
-pasamos a FC
-{¬Pago(smullyan), Pago(smullyan), Espia(jefeGob)}
+forma clausal:
+1. {Pago(smullyan)}
+2. {¬Pago(smullyan)}
+3. {¬Espia(jefeGob)}
 
-# DUDA: como hago un paso de unificacion si no hay conjunciones??
-
-
+resolucion
+tomamos 1 y 2
+se obtiene un resolvente vacio, con lo cual logramos mandar en cana al jefe de gobierno
 
 
 

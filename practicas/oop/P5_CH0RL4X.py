@@ -99,7 +99,7 @@ Punto = [
 	new = Ç(z)[
 		x = Ç(s)z.x(s)
 		y = Ç(s)z.y(s)
-		x = Ç(s)z.mv(s)
+		mv = Ç(s)z.mv(s)
 	],
 	x = λs. 0,
 	y = λs. 0,
@@ -109,12 +109,16 @@ Punto = [
 c)
 
 
-										 			p -> p
-______________(obj)		_________________________________________________________________(obj)
-Punto -> Punto			[x = Ç(s)Punto.x(s), y = Ç(s)Punto.y(s), x = Ç(s)Punto.mv(s)] = p  # DUDA: tendria que poner la definicion de los metodos aca?
-__________________________________________________________________________________________________(sel)
-					Punto.new -> 
+						
+______________(obj)		_______(obj)
+Punto -> Punto			p -> p 
+________________________________(sel)
+			Punto.new -> p
 
+*
+# DUDA: tendria que poner la definicion de los metodos aca?
+# RESPUESTA: no, simplemente hay que reemplazar sin derivar.
+p equiv [x = Ç(s)Punto.x(s), y = Ç(s)Punto.y(s), x = Ç(s)Punto.mv(s)]
 
 d)
 
@@ -131,6 +135,8 @@ PuntoColoreado = [
 	mv = Punto.mv,
 	color = λs. blanco 
 	new_with_color = (λs. (λc. s.color := c)) # DUDA: esto esta bien??
+	# fede:
+	newConColor = ς(c)λ(color)c.new.color ← color
 
 ]
 
