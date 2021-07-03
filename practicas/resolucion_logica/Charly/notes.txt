@@ -1,6 +1,5 @@
 dudas en 
-	ex4 - hay forma/estrategia de hacerlo mas sencillo?
-	ex11 
-	ex12
 	teorica primer orden - "regla de resolucion binaria y factorizacion" ??
 
+pendientes
+	ex12 - completar

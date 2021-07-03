@@ -7,6 +7,16 @@ y los hechos reales
 a ^ ¬l
 
 
+¬p v a
+p v c
+¬a v ¬c
+a
+¬l
+
+¬((p ^ ¬l) v (¬p ^ l))
+¬(p ^ ¬l) ^ ¬(¬p ^ l)
+(¬p v l) ^ (p v ¬l)
+
 nuestro objetivo es demostrar que el pronostico se equivoco a partir de las reglas y los hechos
 ((p ⊃ a) ^ (¬p ⊃ c) ^ ¬(a ^ c) ^ a ^ ¬l) ⊃ ((p ^ ¬l) v (¬p ^ l))
 
@@ -20,6 +30,8 @@ a partir e aca vamos a llevar la formula negada a su FNC
 
 de morgan
 ((¬p v a) ^ (p v c) ^ ¬(a ^ c) ^ a ^ ¬l) ^ ¬((p ^ ¬l) v (¬p ^ l))
+
+PELIGRO:este paso inventa negaciones que rompen!!!
 
 de morgan
 (¬(¬p v a) v ¬(p v c) v (a ^ c) v ¬a v l) ^ (¬(p ^ ¬l) ^ ¬(¬p ^ l))
