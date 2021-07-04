@@ -127,16 +127,14 @@ PuntoColoreado = [
 	new = Ç(z)[
 		x = Ç(s)z.x(s)
 		y = Ç(s)z.y(s)
-		x = Ç(s)z.mv(s)
+		mv = Ç(s)z.mv(s)
 		color = Ç(s)z.color(s)
 	],
 	x = Punto.x,
 	y = Punto.y,
 	mv = Punto.mv,
-	color = λs. blanco 
-	new_with_color = (λs. (λc. s.color := c)) # DUDA: esto esta bien??
-	# fede:
-	newConColor = ς(c)λ(color)c.new.color ← color
+	color = λs.blanco,
+	new_with_color = ς(z)λ(color)z.new.color ← color
 
 ]
 

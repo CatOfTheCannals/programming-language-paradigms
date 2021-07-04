@@ -42,7 +42,9 @@ pasar a FC:
 {R(a, y)}, {¬R(w, f(y))}
 
 unificar
-{R(a, y) = R(w, f(y))} = {a/w, muerte y destruccion} falla por occur check
+{R(a, y1) = R(w, f(y2))} = {a/w, f(y2)/y1}
+
+se obtiene la clausula vacia
 
 ii)
 
@@ -87,11 +89,11 @@ pasar a FC
 distribuir cuantificadores
 ∀x.∀z.R(x, f(x)) ^ ∀x.∀z.¬R(g(x,z), z)
 
-{R(x, f(x))}, {¬R(g(x,z), z)}
+{R(x1, f(x1))}, {¬R(g(x2,z), z)}
 
 unificar
 
-{R(x, f(x)) = R(g(x,z), z)} falla por occur check
+{R(x1, f(x1)) = R(g(x2,z), z)} {f(x1)/z, g(x2,f(x1))/x1} falla por occur check
 
 
 iii)
