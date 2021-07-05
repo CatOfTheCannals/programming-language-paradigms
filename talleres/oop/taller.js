@@ -84,11 +84,13 @@ Agencia = function(programaDeEntrenamiento, selectorDeId, selectorDeTotal){
     agente.dejarDeEspiar = function() {
       Object.setPrototypeOf(this, programaDeEntrenamiento.prototype);
       programaDeEntrenamiento.bind(agente)();
+      // No es necesario eliminar los mensajes particulares de la agencia espiada, obtenidos al pasar por su programa de entrenamiento
+      // ya que es información obtenida por el agente
     };
   };
   
-  // Los mensajes espiar y dejarDeEspiar se agregan a this.programaDeEntrenamiento.prototype para que todos los agentes, 
-  // independientemente de la agencia a la que pertenezcan, sepan responderlos.
+  // El mensaje espiar se agrega a this.programaDeEntrenamiento.prototype para que todos los agentes, 
+  // independientemente de la agencia a la que pertenezcan, sepan responderlo.
   this.programaDeEntrenamiento.prototype.espiar = function(otraAgencia){
     
     // Guarda los valores originales si no estuvieran definidos ya (es decir, si el agente nunca hubiera espiado).
