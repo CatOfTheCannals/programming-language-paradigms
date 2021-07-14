@@ -242,7 +242,7 @@ function testEjercicio3(res) {
   res.write(`El agente entrenado ${si_o_no(agente_entrenado_sabe_responder_idF)} sabe responder idF`, !agente_entrenado_sabe_responder_idF);
   
   let entrenar_no_modifica_nF  = agente.nF === 0;
-  res.write(`Entrenar un agente ${si_o_no(entrenar_no_modifica_nF)} no modifica el número de agentes`, entrenar_no_modifica_nF);
+  res.write(`Entrenar un agente ${si_o_no(entrenar_no_modifica_nF)} no modifica el número de agentes de la agencia`, entrenar_no_modifica_nF);
 }
 
 // Test Ejercicio 4
