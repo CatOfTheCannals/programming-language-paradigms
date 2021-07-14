@@ -93,13 +93,19 @@ Agencia = function(programaDeEntrenamiento, selectorDeId, selectorDeTotal){
   // independientemente de la agencia a la que pertenezcan, sepan responderlo.
   this.programaDeEntrenamiento.prototype.espiar = function(otraAgencia){
   
-    //Pasa por el programa de entrenamiento
-    otraAgencia.programaDeEntrenamiento.bind(this)();
-    // Modifica el prototipo. 
     // Esto hace que sea identificado como un agente de la otra agencia y pueda responder el total de agentes que hay ahí.
-    Object.setPrototypeOf(this, otraAgencia.programaDeEntrenamiento.prototype);
+    // También pasa por su programa de entrenamiento y obtiene información sobre la agencia.
+    entrenarAgente(this, otraAgencia);
     otraAgencia.sumarAgente();
   };
+};
+
+entrenarAgente = function(agente, agencia){
+  // Asocia el parámetro this de la función agencia.programaDeEntrenamiento, con el agente 
+  // y ejecuta la función obtenida para hacer pasar al agente por el programa de entrenamiento de la agencia.
+  agencia.programaDeEntrenamiento.bind(agente)();
+  // Establece el prototipo del agente como el de todos los agentes creados con la función agencia.programaDeEntrenamiento.
+  Object.setPrototypeOf(agente, agencia.programaDeEntrenamiento.prototype);
 };
 
 control = new Agencia(AgenteDeControl, "idC", "nC");
@@ -114,14 +120,8 @@ nuevoAgente = function(agencia){
   return agente;
 };
 enrolar = function(agente, agencia){
-  
-  // Asocia el parámetro this de la función agencia.programaDeEntrenamiento, con el agente 
-  // y ejecuta la función obtenida para hacer pasar al agente por el programa de entrenamiento de la agencia.
-  agencia.programaDeEntrenamiento.bind(agente)();
-
-  // Establece el prototipo del agente como el de todos los agentes creados con la función agencia.programaDeEntrenamiento.
-  Object.setPrototypeOf(agente, agencia.programaDeEntrenamiento.prototype);
-  
+  // El agente pasa por el programa de entrenamiento de la agencia y adopta el prototipo de todos los agentes.
+  entrenarAgente(agente, agencia);
   // Indica que se agregó un nuevo agente.
   agencia.agenteAgregado(agente);
 };
@@ -230,6 +230,19 @@ function testEjercicio3(res) {
   agenciaRegistraEnrolamiento = agentes == 1;
   res.write(`El agente enrolado ${si_o_no(agenciaRegistraEnrolamiento)} pasó por el programa de entrenamiento`, agenciaRegistraEnrolamiento);
 
+  let fbi = new Agencia(function(){this.agencia = "FBI"}, "idF", "nF");
+  let agente = {}
+
+  entrenarAgente(agente, fbi);
+
+  let agente_entrenado_sabe_responder_nF = "nF" in agente;
+  res.write(`El agente entrenado ${si_o_no(agente_entrenado_sabe_responder_nF)} sabe responder nF`, agente_entrenado_sabe_responder_nF);
+
+  let agente_entrenado_sabe_responder_idF = "idF" in agente;
+  res.write(`El agente entrenado ${si_o_no(agente_entrenado_sabe_responder_idF)} sabe responder idF`, !agente_entrenado_sabe_responder_idF);
+  
+  let entrenar_no_modifica_nF  = agente.nF === 0;
+  res.write(`Entrenar un agente ${si_o_no(entrenar_no_modifica_nF)} no modifica el número de agentes`, entrenar_no_modifica_nF);
 }
 
 // Test Ejercicio 4
@@ -444,5 +457,4 @@ function testEjercicio6(res) {
 
   let C_responde_nC = agenteC.nC == 1;
   res.write("El agente especial de Control" + si_o_no(C_responde_nC) + "sabe responder nC correctamente", C_responde_nC);
-  console.log(agenteC.nC);
 }
