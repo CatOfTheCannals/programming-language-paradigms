@@ -83,9 +83,9 @@ Agencia = function(programaDeEntrenamiento, selectorDeId, selectorDeTotal){
     agente[selectorDeId] = this.programaDeEntrenamiento.prototype[selectorDeTotal];
     agente.dejarDeEspiar = function() {
       Object.setPrototypeOf(this, programaDeEntrenamiento.prototype);
-      programaDeEntrenamiento.bind(agente)();
       // No es necesario eliminar los mensajes particulares de la agencia espiada (obtenidos al pasar por su programa de entrenamiento)
-      // ya que es información obtenida por el agente
+      // Tampoco hay que hacer pasar al agente por el programa de entrenamiento nuevamente
+      // En ambos casos se trata información obtenida por el agente al espiar a la otra agencia y debe mantenerla
     };
   };
   
@@ -395,7 +395,7 @@ function testEjercicio5(res) {
   
   agenteB.dejarDeEspiar();
   let agenteB_responde_agencia_con_balance = "Balance" === agenteB.agencia;
-  res.write("El espía de Balance" + si_o_no(agenteB_responde_agencia_con_balance) + "responde agencia como un agente de Balance luego de dejar de espiar", agenteB_responde_agencia_con_balance);
+  res.write("El espía de Balance" + si_o_no(agenteB_responde_agencia_con_balance) + "vuelve a pasar por el programa de entrenamiento original", !agenteB_responde_agencia_con_balance);
   
   let agenteB_responde_enemigo_con_balance = "Balance" === agenteB.enemigo;
   res.write("El espía de Balance" + si_o_no(agenteB_responde_enemigo_con_balance) + "recuerda los datos obtenidos al espiar la agencia Zen", agenteB_responde_enemigo_con_balance);
