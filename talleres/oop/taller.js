@@ -95,7 +95,8 @@ Agencia = function(programaDeEntrenamiento, selectorDeId, selectorDeTotal){
   
     //Pasa por el programa de entrenamiento
     otraAgencia.programaDeEntrenamiento.bind(this)();
-    // Modifica el prototipo. Esto hace que sea identificado como un agente de la otra agencia y pueda responder el total de agentes que hay ahí.
+    // Modifica el prototipo. 
+    // Esto hace que sea identificado como un agente de la otra agencia y pueda responder el total de agentes que hay ahí.
     Object.setPrototypeOf(this, otraAgencia.programaDeEntrenamiento.prototype);
     otraAgencia.sumarAgente();
   };
@@ -127,7 +128,7 @@ enrolar = function(agente, agencia){
 
 agenteEspecial = function(agencia, habilidad){ 
   //Enrolamos al agente nuevo
-  enrolar(this, agencia);                                     //PREGUNTA: alcanza con esto para que sea constructora?
+  enrolar(this, agencia);                 
   // Hace que el agente sepa responder al mensaje habilidad.
   this[habilidad.name] = habilidad;
 };
